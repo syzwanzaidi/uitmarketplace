@@ -135,8 +135,13 @@
               </button>
               <div class="dropdown-menu">
                 <div class="dropdown-header">
-                  <h6>Welcome to <span class="sitename">FashionStore</span></h6>
-                  <p class="mb-0">Access account &amp; manage orders</p>
+                  @auth
+                    <h6>Hi, {{ Auth::user()->name }}</h6>
+                    <p class="mb-0">Manage your account</p>
+                  @else
+                    <h6>Welcome to <span class="sitename">FashionStore</span></h6>
+                    <p class="mb-0">Access account &amp; manage orders</p>
+                  @endauth
                 </div>
                 <div class="dropdown-body">
                   <a class="dropdown-item d-flex align-items-center" href="account.html">
@@ -157,8 +162,15 @@
                   </a>
                 </div>
                 <div class="dropdown-footer">
-                  <a href="register.html" class="btn btn-primary w-100 mb-2">Sign In</a>
-                  <a href="login.html" class="btn btn-outline-primary w-100">Register</a>
+                  @auth
+                    <form method="POST" action="{{ route('logout') }}">
+                      @csrf
+                      <button type="submit" class="btn btn-outline-danger w-100">Logout</button>
+                    </form>
+                  @else
+                    <a href="{{ route('login') }}" class="btn btn-primary w-100 mb-2">Sign In</a>
+                    <a href="{{ route('register') }}" class="btn btn-outline-primary w-100">Register</a>
+                  @endauth
                 </div>
               </div>
             </div>
