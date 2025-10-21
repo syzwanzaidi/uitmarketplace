@@ -94,14 +94,13 @@
         <div class="row gy-3 align-items-center">
           <div class="col-lg-6 col-md-12">
             <div class="copyright">
-              <p>© <span>Copyright</span> <strong class="sitename">NiceShop</strong>. All Rights Reserved.</p>
+              <p>© <span>Copyright</span> <strong class="sitename">UiTMarketplace</strong>. All Rights Reserved.</p>
             </div>
             <div class="credits mt-1">
               <!-- All the links in the footer should remain intact. -->
               <!-- You can delete the links only if you've purchased the pro version. -->
               <!-- Licensing information: https://bootstrapmade.com/license/ -->
               <!-- Purchase the pro version with working PHP/AJAX contact form: [buy-url] -->
-              Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
             </div>
           </div>
 

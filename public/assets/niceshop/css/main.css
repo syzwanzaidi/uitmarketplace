@@ -24,7 +24,7 @@
   --background-color: #ffffff; /* Background color for the entire website, including individual sections */
   --default-color: #444444; /* Default color used for the majority of the text content across the entire website */
   --heading-color: #000000; /* Color for headings, subheadings and title throughout the website */
-  --accent-color: #252223; /* Accent color that represents your brand on the website. It's used for buttons, links, and other elements that need to stand out */
+  --accent-color: #092131;; /* Accent color that represents your brand on the website. It's used for buttons, links, and other elements that need to stand out */
   --surface-color: #ffffff; /* The surface color is used as a background of boxed elements within sections, such as cards, icon boxes, or other elements that require a visual separation from the global background. */
   --contrast-color: #ffffff; /* Contrast color for text, ensuring readability against backgrounds of accent, heading, or default colors. */
 }
@@ -302,6 +302,7 @@ h6 {
 }
 
 .header .main-header {
+  background-color: #092131;
   border-bottom: 1px solid color-mix(in srgb, var(--default-color), transparent 90%);
 }
 
@@ -318,7 +319,7 @@ h6 {
   font-size: 26px;
   margin: 0;
   font-weight: 700;
-  color: var(--heading-color);
+  color: #ffffff;
 }
 
 @media (max-width: 768px) {
@@ -346,7 +347,7 @@ h6 {
   background: none;
   border: none;
   padding: 0.5rem;
-  color: var(--default-color);
+  color: #ffffff !important;
   font-size: 15px;
   cursor: pointer;
   transition: color 0.3s ease;
@@ -513,13 +514,23 @@ h6 {
 }
 
 .header .header-nav {
-  background-color: var(--accent-color);
+  background-color: #ffffff;
 }
 
 @media (min-width: 1200px) {
   .header .header-nav {
     border-bottom: 1px solid color-mix(in srgb, var(--default-color), transparent 90%);
   }
+}
+
+.header .header-nav .navmenu a {
+  color: #092131; /* dark blue like your header */
+  font-weight: 500;
+}
+
+.header .header-nav .navmenu a:hover,
+.header .header-nav .navmenu .active {
+  color: var(--accent-color); /* or choose another hover color */
 }
 
 .header #mobileSearch {
@@ -1410,7 +1421,7 @@ h6 {
 --------------------------------------------------------------*/
 .footer {
   color: var(--default-color);
-  background-color: var(--background-color);
+  background-color: #092131 !important;
   font-size: 14px;
   position: relative;
 }

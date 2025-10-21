@@ -7,16 +7,17 @@ use Illuminate\Support\Facades\Auth;
 // Show login page if not logged in, otherwise show home
 Route::get('/', function () {
     if (Auth::check()) {
-        return view('home');
+        return view('user.home');
     } else {
         return redirect()->route('login');
     }
 })->name('home');
 
-// Dashboard (optional, can remove if not used)
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Admin Dashboard
+Route::get('/admin', function () {
+    return view('admin.dashboard');
+})->middleware(['auth', 'verified'])->name('admin.dashboard');
+
 
 // Profile routes (auto from Breeze)
 Route::middleware('auth')->group(function () {

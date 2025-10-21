@@ -587,7 +587,6 @@
             </li><!-- End Products Mega Menu 2 -->
 
             <li><a href="contact.html">Contact</a></li>
-
           </ul>
         </nav>
       </div>
