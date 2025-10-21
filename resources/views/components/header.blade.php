@@ -44,7 +44,7 @@
               </div>
 
               <div class="dropdown-body">
-                <a class="dropdown-item d-flex align-items-center" action="#" method="GET">
+                <a class="dropdown-item d-flex align-items-center" href="{{ route('account') }}">
                   <i class="bi bi-person-circle me-2"></i>
                   <span>My Profile</span>
                 </a>
@@ -83,7 +83,7 @@
           </a>
 
           <!-- Cart -->
-          <a href="#" class="header-action-btn">
+          <a href="{{ route('cart')}}" class="header-action-btn">
             <i class="bi bi-cart3"></i>
             <span class="badge">3</span>
           </a>
@@ -101,13 +101,13 @@
         <div class="container-fluid container-xl position-relative">
         <nav id="navmenu" class="navmenu">
             <ul>
-            <li><a href="index.html" class="active">Home</a></li>
-            <li><a href="about.html">About</a></li>
-            <li><a href="category.html">Category</a></li>
-            <li><a href="product-details.html">Product Details</a></li>
-            <li><a href="cart.html">Cart</a></li>
-            <li><a href="checkout.html">Checkout</a></li>
-            <li class="dropdown"><a href="#"><span>Dropdown</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+            <li><a href="{{ route('home')}}" class="active">Home</a></li>
+            <li><a href="{{ route('category')}}">Category</a></li>
+            <li><a href="{{ route('checkout')}}">Checkout</a></li>
+            <li><a href="{{ route('about')}}">About</a></li>
+            <li><a href="#">Product Details</a></li>
+            <li><a href="#">Cart</a></li>
+            {{-- <li class="dropdown"><a href="#"><span>Dropdown</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
                 <ul>
                 <li><a href="#">Dropdown 1</a></li>
                 <li class="dropdown"><a href="#"><span>Deep Dropdown</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
@@ -123,9 +123,9 @@
                 <li><a href="#">Dropdown 3</a></li>
                 <li><a href="#">Dropdown 4</a></li>
                 </ul>
-            </li>
+            </li> --}}
 
-            <!-- Products Mega Menu 1 -->
+            {{-- <!-- Products Mega Menu 1 -->
             <li class="products-megamenu-1"><a href="#"><span>Megamenu 1</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
 
                 <!-- Products Mega Menu 1 Mobile View -->
@@ -209,7 +209,7 @@
                         </div>
                         <div class="product-info">
                             <h5>Premium Headphones</h5>
-                            <p class="price">$129.99</p>
+                            <p class="price">RM129.99</p>
                             <a href="#" class="btn-view">View Product</a>
                         </div>
                         </div>
@@ -220,7 +220,7 @@
                         </div>
                         <div class="product-info">
                             <h5>Smart Watch</h5>
-                            <p class="price">$199.99</p>
+                            <p class="price">RM199.99</p>
                             <a href="#" class="btn-view">View Product</a>
                         </div>
                         </div>
@@ -231,7 +231,7 @@
                         </div>
                         <div class="product-info">
                             <h5>Wireless Earbuds</h5>
-                            <p class="price">$89.99</p>
+                            <p class="price">RM89.99</p>
                             <a href="#" class="btn-view">View Product</a>
                         </div>
                         </div>
@@ -241,7 +241,7 @@
                         </div>
                         <div class="product-info">
                             <h5>Bluetooth Speaker</h5>
-                            <p class="price">$79.99</p>
+                            <p class="price">RM79.99</p>
                             <a href="#" class="btn-view">View Product</a>
                         </div>
                         </div>
@@ -258,7 +258,7 @@
                         </div>
                         <div class="product-info">
                             <h5>Fitness Tracker</h5>
-                            <p class="price">$69.99</p>
+                            <p class="price">RM69.99</p>
                             <a href="#" class="btn-view">View Product</a>
                         </div>
                         </div>
@@ -269,7 +269,7 @@
                         </div>
                         <div class="product-info">
                             <h5>Wireless Charger</h5>
-                            <p class="price">$39.99</p>
+                            <p class="price">RM39.99</p>
                             <a href="#" class="btn-view">View Product</a>
                         </div>
                         </div>
@@ -280,7 +280,7 @@
                         </div>
                         <div class="product-info">
                             <h5>Smart Bulb Set</h5>
-                            <p class="price">$49.99</p>
+                            <p class="price">RM49.99</p>
                             <a href="#" class="btn-view">View Product</a>
                         </div>
                         </div>
@@ -291,7 +291,7 @@
                         </div>
                         <div class="product-info">
                             <h5>Portable Power Bank</h5>
-                            <p class="price">$59.99</p>
+                            <p class="price">RM59.99</p>
                             <a href="#" class="btn-view">View Product</a>
                         </div>
                         </div>
@@ -309,7 +309,7 @@
                         </div>
                         <div class="product-info">
                             <h5>Wireless Keyboard</h5>
-                            <p class="price"><span class="original-price">$89.99</span> $62.99</p>
+                            <p class="price"><span class="original-price">RM89.99</span> RM62.99</p>
                             <a href="#" class="btn-view">View Product</a>
                         </div>
                         </div>
@@ -320,7 +320,7 @@
                         </div>
                         <div class="product-info">
                             <h5>Gaming Mouse</h5>
-                            <p class="price"><span class="original-price">$59.99</span> $44.99</p>
+                            <p class="price"><span class="original-price">RM59.99</span> RM44.99</p>
                             <a href="#" class="btn-view">View Product</a>
                         </div>
                         </div>
@@ -331,7 +331,7 @@
                         </div>
                         <div class="product-info">
                             <h5>Desk Lamp</h5>
-                            <p class="price"><span class="original-price">$49.99</span> $29.99</p>
+                            <p class="price"><span class="original-price">RM49.99</span> RM29.99</p>
                             <a href="#" class="btn-view">View Product</a>
                         </div>
                         </div>
@@ -342,7 +342,7 @@
                         </div>
                         <div class="product-info">
                             <h5>USB-C Hub</h5>
-                            <p class="price"><span class="original-price">$39.99</span> $31.99</p>
+                            <p class="price"><span class="original-price">RM39.99</span> RM31.99</p>
                             <a href="#" class="btn-view">View Product</a>
                         </div>
                         </div>
@@ -682,9 +682,9 @@
 
                 </div><!-- End Products Mega Menu 2 Desktop View -->
 
-            </li><!-- End Products Mega Menu 2 -->
+            </li><!-- End Products Mega Menu 2 -->  --}}
 
-            <li><a href="contact.html">Contact</a></li>
+            <li><a href="{{ route('contact')}}">Contact</a></li>
 
             </ul>
         </nav>

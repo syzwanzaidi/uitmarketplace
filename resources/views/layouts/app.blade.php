@@ -30,6 +30,8 @@
   <script src="{{ asset('assets/niceshop/vendor/drift-zoom/Drift.min.js') }}"></script>
   <script src="{{ asset('assets/niceshop/vendor/purecounter/purecounter_vanilla.js') }}"></script>
 
+  
+
 </head>
 
 <body class="index-page">

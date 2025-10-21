@@ -1,6 +1,11 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\AccountController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\CheckoutController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -12,6 +17,35 @@ Route::get('/', function () {
         return redirect()->route('login');
     }
 })->name('home');
+
+// User Account Page
+Route::middleware('auth')->group(function () {
+    Route::get('/account', [AccountController::class, 'index'])->name('account');
+    Route::get('/account/orders', [AccountController::class, 'orders'])->name('account.orders');
+});
+
+// Customers Routes
+
+// User Cart Page
+Route::get('/cart', [CartController::class, 'index'])->name('cart');
+
+// Category Page
+Route::get('/category', [CategoryController::class, 'index'])->name('category');
+
+// Checkout Page
+Route::get('/checkout', [App\Http\Controllers\CheckoutController::class, 'index'])->name('checkout');
+
+// About Page
+Route::get('/about', function () {
+    return view('user.about');
+})->name('about');
+
+// Contact Page
+Route::get('/contact', [App\Http\Controllers\ContactController::class, 'index'])->name('contact');
+
+
+
+//Admin Routes
 
 // Admin Dashboard
 Route::get('/admin', function () {

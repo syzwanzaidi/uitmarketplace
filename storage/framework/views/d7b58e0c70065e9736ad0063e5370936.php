@@ -30,6 +30,8 @@
   <script src="<?php echo e(asset('assets/niceshop/vendor/drift-zoom/Drift.min.js')); ?>"></script>
   <script src="<?php echo e(asset('assets/niceshop/vendor/purecounter/purecounter_vanilla.js')); ?>"></script>
 
+  
+
 </head>
 
 <body class="index-page">
