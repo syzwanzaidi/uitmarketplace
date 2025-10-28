@@ -105,8 +105,9 @@
             <li><a href="<?php echo e(route('category')); ?>">Category</a></li>
             <li><a href="<?php echo e(route('checkout')); ?>">Checkout</a></li>
             <li><a href="<?php echo e(route('about')); ?>">About</a></li>
-            <li><a href="#">Product Details</a></li>
-            <li><a href="#">Cart</a></li>
+            <li><a href="<?php echo e(route('cart')); ?>">Cart</a></li>
+            <li><a href="#">Chat</a></li>
+            <li><a href="#">Listing</a></li>
             
 
             

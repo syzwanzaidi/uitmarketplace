@@ -308,7 +308,7 @@
                           <div class="detail-section">
                             <h5>Shipping Address</h5>
                             <div class="address-info">
-                              <p>Sarah Anderson<br>123 Main Street<br>Apt 4B<br>New York, NY 10001<br>United States</p>
+                              <p>Syazwan<br>123 Main Street<br>Apt 4B<br>New York, NY 10001<br>United States</p>
                               <p class="contact">+1 (555) 123-4567</p>
                             </div>
                           </div>
@@ -484,7 +484,7 @@
                           <div class="detail-section">
                             <h5>Shipping Address</h5>
                             <div class="address-info">
-                              <p>Sarah Anderson<br>123 Main Street<br>Apt 4B<br>New York, NY 10001<br>United States</p>
+                              <p>Syazwan<br>123 Main Street<br>Apt 4B<br>New York, NY 10001<br>United States</p>
                               <p class="contact">+1 (555) 123-4567</p>
                             </div>
                           </div>
@@ -843,7 +843,7 @@
                       <div class="card-body">
                         <p class="address-text">123 Main Street<br>Apt 4B<br>New York, NY 10001<br>United States</p>
                         <div class="contact-info">
-                          <div><i class="bi bi-person"></i> Sarah Anderson</div>
+                          <div><i class="bi bi-person"></i> Syazwan</div>
                           <div><i class="bi bi-telephone"></i> +1 (555) 123-4567</div>
                         </div>
                       </div>
@@ -867,7 +867,7 @@
                       <div class="card-body">
                         <p class="address-text">456 Business Ave<br>Suite 200<br>San Francisco, CA 94107<br>United States</p>
                         <div class="contact-info">
-                          <div><i class="bi bi-person"></i> Sarah Anderson</div>
+                          <div><i class="bi bi-person"></i> Syazwan</div>
                           <div><i class="bi bi-telephone"></i> +1 (555) 987-6543</div>
                         </div>
                       </div>
@@ -900,15 +900,15 @@
                         <div class="row g-3">
                           <div class="col-md-6">
                             <label for="firstName" class="form-label">First Name</label>
-                            <input type="text" class="form-control" id="firstName" value="Sarah" required="">
+                            <input type="text" class="form-control" id="firstName" value="syazwan" required="">
                           </div>
                           <div class="col-md-6">
                             <label for="lastName" class="form-label">Last Name</label>
-                            <input type="text" class="form-control" id="lastName" value="Anderson" required="">
+                            <input type="text" class="form-control" id="lastName" value="syahmi" required="">
                           </div>
                           <div class="col-md-6">
                             <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" value="sarah@example.com" required="">
+                            <input type="email" class="form-control" id="email" value="syazwan@example.com" required="">
                           </div>
                           <div class="col-md-6">
                             <label for="phone" class="form-label">Phone</label>

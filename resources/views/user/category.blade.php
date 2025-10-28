@@ -186,7 +186,7 @@
             <!-- Brand Filter Widget -->
             <h3 class="brand-filter-widget widget-item">Filter by Brand</h3><!--/Brand Filter Widget -->
 
-            <!-- Color Filter Widget -->
+            {{-- <!-- Color Filter Widget -->
             <div class="color-filter-widget widget-item">
 
               <h3 class="widget-title">Filter by Color</h3>
@@ -270,7 +270,7 @@
                 </div>
               </div>
 
-            </div><!--/Color Filter Widget -->
+            </div><!--/Color Filter Widget --> --}}
 
             <!-- Brand Filter Widget -->
             <div class="brand-filter-widget widget-item">

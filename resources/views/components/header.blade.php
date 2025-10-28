@@ -105,8 +105,9 @@
             <li><a href="{{ route('category')}}">Category</a></li>
             <li><a href="{{ route('checkout')}}">Checkout</a></li>
             <li><a href="{{ route('about')}}">About</a></li>
-            <li><a href="#">Product Details</a></li>
-            <li><a href="#">Cart</a></li>
+            <li><a href="{{ route('cart')}}">Cart</a></li>
+            <li><a href="#">Chat</a></li>
+            <li><a href="#">Listing</a></li>
             {{-- <li class="dropdown"><a href="#"><span>Dropdown</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
                 <ul>
                 <li><a href="#">Dropdown 1</a></li>
