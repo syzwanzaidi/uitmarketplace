@@ -106,8 +106,8 @@
             <li><a href="{{ route('checkout')}}">Checkout</a></li>
             <li><a href="{{ route('about')}}">About</a></li>
             <li><a href="{{ route('cart')}}">Cart</a></li>
-            <li><a href="#">Chat</a></li>
-            <li><a href="#">Listing</a></li>
+            <li><a href="{{ route('chat')}}">Chat</a></li>
+            <li><a href="{{ route('listings') }}">Listing</a></li>
             {{-- <li class="dropdown"><a href="#"><span>Dropdown</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
                 <ul>
                 <li><a href="#">Dropdown 1</a></li>
@@ -687,8 +687,16 @@
 
             <li><a href="{{ route('contact')}}">Contact</a></li>
 
-            </ul>
+            <!-- Move Set Location far right -->
+            <div class="nav-extra ms-auto">
+                <a href="#" data-bs-toggle="modal" data-bs-target="#locationModal" class="nav-link">
+                <i class="bi bi-geo-alt me-1"></i> Set Location
+                </a>
+            </div>
+
+            </ul>            
         </nav>
+
         </div>
     </div>
 </header>

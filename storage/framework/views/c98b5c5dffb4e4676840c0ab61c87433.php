@@ -106,16 +106,24 @@
             <li><a href="<?php echo e(route('checkout')); ?>">Checkout</a></li>
             <li><a href="<?php echo e(route('about')); ?>">About</a></li>
             <li><a href="<?php echo e(route('cart')); ?>">Cart</a></li>
-            <li><a href="#">Chat</a></li>
-            <li><a href="#">Listing</a></li>
+            <li><a href="<?php echo e(route('chat')); ?>">Chat</a></li>
+            <li><a href="<?php echo e(route('listings')); ?>">Listing</a></li>
             
 
             
 
             <li><a href="<?php echo e(route('contact')); ?>">Contact</a></li>
 
-            </ul>
+            <!-- Move Set Location far right -->
+            <div class="nav-extra ms-auto">
+                <a href="#" data-bs-toggle="modal" data-bs-target="#locationModal" class="nav-link">
+                <i class="bi bi-geo-alt me-1"></i> Set Location
+                </a>
+            </div>
+
+            </ul>            
         </nav>
+
         </div>
     </div>
 </header>

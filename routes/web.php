@@ -6,6 +6,8 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\ListingsController;
+use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -33,7 +35,14 @@ Route::get('/cart', [CartController::class, 'index'])->name('cart');
 Route::get('/category', [CategoryController::class, 'index'])->name('category');
 
 // Checkout Page
-Route::get('/checkout', [App\Http\Controllers\CheckoutController::class, 'index'])->name('checkout');
+Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
+
+// Chat Page
+Route::get('/chat', [ChatController::class, 'index'])->name('chat');
+
+// Listings Page
+Route::get('/listings', [ListingsController::class, 'index'])->name('listings');
+
 
 // About Page
 Route::get('/about', function () {
@@ -41,7 +50,7 @@ Route::get('/about', function () {
 })->name('about');
 
 // Contact Page
-Route::get('/contact', [App\Http\Controllers\ContactController::class, 'index'])->name('contact');
+Route::get('/contact', [ContactController::class, 'index'])->name('contact');
 
 
 
