@@ -11,62 +11,69 @@ use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
-// Show login page if not logged in, otherwise show home
-Route::get('/', function () {
-    if (Auth::check()) {
-        return view('user.home');
-    } else {
-        return redirect()->route('login');
-    }
-})->name('home');
 
-// User Account Page
-Route::middleware('auth')->group(function () {
+/* -------------------------------
+   PUBLIC OR LOGIN-FIRST HOME
+--------------------------------*/
+Route::get('/', function () {
+    return view('user.home');
+})->middleware(['auth', 'verified'])->name('home');
+// You can remove verified() here if home should show for everyone
+
+
+/* -------------------------------
+   AUTH REQUIRED ROUTES
+--------------------------------*/
+Route::middleware(['auth'])->group(function () {
+
+    // Account
     Route::get('/account', [AccountController::class, 'index'])->name('account');
     Route::get('/account/orders', [AccountController::class, 'orders'])->name('account.orders');
-});
 
-// Customers Routes
+    // Cart
+    Route::get('/cart', [CartController::class, 'index'])->name('cart');
 
-// User Cart Page
-Route::get('/cart', [CartController::class, 'index'])->name('cart');
+    // Chat
+    Route::get('/chat', [ChatController::class, 'index'])->name('chat');
 
-// Category Page
-Route::get('/category', [CategoryController::class, 'index'])->name('category');
+    // Listings page (seller dashboard)
+    Route::get('/listings', [ListingsController::class, 'index'])->name('listings');
 
-// Checkout Page
-Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
+    // Wishlist (optional)
+    // Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist');
 
-// Chat Page
-Route::get('/chat', [ChatController::class, 'index'])->name('chat');
-
-// Listings Page
-Route::get('/listings', [ListingsController::class, 'index'])->name('listings');
-
-
-// About Page
-Route::get('/about', function () {
-    return view('user.about');
-})->name('about');
-
-// Contact Page
-Route::get('/contact', [ContactController::class, 'index'])->name('contact');
-
-
-
-//Admin Routes
-
-// Admin Dashboard
-Route::get('/admin', function () {
-    return view('admin.dashboard');
-})->middleware(['auth', 'verified'])->name('admin.dashboard');
-
-
-// Profile routes (auto from Breeze)
-Route::middleware('auth')->group(function () {
+    // Profile (breeze default)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+
+/* -------------------------------
+   VERIFIED EMAIL REQUIRED ROUTES
+--------------------------------*/
+Route::middleware(['auth', 'verified'])->group(function () {
+
+    // Checkout (only verified users should be able to order)
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
+
+    // Admin Dashboard
+    Route::get('/admin', function () {
+        return view('admin.dashboard');
+    })->name('admin.dashboard');
+});
+
+
+/* -------------------------------
+   PUBLIC ROUTES (no login needed)
+--------------------------------*/
+Route::get('/category', [CategoryController::class, 'index'])->name('category');
+
+Route::get('/about', function () {
+    return view('user.about');
+})->name('about');
+
+Route::get('/contact', [ContactController::class, 'index'])->name('contact');
+
 
 require __DIR__.'/auth.php';
