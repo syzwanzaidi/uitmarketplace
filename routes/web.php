@@ -8,6 +8,9 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ListingsController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ProductController;
+
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -15,10 +18,13 @@ use Illuminate\Support\Facades\Auth;
 /* -------------------------------
    PUBLIC OR LOGIN-FIRST HOME
 --------------------------------*/
-Route::get('/', function () {
-    return view('user.home');
-})->middleware(['auth', 'verified'])->name('home');
-// You can remove verified() here if home should show for everyone
+Route::get('/', [HomeController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('home');
+
+
+Route::get('/product/{id}', [ProductController::class, 'show'])
+    ->name('product.show');
 
 
 /* -------------------------------
