@@ -52,6 +52,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // product listing
+    Route::post('/listings/store', [ListingsController::class, 'store'])->name('listings.store');
+    Route::patch('/listings/{product}/update', [ListingsController::class, 'update'])->name('listings.update');
+    Route::delete('/listings/{product}/delete', [ListingsController::class, 'destroy'])->name('listings.delete');
 });
 
 
