@@ -22,6 +22,7 @@
   <!-- Main CSS File -->
   <link href="<?php echo e(asset('assets/niceshop/css/main.css')); ?>" rel="stylesheet">
 
+  
   <!-- Vendor JS Files -->
   <script src="<?php echo e(asset('assets/niceshop/vendor/bootstrap/js/bootstrap.bundle.min.js')); ?>"></script>
   <script src="<?php echo e(asset('assets/niceshop/vendor/swiper/swiper-bundle.min.js')); ?>"></script>

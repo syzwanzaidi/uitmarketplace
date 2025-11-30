@@ -59,7 +59,9 @@ unset($__defined_vars, $__key, $__value); ?>
                 </button>
             </div>
 
-            <button class="cart-btn">View</button>
+            <button class="cart-btn" onclick="window.location='<?php echo e(route('product.show', $product->id)); ?>'">
+                View
+            </button>
         </div>
 
         <!-- Product Info Section -->

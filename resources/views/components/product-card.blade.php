@@ -31,7 +31,9 @@
                 </button>
             </div>
 
-            <button class="cart-btn">View</button>
+            <button class="cart-btn" onclick="window.location='{{ route('product.show', $product->id) }}'">
+                View
+            </button>
         </div>
 
         <!-- Product Info Section -->

@@ -12747,4 +12747,24 @@ section,
   transform: translateY(-1px);
 }
 
+/* Force right panel to use full-height layout */
+.product-right-wrapper {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+}
+
+.product-right-content {
+    flex: 1 0 auto !important; /* content grows normally */
+}
+
+.product-right-buttons {
+    margin-top: auto !important; /* pushes buttons to bottom */
+}
+
+
+
+
+
+
 

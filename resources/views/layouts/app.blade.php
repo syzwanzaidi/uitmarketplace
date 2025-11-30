@@ -22,6 +22,7 @@
   <!-- Main CSS File -->
   <link href="{{ asset('assets/niceshop/css/main.css') }}" rel="stylesheet">
 
+  
   <!-- Vendor JS Files -->
   <script src="{{ asset('assets/niceshop/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
   <script src="{{ asset('assets/niceshop/vendor/swiper/swiper-bundle.min.js') }}"></script>

@@ -8,7 +8,8 @@ class ProductController extends Controller
 {
     public function show($id)
     {
-        $product = Product::with('category')->findOrFail($id);
+        // Load product + category + seller(optional)
+        $product = Product::with('category', 'user')->findOrFail($id);
 
         return view('user.product-details', compact('product'));
     }
