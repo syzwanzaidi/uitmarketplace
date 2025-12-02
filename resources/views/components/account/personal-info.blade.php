@@ -1,5 +1,5 @@
                 <!-- Settings Tab -->
-                <div class="tab-pane fade" id="settings">
+                <div class="tab-pane fade {{ request('tab') === 'settings' ? 'show active' : '' }}" id="settings">
                   <div class="section-header" data-aos="fade-up">
                     <h2>Account Settings</h2>
                   </div>
@@ -9,7 +9,7 @@
                     <div class="settings-section" data-aos="fade-up">
                       <h3>Personal Information</h3>
 
-                      <form action="{{ route('profile.update') }}" method="POST" class="php-email-form settings-form">
+                      <form action="{{ route('profile.update') }}" method="POST" class="php-email-form settings-form" enctype="multipart/form-data">
                         @csrf
                         @method('PATCH')
 
@@ -68,6 +68,12 @@
                           <div class="col-md-12">
                             <label for="country" class="form-label">Country</label>
                             <input type="text" class="form-control" id="country" name="country" value="{{ auth()->user()->address1 ?? 'Malaysia' }}" required>
+                          </div>
+
+                          <div class="col-md-12 mb-3">
+                            <label class="form-label">Profile Photo</label>
+                            <input type="file" name="profile_photo" class="form-control">
+
                           </div>
 
                         </div>

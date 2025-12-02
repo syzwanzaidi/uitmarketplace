@@ -1,5 +1,5 @@
                 <!-- Payment Methods Tab -->
-                <div class="tab-pane fade" id="wallet">
+                <div class="tab-pane fade {{ request('tab') === 'wallet' ? 'show active' : '' }}" id="wallet">
                   <div class="section-header" data-aos="fade-up">
                     <h2>Payment Methods</h2>
                     <div class="header-actions">

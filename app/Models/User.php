@@ -22,6 +22,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
+        'membership_type',
         'phone',
         'address1',
         'address2',
@@ -29,6 +30,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'city',
         'state',
         'country',
+        'profile_photo',
     ];
 
     /**
@@ -58,5 +60,11 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Product::class);
     }
+
+    public function wishlist()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
+
 
 }

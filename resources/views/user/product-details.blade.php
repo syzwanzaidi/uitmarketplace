@@ -113,9 +113,12 @@
                                   Buy Now
                               </button>
 
-                              <button class="btn icon-action" title="Add to Wishlist">
-                                  <i class="bi bi-heart"></i>
-                              </button>
+                              <form action="{{ route('wishlist.add', $product->id) }}" method="POST">
+                                @csrf
+                                <button class="btn icon-action" title="Add to Wishlist">
+                                    <i class="bi bi-heart"></i>
+                                </button>
+                              </form>
                           </div>
 
                           <div class="action-buttons">

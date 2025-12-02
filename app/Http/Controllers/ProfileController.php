@@ -35,10 +35,21 @@ class ProfileController extends Controller
             'city' => 'nullable|string|max:100',
             'state' => 'nullable|string|max:100',
             'country' => 'nullable|string|max:100',
+            'profile_photo' => 'nullable|image|max:2048',
         ]);
 
         $user = $request->user();
 
+        // Handle file upload
+        if ($request->hasFile('profile_photo')) {
+            $path = $request->file('profile_photo')
+                            ->store('profile_photos', 'public');
+
+            // Save only the relative path
+            $user->profile_photo = $path;
+        }
+
+        // Save other fields
         $user->update([
             'name' => $request->name,
             'phone' => $request->phone,
@@ -48,10 +59,13 @@ class ProfileController extends Controller
             'city' => $request->city,
             'state' => $request->state,
             'country' => $request->country,
+            'profile_photo' => $user->profile_photo
         ]);
 
         return back()->with('status', 'profile-updated')->with('activeTab', 'settings');
     }
+
+
 
     /**
      * Delete the user's account.

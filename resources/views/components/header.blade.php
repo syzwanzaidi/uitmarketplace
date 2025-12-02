@@ -52,7 +52,7 @@
                   <i class="bi bi-bag-check me-2"></i>
                   <span>My Orders</span>
                 </a>
-                <a class="dropdown-item d-flex align-items-center" action="#" method="GET">
+                <a class="dropdown-item d-flex align-items-center" href="{{ route('account', ['tab' => 'wishlist']) }}">
                   <i class="bi bi-heart me-2"></i>
                   <span>My Wishlist</span>
                 </a>
@@ -77,7 +77,7 @@
           </div>
 
           <!-- Wishlist -->
-          <a href="#" class="header-action-btn d-none d-md-block">
+          <a href="{{ route('account', ['tab' => 'wishlist']) }}" class="header-action-btn d-none d-md-block">
             <i class="bi bi-heart"></i>
             <span class="badge">0</span>
           </a>
@@ -107,7 +107,10 @@
             <li><a href="{{ route('about')}}">About</a></li>
             <li><a href="{{ route('cart')}}">Cart</a></li>
             <li><a href="{{ route('chat')}}">Chat</a></li>
-            <li><a href="{{ route('listings') }}">Listing</a></li>
+            @if(auth()->check() && auth()->user()->membership_type === 'uitm')
+                <li><a href="{{ route('listings') }}">Listing</a></li>
+            @endif
+
             {{-- <li class="dropdown"><a href="#"><span>Dropdown</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
                 <ul>
                 <li><a href="#">Dropdown 1</a></li>

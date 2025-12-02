@@ -1,5 +1,5 @@
                 <!-- Orders Tab -->
-                <div class="tab-pane fade show active" id="orders">
+                <div class="tab-pane fade {{ request('tab') === 'orders' ? 'show active' : '' }}" id="orders">
                   <div class="section-header" data-aos="fade-up">
                     <h2>My Orders</h2>
                     <div class="header-actions">

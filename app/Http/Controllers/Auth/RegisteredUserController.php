@@ -41,13 +41,18 @@ class RegisteredUserController extends Controller
 
         $email = $request->input('email');
 
-        $role = Str::endsWith($email, '@student.uitm.edu.my') ? 'seller' : 'customer';
+        // Determine membership type
+        if (Str::endsWith($email, '@student.uitm.edu.my') || Str::endsWith($email, '@uitm.edu.my')) {
+            $membership = 'uitm'; // Can buy + sell
+        } else {
+            $membership = 'non_uitm'; // Can only buy
+        }
 
         $user = User::create([
             'name' => $request->name,
             'email' => $email,
             'password' => Hash::make($request->password),
-            'role' => $role,
+            'membership_type' => $membership,
         ]);
 
         event(new Registered($user));
@@ -55,6 +60,6 @@ class RegisteredUserController extends Controller
         Auth::login($user);
 
         return redirect()->route('home');
-
     }
+
 }

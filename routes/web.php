@@ -10,6 +10,7 @@ use App\Http\Controllers\ListingsController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\WishlistController;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -45,8 +46,13 @@ Route::middleware(['auth'])->group(function () {
     // Listings page (seller dashboard)
     Route::get('/listings', [ListingsController::class, 'index'])->name('listings');
 
-    // Wishlist (optional)
-    // Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist');
+    // Wishlist
+    Route::post('/wishlist/{product}', [WishlistController::class, 'store'])
+        ->name('wishlist.add');
+
+    Route::delete('/wishlist/{product}', [WishlistController::class, 'destroy'])
+        ->name('wishlist.remove');
+
 
     // Profile (breeze default)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

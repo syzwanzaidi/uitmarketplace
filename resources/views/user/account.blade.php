@@ -37,13 +37,21 @@
               <!-- User Info -->
               <div class="user-info" data-aos="fade-right">
                 <div class="user-avatar">
-                  <img src="assets/img/person/person-f-1.webp" alt="Profile" loading="lazy">
+                  <img 
+                      src="{{ auth()->user()->profile_photo 
+                          ? asset('storage/' . auth()->user()->profile_photo)
+                          : asset('assets/img/person/person-f-1.webp') }}"
+                      alt="Profile"
+                      loading="lazy"
+                  >
                   <span class="status-badge"><i class="bi bi-shield-check"></i></span>
                 </div>
-                <h4>Syazwan</h4>
+                <h4>{{ auth()->user()->name }}</h4>
                 <div class="user-status">
                   <i class="bi bi-award"></i>
-                  <span>UiTM Member</span>
+                    <span>
+                        {{ auth()->user()->membership_type === 'uitm' ? 'UiTM Member' : 'Non UiTM Member' }}
+                    </span>
                 </div>
               </div>
 
@@ -51,36 +59,43 @@
               <nav class="menu-nav">
                 <ul class="nav flex-column" role="tablist">
                   <li class="nav-item">
-                    <a class="nav-link active" data-bs-toggle="tab" href="#orders">
-                      <i class="bi bi-box-seam"></i>
-                      <span>My Orders</span>
-                      <span class="badge">3</span>
-                    </a>
+                      <a class="nav-link {{ request('tab') === 'orders' ? 'active' : '' }}" 
+                        data-bs-toggle="tab" href="#orders">
+                          <i class="bi bi-box-seam"></i>
+                          <span>My Orders</span>
+                      </a>
                   </li>
+
                   <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#wishlist">
-                      <i class="bi bi-heart"></i>
-                      <span>Wishlist</span>
-                      <span class="badge">12</span>
-                    </a>
+                      <a class="nav-link {{ request('tab') === 'wishlist' ? 'active' : '' }}" 
+                        data-bs-toggle="tab" href="#wishlist">
+                          <i class="bi bi-heart"></i>
+                          <span>Wishlist</span>
+                      </a>
                   </li>
+
                   <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#wallet">
-                      <i class="bi bi-wallet2"></i>
-                      <span>Payment Methods</span>
-                    </a>
+                      <a class="nav-link {{ request('tab') === 'wallet' ? 'active' : '' }}" 
+                        data-bs-toggle="tab" href="#wallet">
+                          <i class="bi bi-wallet2"></i>
+                          <span>Payment Methods</span>
+                      </a>
                   </li>
+
                   <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#reviews">
-                      <i class="bi bi-star"></i>
-                      <span>My Reviews</span>
-                    </a>
+                      <a class="nav-link {{ request('tab') === 'reviews' ? 'active' : '' }}" 
+                        data-bs-toggle="tab" href="#reviews">
+                          <i class="bi bi-star"></i>
+                          <span>My Reviews</span>
+                      </a>
                   </li>
+
                   <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#settings">
-                      <i class="bi bi-gear"></i>
-                      <span>Account Settings</span>
-                    </a>
+                      <a class="nav-link {{ request('tab') === 'settings' ? 'active' : '' }}" 
+                        data-bs-toggle="tab" href="#settings">
+                          <i class="bi bi-gear"></i>
+                          <span>Account Settings</span>
+                      </a>
                   </li>
                 </ul>
 

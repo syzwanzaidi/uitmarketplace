@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('city')->nullable();
             $table->string('state')->nullable();
             $table->string('country')->nullable();
+            $table->string('profile_photo')->nullable();
         });
     }
 
@@ -30,7 +31,7 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->dropColumn([
                 'phone', 'address1', 'address2', 'postcode',
-                'city', 'state', 'country'
+                'city', 'state', 'country', 'profile_photo',
             ]);
         });
     }
