@@ -1,6 +1,3 @@
-
-
-
 <?php $__env->startSection('content'); ?>
 <main class="main">
   <section class="section" style="padding: 24px 0;">

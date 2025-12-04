@@ -66,5 +66,23 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Wishlist::class);
     }
 
+    // conversations where user is buyer
+    public function conversationsAsBuyer()
+    {
+        return $this->hasMany(Conversation::class, 'buyer_id');
+    }
+
+    // conversations where user is seller
+    public function conversationsAsSeller()
+    {
+        return $this->hasMany(Conversation::class, 'seller_id');
+    }
+
+    // all messages sent by user
+    public function messages()
+    {
+        return $this->hasMany(Message::class, 'sender_id');
+    }
+
 
 }

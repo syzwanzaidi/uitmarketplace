@@ -122,10 +122,10 @@
                           </div>
 
                           <div class="action-buttons">
-                            <button class="btn secondary-action mt-3 w-100">
+                            <a href="{{ route('chat.start', $product->id) }}" class="btn secondary-action mt-3 w-100">
                                 <i class="bi bi-geo-alt"></i>
                                 Arrange Meetup
-                            </button>
+                            </a>
                           </div>
 
                         </div>

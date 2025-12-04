@@ -42,6 +42,8 @@ Route::middleware(['auth'])->group(function () {
 
     // Chat
     Route::get('/chat', [ChatController::class, 'index'])->name('chat');
+    Route::get('/chat/start/{product}', [ChatController::class, 'start'])->name('chat.start');
+    Route::post('/chat/send', [ChatController::class, 'send'])->name('chat.send');
 
     // Listings page (seller dashboard)
     Route::get('/listings', [ListingsController::class, 'index'])->name('listings');
