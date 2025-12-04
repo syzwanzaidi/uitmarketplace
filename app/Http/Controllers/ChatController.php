@@ -39,22 +39,35 @@ class ChatController extends Controller
     // Chat page: load conversation if provided
     public function index(Request $request)
     {
-        $conversation = null;
-        $product = null;
+        $conversationId = $request->conversation_id;
 
-        if ($request->has('conversation_id')) {
-            $conversation = Conversation::with(['buyer', 'seller', 'product', 'messages.sender'])
-                ->find($request->conversation_id);
+        if (!$conversationId) {
+            return view('user.chat', [
+                'conversation' => null,
+                'messages' => [],
+                'product' => null,
+                'otherUser' => null
+            ]);
         }
 
-        // If conversation exists set product for preview
-        if ($conversation) {
-            $product = $conversation->product;
-        }
+        $conversation = Conversation::with(['product', 'buyer', 'seller'])
+            ->findOrFail($conversationId);
+
+        // determine who is the other user
+        $otherUser = $conversation->buyer_id === auth()->id()
+            ? $conversation->seller
+            : $conversation->buyer;
+
+        // load messages
+        $messages = Message::where('conversation_id', $conversationId)
+            ->orderBy('created_at')
+            ->get();
 
         return view('user.chat', [
             'conversation' => $conversation,
-            'product' => $product,
+            'messages' => $messages,
+            'product' => $conversation->product,
+            'otherUser' => $otherUser
         ]);
     }
 
