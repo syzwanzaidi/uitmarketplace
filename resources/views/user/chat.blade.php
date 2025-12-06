@@ -117,4 +117,40 @@
     </div>
   </section>
 </main>
+
+<script>
+  document.getElementById("sendBtn").addEventListener("click", sendMessage);
+
+  function sendMessage() {
+      const text = messageInput.value.trim();
+      if (!text) return;
+
+      axios.post("{{ route('chat.send') }}", {
+          conversation_id: "{{ $conversation->id ?? '' }}",
+          message: text
+      });
+
+      // UI append (temporary)
+      appendMyMessage(text);
+
+      messageInput.value = '';
+  }
+
+  function appendMyMessage(text) {
+      messagesArea.innerHTML += `
+          <div class="d-flex mb-3 justify-content-end">
+              <div>
+                  <div class="p-2 rounded" style="background:var(--accent-color); color:white; max-width:70%;">
+                      ${text}
+                  </div>
+              </div>
+          </div>
+      `;
+      messagesArea.scrollTop = messagesArea.scrollHeight;
+  }
+</script>
+
 @endsection
+
+
+

@@ -117,6 +117,42 @@
     </div>
   </section>
 </main>
+
+<script>
+  document.getElementById("sendBtn").addEventListener("click", sendMessage);
+
+  function sendMessage() {
+      const text = messageInput.value.trim();
+      if (!text) return;
+
+      axios.post("<?php echo e(route('chat.send')); ?>", {
+          conversation_id: "<?php echo e($conversation->id ?? ''); ?>",
+          message: text
+      });
+
+      // UI append (temporary)
+      appendMyMessage(text);
+
+      messageInput.value = '';
+  }
+
+  function appendMyMessage(text) {
+      messagesArea.innerHTML += `
+          <div class="d-flex mb-3 justify-content-end">
+              <div>
+                  <div class="p-2 rounded" style="background:var(--accent-color); color:white; max-width:70%;">
+                      ${text}
+                  </div>
+              </div>
+          </div>
+      `;
+      messagesArea.scrollTop = messagesArea.scrollHeight;
+  }
+</script>
+
 <?php $__env->stopSection(); ?>
+
+
+
 
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\fyp\uitmarketplace\resources\views/user/chat.blade.php ENDPATH**/ ?>

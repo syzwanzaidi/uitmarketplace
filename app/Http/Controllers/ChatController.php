@@ -85,8 +85,13 @@ class ChatController extends Controller
             'message' => $request->message,
         ]);
 
-        // event(new MessageSent($message->conversation_id, $message)); // step 4 later
+        // Broadcast real-time event
+        broadcast(new MessageSent($request->conversation_id, $message))->toOthers();
 
-        return response()->json(['success' => true, 'message' => $message]);
+        return response()->json([
+            'success' => true,
+            'message' => $message
+        ]);
     }
+
 }
