@@ -2,279 +2,126 @@
 
 @section('content')
 
-  <main class="main">
+<main class="main">
 
-    <!-- Page Title -->
-    <div class="page-title light-background">
-      <div class="container d-lg-flex justify-content-between align-items-center">
-        <h1 class="mb-2 mb-lg-0">Cart</h1>
-        <nav class="breadcrumbs">
-          <ol>
-            <li><a href="index.html">Home</a></li>
-            <li class="current">Cart</li>
-          </ol>
-        </nav>
-      </div>
-    </div><!-- End Page Title -->
+  <div class="page-title light-background">
+    <div class="container d-lg-flex justify-content-between align-items-center">
+      <h1 class="mb-2 mb-lg-0">Cart</h1>
+      <nav class="breadcrumbs">
+        <ol>
+          <li><a href="{{ route('home') }}">Home</a></li>
+          <li class="current">Cart</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
 
-    <!-- Cart Section -->
-    <section id="cart" class="cart section">
+  <section id="cart" class="cart section">
+    <div class="container">
 
-      <div class="container" data-aos="fade-up" data-aos-delay="100">
-
-        <div class="row">
-          <div class="col-lg-8" data-aos="fade-up" data-aos-delay="200">
-            <div class="cart-items">
-              <div class="cart-header d-none d-lg-block">
-                <div class="row align-items-center">
-                  <div class="col-lg-6">
-                    <h5>Product</h5>
-                  </div>
-                  <div class="col-lg-2 text-center">
-                    <h5>Price</h5>
-                  </div>
-                  <div class="col-lg-2 text-center">
-                    <h5>Quantity</h5>
-                  </div>
-                  <div class="col-lg-2 text-center">
-                    <h5>Total</h5>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Cart Item 1 -->
-              <div class="cart-item">
-                <div class="row align-items-center">
-                  <div class="col-lg-6 col-12 mt-3 mt-lg-0 mb-lg-0 mb-3">
-                    <div class="product-info d-flex align-items-center">
-                      <div class="product-image">
-                        <img src="assets/img/product/product-1.webp" alt="Product" class="img-fluid" loading="lazy">
-                      </div>
-                      <div class="product-details">
-                        <h6 class="product-title">Lorem ipsum dolor sit amet</h6>
-                        <div class="product-meta">
-                          <span class="product-color">Color: Black</span>
-                          <span class="product-size">Size: M</span>
-                        </div>
-                        <button class="remove-item" type="button">
-                          <i class="bi bi-trash"></i> Remove
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-lg-2 col-12 mt-3 mt-lg-0 text-center">
-                    <div class="price-tag">
-                      <span class="current-price">RM89.99</span>
-                    </div>
-                  </div>
-                  <div class="col-lg-2 col-12 mt-3 mt-lg-0 text-center">
-                    <div class="quantity-selector">
-                      <button class="quantity-btn decrease">
-                        <i class="bi bi-dash"></i>
-                      </button>
-                      <input type="number" class="quantity-input" value="1" min="1" max="10">
-                      <button class="quantity-btn increase">
-                        <i class="bi bi-plus"></i>
-                      </button>
-                    </div>
-                  </div>
-                  <div class="col-lg-2 col-12 mt-3 mt-lg-0 text-center">
-                    <div class="item-total">
-                      <span>RM89.99</span>
-                    </div>
-                  </div>
-                </div>
-              </div><!-- End Cart Item -->
-
-              <!-- Cart Item 2 -->
-              <div class="cart-item">
-                <div class="row align-items-center">
-                  <div class="col-lg-6 col-12 mt-3 mt-lg-0 mb-lg-0 mb-3">
-                    <div class="product-info d-flex align-items-center">
-                      <div class="product-image">
-                        <img src="assets/img/product/product-3.webp" alt="Product" class="img-fluid" loading="lazy">
-                      </div>
-                      <div class="product-details">
-                        <h6 class="product-title">Consectetur adipiscing elit</h6>
-                        <div class="product-meta">
-                          <span class="product-color">Color: White</span>
-                          <span class="product-size">Size: L</span>
-                        </div>
-                        <button class="remove-item" type="button">
-                          <i class="bi bi-trash"></i> Remove
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-lg-2 col-12 mt-3 mt-lg-0 text-center">
-                    <div class="price-tag">
-                      <span class="current-price">RM64.99</span>
-                      <span class="original-price">RM79.99</span>
-                    </div>
-                  </div>
-                  <div class="col-lg-2 col-12 mt-3 mt-lg-0 text-center">
-                    <div class="quantity-selector">
-                      <button class="quantity-btn decrease">
-                        <i class="bi bi-dash"></i>
-                      </button>
-                      <input type="number" class="quantity-input" value="2" min="1" max="10">
-                      <button class="quantity-btn increase">
-                        <i class="bi bi-plus"></i>
-                      </button>
-                    </div>
-                  </div>
-                  <div class="col-lg-2 col-12 mt-3 mt-lg-0 text-center">
-                    <div class="item-total">
-                      <span>RM129.98</span>
-                    </div>
-                  </div>
-                </div>
-              </div><!-- End Cart Item -->
-
-              <!-- Cart Item 3 -->
-              <div class="cart-item">
-                <div class="row align-items-center">
-                  <div class="col-lg-6 col-12 mt-3 mt-lg-0 mb-lg-0 mb-3">
-                    <div class="product-info d-flex align-items-center">
-                      <div class="product-image">
-                        <img src="assets/img/product/product-5.webp" alt="Product" class="img-fluid" loading="lazy">
-                      </div>
-                      <div class="product-details">
-                        <h6 class="product-title">Sed do eiusmod tempor</h6>
-                        <div class="product-meta">
-                          <span class="product-color">Color: Blue</span>
-                          <span class="product-size">Size: S</span>
-                        </div>
-                        <button class="remove-item" type="button">
-                          <i class="bi bi-trash"></i> Remove
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-lg-2 col-12 mt-3 mt-lg-0 text-center">
-                    <div class="price-tag">
-                      <span class="current-price">RM49.99</span>
-                    </div>
-                  </div>
-                  <div class="col-lg-2 col-12 mt-3 mt-lg-0 text-center">
-                    <div class="quantity-selector">
-                      <button class="quantity-btn decrease">
-                        <i class="bi bi-dash"></i>
-                      </button>
-                      <input type="number" class="quantity-input" value="1" min="1" max="10">
-                      <button class="quantity-btn increase">
-                        <i class="bi bi-plus"></i>
-                      </button>
-                    </div>
-                  </div>
-                  <div class="col-lg-2 col-12 mt-3 mt-lg-0 text-center">
-                    <div class="item-total">
-                      <span>RM49.99</span>
-                    </div>
-                  </div>
-                </div>
-              </div><!-- End Cart Item -->
-
-              <div class="cart-actions">
-                <div class="row">
-                  <div class="col-lg-6 mb-3 mb-lg-0">
-                    <div class="coupon-form">
-                      <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Coupon code">
-                        <button class="btn btn-outline-accent" type="button">Apply Coupon</button>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-lg-6 text-md-end">
-                    <button class="btn btn-outline-heading me-2">
-                      <i class="bi bi-arrow-clockwise"></i> Update Cart
-                    </button>
-                    <button class="btn btn-outline-remove">
-                      <i class="bi bi-trash"></i> Clear Cart
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-4 mt-4 mt-lg-0" data-aos="fade-up" data-aos-delay="300">
-            <div class="cart-summary">
-              <h4 class="summary-title">Order Summary</h4>
-
-              <div class="summary-item">
-                <span class="summary-label">Subtotal</span>
-                <span class="summary-value">RM269.96</span>
-              </div>
-
-              <div class="summary-item shipping-item">
-                <span class="summary-label">Shipping</span>
-                <div class="shipping-options">
-                  <div class="form-check text-end">
-                    <input class="form-check-input" type="radio" name="shipping" id="standard" checked="">
-                    <label class="form-check-label" for="standard">
-                      Standard Delivery - RM4.99
-                    </label>
-                  </div>
-                  <div class="form-check text-end">
-                    <input class="form-check-input" type="radio" name="shipping" id="express">
-                    <label class="form-check-label" for="express">
-                      Express Delivery - RM12.99
-                    </label>
-                  </div>
-                  <div class="form-check text-end">
-                    <input class="form-check-input" type="radio" name="shipping" id="free">
-                    <label class="form-check-label" for="free">
-                      Free Shipping (Orders over RM300)
-                    </label>
-                  </div>
-                </div>
-              </div>
-
-              <div class="summary-item">
-                <span class="summary-label">Tax</span>
-                <span class="summary-value">RM27.00</span>
-              </div>
-
-              <div class="summary-item discount">
-                <span class="summary-label">Discount</span>
-                <span class="summary-value">-RM0.00</span>
-              </div>
-
-              <div class="summary-total">
-                <span class="summary-label">Total</span>
-                <span class="summary-value">RM301.95</span>
-              </div>
-
-              <div class="checkout-button">
-                <a href="#" class="btn btn-accent w-100">
-                  Proceed to Checkout <i class="bi bi-arrow-right"></i>
-                </a>
-              </div>
-
-              <div class="continue-shopping">
-                <a href="#" class="btn btn-link w-100">
-                  <i class="bi bi-arrow-left"></i> Continue Shopping
-                </a>
-              </div>
-
-              <div class="payment-methods">
-                <p class="payment-title">We Accept</p>
-                <div class="payment-icons">
-                  <i class="bi bi-credit-card"></i>
-                  <i class="bi bi-paypal"></i>
-                  <i class="bi bi-wallet2"></i>
-                  <i class="bi bi-bank"></i>
-                </div>
-              </div>
-            </div>
-          </div>
+      {{-- Empty cart --}}
+      @if($grouped->isEmpty())
+        <div class="text-center py-5">
+          <h4>Your cart is empty</h4>
+          <a href="/" class="btn btn-accent mt-3">Browse Products</a>
         </div>
+      @endif
 
-      </div>
+      @php $grandTotal = 0; @endphp
 
-    </section><!-- /Cart Section -->
+      @foreach($grouped as $sellerId => $items)
+        @php
+          $seller = $items->first()->product->user;
+          $sellerSubtotal = $items->sum(fn($i) => $i->product->price);
+          $grandTotal += $sellerSubtotal;
+        @endphp
 
-  </main>
+        {{-- Seller Section --}}
+        <div class="mb-4 p-3 border rounded shadow-sm">
+          <h5 class="mb-3">
+            Seller: {{ $seller->name }}
+          </h5>
 
- @endsection
+          @foreach($items as $cart)
+            <div class="cart-item mb-3 pb-3 border-bottom">
+              <div class="row align-items-center">
+
+                {{-- Product Info --}}
+                <div class="col-lg-8">
+                  <div class="product-info d-flex align-items-center">
+                    <img src="{{ $cart->product->image }}" class="rounded" width="80">
+
+                    <div class="ms-3">
+                      <h6 class="product-title">{{ $cart->product->name }}</h6>
+                      <span class="text-muted small">ID: {{ $cart->product_id }}</span>
+
+                      {{-- Remove Button --}}
+                      <form action="{{ route('cart.remove', $cart->id) }}" method="POST">
+                        @csrf
+                        @method('DELETE')
+                        <button class="btn btn-sm btn-outline-danger mt-2">
+                          <i class="bi bi-trash"></i> Remove
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+
+                {{-- Price (only one line) --}}
+                <div class="col-lg-4 text-end">
+                  <span class="fw-bold text-dark">
+                    RM{{ number_format($cart->product->price, 2) }}
+                  </span>
+                </div>
+
+              </div>
+            </div>
+          @endforeach
+
+
+          {{-- Seller Subtotal --}}
+          <div class="text-end fw-bold">
+            Seller Subtotal: RM{{ number_format($sellerSubtotal, 2) }}
+          </div>
+
+        </div>
+      @endforeach
+
+      {{-- Grand Total Section --}}
+      @if(!$grouped->isEmpty())
+        <div class="cart-summary p-4 border rounded shadow-sm">
+          <h4 class="mb-3">Order Summary</h4>
+
+          <div class="d-flex justify-content-between">
+            <span>Subtotal</span>
+            <span>RM{{ number_format($grandTotal, 2) }}</span>
+          </div>
+
+          <div class="d-flex justify-content-between mt-2">
+            <span>Tax (0%)</span>
+            <span>RM0.00</span>
+          </div>
+
+          <hr>
+
+          <div class="d-flex justify-content-between fw-bold">
+            <span>Total</span>
+            <span>RM{{ number_format($grandTotal, 2) }}</span>
+          </div>
+
+          <a href="#" class="btn btn-accent w-100 mt-4">
+            Proceed to Checkout
+          </a>
+
+          <a href="/" class="btn btn-link w-100 mt-2">
+            <i class="bi bi-arrow-left"></i> Continue Shopping
+          </a>
+        </div>
+      @endif
+
+    </div>
+  </section>
+
+</main>
+
+@endsection

@@ -103,11 +103,14 @@
                         <!-- BUTTONS (stay at bottom & keep full styling) -->
                         <div class="purchase-section mt-4">
                           <div class="action-buttons">
-                              <button class="btn primary-action">
-                                  <i class="bi bi-bag-plus"></i>
-                                  Add to Cart
-                              </button>
-
+                              <form action="<?php echo e(route('cart.add', $product->id)); ?>" method="POST">
+                                <?php echo csrf_field(); ?>
+                                <button type="submit" class="btn primary-action w-100">
+                                    <i class="bi bi-bag-plus"></i>
+                                    Add to Cart
+                                </button>
+                              </form>
+                              
                               <button class="btn secondary-action">
                                   <i class="bi bi-lightning"></i>
                                   Buy Now

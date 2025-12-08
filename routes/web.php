@@ -39,6 +39,9 @@ Route::middleware(['auth'])->group(function () {
 
     // Cart
     Route::get('/cart', [CartController::class, 'index'])->name('cart');
+    Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
+    Route::delete('/cart/remove/{cart}', [CartController::class, 'remove'])->name('cart.remove');
+
 
     // Chat
     Route::get('/chat', [ChatController::class, 'index'])->name('chat');
