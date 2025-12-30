@@ -2,339 +2,210 @@
 
 @section('content')
 
-  <main class="main">
+@php
+  $user = auth()->user();
+  $grandTotal = 0;
+@endphp
 
-    <!-- Page Title -->
-    <div class="page-title light-background">
-      <div class="container d-lg-flex justify-content-between align-items-center">
-        <h1 class="mb-2 mb-lg-0">Checkout</h1>
-        <nav class="breadcrumbs">
-          <ol>
-            <li><a href="index.html">Home</a></li>
-            <li class="current">Checkout</li>
-          </ol>
-        </nav>
-      </div>
-    </div><!-- End Page Title -->
+<main class="main">
 
-    <!-- Checkout Section -->
-    <section id="checkout" class="checkout section">
+  <!-- Page Title -->
+  <div class="page-title light-background">
+    <div class="container d-lg-flex justify-content-between align-items-center">
+      <h1 class="mb-2 mb-lg-0">Checkout</h1>
+      <nav class="breadcrumbs">
+        <ol>
+          <li><a href="{{ route('home') }}">Home</a></li>
+          <li class="current">Checkout</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
 
-      <div class="container" data-aos="fade-up" data-aos-delay="100">
+  <!-- Checkout Section -->
+  <section id="checkout" class="checkout section">
+    <div class="container">
 
-        <div class="row">
-          <div class="col-lg-7">
-            <!-- Checkout Form -->
-            <div class="checkout-container" data-aos="fade-up">
-              <form class="checkout-form">
-                <!-- Customer Information -->
-                <div class="checkout-section" id="customer-info">
-                  <div class="section-header">
-                    <div class="section-number">1</div>
-                    <h3>Customer Information</h3>
-                  </div>
-                  <div class="section-content">
-                    <div class="row">
-                      <div class="col-md-6 form-group">
-                        <label for="first-name">First Name</label>
-                        <input type="text" name="first-name" class="form-control" id="first-name" placeholder="Your First Name" required="">
-                      </div>
-                      <div class="col-md-6 form-group">
-                        <label for="last-name">Last Name</label>
-                        <input type="text" name="last-name" class="form-control" id="last-name" placeholder="Your Last Name" required="">
-                      </div>
-                    </div>
-                    <div class="form-group">
-                      <label for="email">Email Address</label>
-                      <input type="email" class="form-control" name="email" id="email" placeholder="Your Email" required="">
-                    </div>
-                    <div class="form-group">
-                      <label for="phone">Phone Number</label>
-                      <input type="tel" class="form-control" name="phone" id="phone" placeholder="Your Phone Number" required="">
-                    </div>
-                  </div>
-                </div>
+      <div class="row">
 
-                <!-- Shipping Address -->
-                <div class="checkout-section" id="shipping-address">
-                  <div class="section-header">
-                    <div class="section-number">2</div>
-                    <h3>Shipping Address</h3>
-                  </div>
-                  <div class="section-content">
-                    <div class="form-group">
-                      <label for="address">Street Address</label>
-                      <input type="text" class="form-control" name="address" id="address" placeholder="Street Address" required="">
-                    </div>
-                    <div class="form-group">
-                      <label for="apartment">Apartment, Suite, etc. (optional)</label>
-                      <input type="text" class="form-control" name="apartment" id="apartment" placeholder="Apartment, Suite, Unit, etc.">
-                    </div>
-                    <div class="row">
-                      <div class="col-md-4 form-group">
-                        <label for="city">City</label>
-                        <input type="text" name="city" class="form-control" id="city" placeholder="City" required="">
-                      </div>
-                      <div class="col-md-4 form-group">
-                        <label for="state">State</label>
-                        <input type="text" name="state" class="form-control" id="state" placeholder="State" required="">
-                      </div>
-                      <div class="col-md-4 form-group">
-                        <label for="zip">ZIP Code</label>
-                        <input type="text" name="zip" class="form-control" id="zip" placeholder="ZIP Code" required="">
-                      </div>
-                    </div>
-                    <div class="form-group">
-                      <label for="country">Country</label>
-                      <select class="form-select" id="country" name="country" required="">
-                        <option value="">Select Country</option>
-                        <option value="US">United States</option>
-                        <option value="CA">Canada</option>
-                        <option value="UK">United Kingdom</option>
-                        <option value="AU">Australia</option>
-                        <option value="DE">Germany</option>
-                        <option value="FR">France</option>
-                      </select>
-                    </div>
-                    <div class="form-check">
-                      <input class="form-check-input" type="checkbox" id="save-address" name="save-address">
-                      <label class="form-check-label" for="save-address">
-                        Save this address for future orders
-                      </label>
-                    </div>
-                    <div class="form-check">
-                      <input class="form-check-input" type="checkbox" id="billing-same" name="billing-same" checked="">
-                      <label class="form-check-label" for="billing-same">
-                        Billing address same as shipping
-                      </label>
-                    </div>
-                  </div>
-                </div>
+        <!-- LEFT: CUSTOMER + ADDRESS -->
+        <div class="col-lg-7">
 
-                <!-- Payment Method -->
-                <div class="checkout-section" id="payment-method">
-                  <div class="section-header">
-                    <div class="section-number">3</div>
-                    <h3>Payment Method</h3>
-                  </div>
-                  <div class="section-content">
-                    <div class="payment-options">
-                      <div class="payment-option active">
-                        <input type="radio" name="payment-method" id="credit-card" checked="">
-                        <label for="credit-card">
-                          <span class="payment-icon"><i class="bi bi-credit-card-2-front"></i></span>
-                          <span class="payment-label">Credit / Debit Card</span>
-                        </label>
-                      </div>
-                      <div class="payment-option">
-                        <input type="radio" name="payment-method" id="paypal">
-                        <label for="paypal">
-                          <span class="payment-icon"><i class="bi bi-paypal"></i></span>
-                          <span class="payment-label">PayPal</span>
-                        </label>
-                      </div>
-                      <div class="payment-option">
-                        <input type="radio" name="payment-method" id="apple-pay">
-                        <label for="apple-pay">
-                          <span class="payment-icon"><i class="bi bi-apple"></i></span>
-                          <span class="payment-label">Apple Pay</span>
-                        </label>
-                      </div>
-                    </div>
+          <!-- SINGLE FORM -->
+          <form action="{{ route('orders.store') }}" method="POST" class="checkout-container">
+            @csrf
 
-                    <div class="payment-details" id="credit-card-details">
-                      <div class="form-group">
-                        <label for="card-number">Card Number</label>
-                        <div class="card-number-wrapper">
-                          <input type="text" class="form-control" name="card-number" id="card-number" placeholder="1234 5678 9012 3456" required="">
-                          <div class="card-icons">
-                            <i class="bi bi-credit-card-2-front"></i>
-                            <i class="bi bi-credit-card"></i>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="row">
-                        <div class="col-md-6 form-group">
-                          <label for="expiry">Expiration Date</label>
-                          <input type="text" class="form-control" name="expiry" id="expiry" placeholder="MM/YY" required="">
-                        </div>
-                        <div class="col-md-6 form-group">
-                          <label for="cvv">Security Code (CVV)</label>
-                          <div class="cvv-wrapper">
-                            <input type="text" class="form-control" name="cvv" id="cvv" placeholder="123" required="">
-                            <span class="cvv-hint" data-bs-toggle="tooltip" data-bs-placement="top" title="3-digit code on the back of your card">
-                              <i class="bi bi-question-circle"></i>
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="form-group">
-                        <label for="card-name">Name on Card</label>
-                        <input type="text" class="form-control" name="card-name" id="card-name" placeholder="John Doe" required="">
-                      </div>
-                    </div>
+            @foreach($grouped as $items)
+              @foreach($items as $cart)
+                <input type="hidden" name="cart_items[]" value="{{ $cart->id }}">
+              @endforeach
+            @endforeach
 
-                    <div class="payment-details d-none" id="paypal-details">
-                      <p class="payment-info">You will be redirected to PayPal to complete your purchase securely.</p>
-                    </div>
-
-                    <div class="payment-details d-none" id="apple-pay-details">
-                      <p class="payment-info">You will be prompted to authorize payment with Apple Pay.</p>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Order Review -->
-                <div class="checkout-section" id="order-review">
-                  <div class="section-header">
-                    <div class="section-number">4</div>
-                    <h3>Review &amp; Place Order</h3>
-                  </div>
-                  <div class="section-content">
-                    <div class="form-check terms-check">
-                      <input class="form-check-input" type="checkbox" id="terms" name="terms" required="">
-                      <label class="form-check-label" for="terms">
-                        I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms and Conditions</a> and <a href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">Privacy Policy</a>
-                      </label>
-                    </div>
-                    <div class="success-message d-none">Your order has been placed successfully! Thank you for your purchase.</div>
-                    <div class="place-order-container">
-                      <button type="submit" class="btn btn-primary place-order-btn">
-                        <span class="btn-text">Place Order</span>
-                        <span class="btn-price">RM240.96</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </div>
-
-          <div class="col-lg-5">
-            <!-- Order Summary -->
-            <div class="order-summary" data-aos="fade-left" data-aos-delay="200">
-              <div class="order-summary-header">
-                <h3>Order Summary</h3>
-                <span class="item-count">2 Items</span>
+            <!-- Customer Information -->
+            <div class="checkout-section">
+              <div class="section-header">
+                <div class="section-number">1</div>
+                <h3>Customer Information</h3>
               </div>
+              <div class="section-content">
 
-              <div class="order-summary-content">
-                <div class="order-items">
-                  <div class="order-item">
-                    <div class="order-item-image">
-                      <img src="assets/img/product/product-1.webp" alt="Product" class="img-fluid">
-                    </div>
-                    <div class="order-item-details">
-                      <h4>Lorem Ipsum Dolor</h4>
-                      <p class="order-item-variant">Color: Black | Size: M</p>
-                      <div class="order-item-price">
-                        <span class="quantity">1 ×</span>
-                        <span class="price">RM89.99</span>
-                      </div>
-                    </div>
+                <div class="row">
+                  <div class="col-md-6 form-group">
+                    <label>Full Name</label>
+                    <input type="text" name="name" class="form-control"
+                           value="{{ $user->name }}">
                   </div>
 
-                  <div class="order-item">
-                    <div class="order-item-image">
-                      <img src="assets/img/product/product-2.webp" alt="Product" class="img-fluid">
-                    </div>
-                    <div class="order-item-details">
-                      <h4>Sit Amet Consectetur</h4>
-                      <p class="order-item-variant">Color: White | Size: L</p>
-                      <div class="order-item-price">
-                        <span class="quantity">2 ×</span>
-                        <span class="price">RM59.99</span>
-                      </div>
-                    </div>
+                  <div class="col-md-6 form-group">
+                    <label>Email Address</label>
+                    <input type="email" name="email" class="form-control"
+                           value="{{ $user->email }}" readonly>
                   </div>
                 </div>
 
-                <div class="promo-code">
-                  <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Promo Code" aria-label="Promo Code">
-                    <button class="btn btn-outline-primary" type="button">Apply</button>
-                  </div>
+                <div class="form-group">
+                  <label>Phone Number</label>
+                  <input type="text" name="phone" class="form-control"
+                         value="{{ $user->phone }}">
                 </div>
 
-                <div class="order-totals">
-                  <div class="order-subtotal d-flex justify-content-between">
-                    <span>Subtotal</span>
-                    <span>RM209.97</span>
-                  </div>
-                  <div class="order-shipping d-flex justify-content-between">
-                    <span>Shipping</span>
-                    <span>RM9.99</span>
-                  </div>
-                  <div class="order-tax d-flex justify-content-between">
-                    <span>Tax</span>
-                    <span>RM21.00</span>
-                  </div>
-                  <div class="order-total d-flex justify-content-between">
-                    <span>Total</span>
-                    <span>RM240.96</span>
-                  </div>
-                </div>
-
-                <div class="secure-checkout">
-                  <div class="secure-checkout-header">
-                    <i class="bi bi-shield-lock"></i>
-                    <span>Secure Checkout</span>
-                  </div>
-                  <div class="payment-icons">
-                    <i class="bi bi-credit-card-2-front"></i>
-                    <i class="bi bi-credit-card"></i>
-                    <i class="bi bi-paypal"></i>
-                    <i class="bi bi-apple"></i>
-                  </div>
-                </div>
               </div>
             </div>
-          </div>
+
+            <!-- Shipping Address -->
+            <div class="checkout-section">
+              <div class="section-header">
+                <div class="section-number">2</div>
+                <h3>Shipping Address</h3>
+              </div>
+              <div class="section-content">
+
+                <div class="form-group">
+                  <label>Street Address</label>
+                  <input type="text" name="address1" class="form-control"
+                         value="{{ $user->address1 }}">
+                </div>
+
+                <div class="form-group">
+                  <label>Apartment / Unit</label>
+                  <input type="text" name="address2" class="form-control"
+                         value="{{ $user->address2 }}">
+                </div>
+
+                <div class="row">
+                  <div class="col-md-4 form-group">
+                    <label>City</label>
+                    <input type="text" name="city" class="form-control"
+                           value="{{ $user->city }}">
+                  </div>
+
+                  <div class="col-md-4 form-group">
+                    <label>State</label>
+                    <input type="text" name="state" class="form-control"
+                           value="{{ $user->state }}">
+                  </div>
+
+                  <div class="col-md-4 form-group">
+                    <label>Postcode</label>
+                    <input type="text" name="postcode" class="form-control"
+                           value="{{ $user->postcode }}">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Country</label>
+                  <input type="text" name="country" class="form-control"
+                         value="{{ $user->country }}">
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Place Order -->
+            <div class="checkout-section" id="order-review">
+              <div class="section-header">
+                <div class="section-number">3</div>
+                <h3>Review &amp; Place Order</h3>
+              </div>
+              <div class="section-content">
+
+                <div class="place-order-container">
+                  <button type="submit" class="btn btn-primary place-order-btn w-100">
+                    <span class="btn-text">Place Order</span>
+                    <span class="btn-price">
+                      RM{{ number_format($grouped->flatten()->sum(fn($i) => $i->product->price), 2) }}
+                    </span>
+                  </button>
+                </div>
+
+              </div>
+            </div>
+
+          </form>
+          <!-- ✅ END FORM -->
+
         </div>
 
-        <!-- Terms and Privacy Modals -->
-        <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
-          <div class="modal-dialog modal-dialog-scrollable">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="termsModalLabel">Terms and Conditions</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div class="modal-body">
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in dui mauris. Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor. Ut in nulla enim. Phasellus molestie magna non est bibendum non venenatis nisl tempor.</p>
-                <p>Suspendisse in orci enim. Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor. Ut in nulla enim. Phasellus molestie magna non est bibendum non venenatis nisl tempor.</p>
-                <p>Suspendisse in orci enim. Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor. Ut in nulla enim. Phasellus molestie magna non est bibendum non venenatis nisl tempor.</p>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">I Understand</button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <!-- RIGHT: ORDER SUMMARY -->
+        <div class="col-lg-5">
 
-        <div class="modal fade" id="privacyModal" tabindex="-1" aria-labelledby="privacyModalLabel" aria-hidden="true">
-          <div class="modal-dialog modal-dialog-scrollable">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="privacyModalLabel">Privacy Policy</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <div class="order-summary">
+            <div class="order-summary-header">
+              <h3>Order Summary</h3>
+              <span class="item-count">
+                {{ $grouped->flatten()->count() }} Items
+              </span>
+            </div>
+
+            <div class="order-summary-content">
+
+              <div class="order-items">
+
+                @foreach($grouped as $items)
+                  @foreach($items as $cart)
+                    @php $grandTotal += $cart->product->price; @endphp
+
+                    <div class="order-item">
+                      <div class="order-item-image">
+                        <img src="{{ $cart->product->image }}" class="img-fluid">
+                      </div>
+
+                      <div class="order-item-details">
+                        <h4>{{ $cart->product->name }}</h4>
+                        <p class="order-item-variant">
+                          Seller: {{ $cart->product->user->name }}
+                        </p>
+                        <div class="order-item-price">
+                          <span class="quantity">1 ×</span>
+                          <span class="price">
+                            RM{{ number_format($cart->product->price, 2) }}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                  @endforeach
+                @endforeach
+
               </div>
-              <div class="modal-body">
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in dui mauris. Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor. Ut in nulla enim.</p>
-                <p>Suspendisse in orci enim. Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor. Ut in nulla enim. Phasellus molestie magna non est bibendum non venenatis nisl tempor.</p>
-                <p>Suspendisse in orci enim. Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor. Ut in nulla enim. Phasellus molestie magna non est bibendum non venenatis nisl tempor.</p>
+
+              <div class="order-totals mt-4">
+                <div class="order-total d-flex justify-content-between fw-bold">
+                  <span>Total</span>
+                  <span>RM{{ number_format($grandTotal, 2) }}</span>
+                </div>
               </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">I Understand</button>
-              </div>
+
             </div>
           </div>
+
         </div>
 
       </div>
 
-    </section><!-- /Checkout Section -->
+    </div>
+  </section>
 
-  </main>
+</main>
 
 @endsection

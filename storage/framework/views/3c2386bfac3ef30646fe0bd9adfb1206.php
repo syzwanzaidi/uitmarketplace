@@ -5,12 +5,6 @@
   <div class="page-title light-background">
     <div class="container d-lg-flex justify-content-between align-items-center">
       <h1 class="mb-2 mb-lg-0">Cart</h1>
-      <nav class="breadcrumbs">
-        <ol>
-          <li><a href="<?php echo e(route('home')); ?>">Home</a></li>
-          <li class="current">Cart</li>
-        </ol>
-      </nav>
     </div>
   </div>
 
@@ -25,105 +19,161 @@
         </div>
       <?php endif; ?>
 
-      <?php $grandTotal = 0; ?>
+      
+      <form action="<?php echo e(route('checkout')); ?>" method="POST" id="checkoutForm">
+        <?php echo csrf_field(); ?>
 
-      <?php $__currentLoopData = $grouped; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $sellerId => $items): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-        <?php
-          $seller = $items->first()->product->user;
-          $sellerSubtotal = $items->sum(fn($i) => $i->product->price);
-          $grandTotal += $sellerSubtotal;
-        ?>
+        <?php $__currentLoopData = $grouped; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $sellerId => $items): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+          <?php $seller = $items->first()->product->user; ?>
 
-        
-        <div class="mb-4 p-3 border rounded shadow-sm">
-          <h5 class="mb-3">
-            Seller: <?php echo e($seller->name); ?>
+          <div class="mb-4 p-3 border rounded shadow-sm">
 
-          </h5>
+            
+            <h5 class="mb-3 d-flex align-items-center">
+              <input type="checkbox"
+                     class="form-check-input me-2 seller-checkbox"
+                     data-seller="<?php echo e($sellerId); ?>">
+              Seller: <?php echo e($seller->name); ?>
 
-          <?php $__currentLoopData = $items; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $cart): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-            <div class="cart-item mb-3 pb-3 border-bottom">
-              <div class="row align-items-center">
+            </h5>
 
-                
-                <div class="col-lg-8">
-                  <div class="product-info d-flex align-items-center">
-                    <img src="<?php echo e($cart->product->image); ?>" class="rounded" width="80">
+            <?php $__currentLoopData = $items; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $cart): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+              <div class="cart-item mb-3 pb-3 border-bottom">
+                <div class="row align-items-center">
+
+                  <div class="col-lg-8 d-flex align-items-center">
+
+                    
+                    <input type="checkbox"
+                           name="cart_items[]"
+                           value="<?php echo e($cart->id); ?>"
+                           class="form-check-input me-3 item-checkbox"
+                           data-seller="<?php echo e($sellerId); ?>"
+                           data-price="<?php echo e($cart->product->price); ?>">
+
+                    <img src="<?php echo e($cart->product->image); ?>" width="80" class="rounded">
 
                     <div class="ms-3">
-                      <h6 class="product-title"><?php echo e($cart->product->name); ?></h6>
-                      <span class="text-muted small">ID: <?php echo e($cart->product_id); ?></span>
+                      <h6><?php echo e($cart->product->name); ?></h6>
 
                       
-                      <form action="<?php echo e(route('cart.remove', $cart->id)); ?>" method="POST">
-                        <?php echo csrf_field(); ?>
-                        <?php echo method_field('DELETE'); ?>
-                        <button class="btn btn-sm btn-outline-danger mt-2">
-                          <i class="bi bi-trash"></i> Remove
-                        </button>
-                      </form>
+                      <button type="button"
+                              class="btn btn-sm btn-outline-danger mt-2"
+                              onclick="submitRemove(<?php echo e($cart->id); ?>)">
+                        <i class="bi bi-trash"></i> Remove
+                      </button>
                     </div>
+
                   </div>
+
+                  <div class="col-lg-4 text-end">
+                    <strong>RM<?php echo e(number_format($cart->product->price, 2)); ?></strong>
+                  </div>
+
                 </div>
-
-                
-                <div class="col-lg-4 text-end">
-                  <span class="fw-bold text-dark">
-                    RM<?php echo e(number_format($cart->product->price, 2)); ?>
-
-                  </span>
-                </div>
-
               </div>
-            </div>
-          <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-
-
-          
-          <div class="text-end fw-bold">
-            Seller Subtotal: RM<?php echo e(number_format($sellerSubtotal, 2)); ?>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
           </div>
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
-        </div>
-      <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+      </form>
+      
 
       
       <?php if(!$grouped->isEmpty()): ?>
         <div class="cart-summary p-4 border rounded shadow-sm">
-          <h4 class="mb-3">Order Summary</h4>
 
           <div class="d-flex justify-content-between">
-            <span>Subtotal</span>
-            <span>RM<?php echo e(number_format($grandTotal, 2)); ?></span>
-          </div>
-
-          <div class="d-flex justify-content-between mt-2">
-            <span>Tax (0%)</span>
-            <span>RM0.00</span>
-          </div>
-
-          <hr>
-
-          <div class="d-flex justify-content-between fw-bold">
             <span>Total</span>
-            <span>RM<?php echo e(number_format($grandTotal, 2)); ?></span>
+            <span class="fw-bold" id="grandTotal">RM0.00</span>
           </div>
 
-          <a href="#" class="btn btn-accent w-100 mt-4">
+          
+          <button type="submit"
+                  class="btn btn-accent w-100 mt-4"
+                  form="checkoutForm">
             Proceed to Checkout
-          </a>
+          </button>
 
-          <a href="/" class="btn btn-link w-100 mt-2">
-            <i class="bi bi-arrow-left"></i> Continue Shopping
-          </a>
+          
+          <form action="<?php echo e(route('cart.clear')); ?>" method="POST" class="mt-2">
+            <?php echo csrf_field(); ?>
+            <?php echo method_field('DELETE'); ?>
+            <button class="btn btn-outline-danger w-100">
+              Clear Cart
+            </button>
+          </form>
+
         </div>
       <?php endif; ?>
+
+      
+      <?php $__currentLoopData = $grouped; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $items): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+        <?php $__currentLoopData = $items; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $cart): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+          <form id="remove-form-<?php echo e($cart->id); ?>"
+                action="<?php echo e(route('cart.remove', $cart->id)); ?>"
+                method="POST"
+                class="d-none">
+            <?php echo csrf_field(); ?>
+            <?php echo method_field('DELETE'); ?>
+          </form>
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+      <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
     </div>
   </section>
 
 </main>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  const items = document.querySelectorAll('.item-checkbox');
+  const sellers = document.querySelectorAll('.seller-checkbox');
+  const total = document.getElementById('grandTotal');
+
+  function updateTotal() {
+    let sum = 0;
+    items.forEach(i => {
+      if (i.checked) sum += parseFloat(i.dataset.price);
+    });
+    total.textContent = 'RM' + sum.toFixed(2);
+  }
+
+  function syncSeller(id) {
+    const group = [...items].filter(i => i.dataset.seller === id);
+    const seller = document.querySelector(`.seller-checkbox[data-seller="${id}"]`);
+    seller.checked = group.every(i => i.checked);
+  }
+
+  items.forEach(i => {
+    i.addEventListener('change', () => {
+      updateTotal();
+      syncSeller(i.dataset.seller);
+    });
+  });
+
+  sellers.forEach(s => {
+    s.addEventListener('change', () => {
+      items.forEach(i => {
+        if (i.dataset.seller === s.dataset.seller) {
+          i.checked = s.checked;
+        }
+      });
+      updateTotal();
+    });
+  });
+
+});
+
+function submitRemove(id) {
+  if (confirm('Remove this item from cart?')) {
+    document.getElementById('remove-form-' + id).submit();
+  }
+}
+</script>
 
 <?php $__env->stopSection(); ?>
 

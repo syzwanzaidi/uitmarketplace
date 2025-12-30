@@ -12762,6 +12762,35 @@ section,
     margin-top: auto !important; /* pushes buttons to bottom */
 }
 
+/* ===============================
+   Cart Checkbox Styling
+   =============================== */
+
+.cart .form-check-input {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+
+  /* Bootstrap override */
+  --bs-form-check-bg: #fff;
+  --bs-form-check-bg-image: none;
+  border: 2px solid #000;
+}
+
+.cart .form-check-input:checked {
+  background-color: #000;
+  border-color: #000;
+}
+
+.cart .seller-checkbox {
+  transform: scale(1.2);
+}
+
+.cart .item-checkbox {
+  transform: scale(1.1);
+}
+
+
 
 
 
