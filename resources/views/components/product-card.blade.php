@@ -7,8 +7,8 @@
         <div class="product-image">
 
             {{-- Optional badge (display if exists) --}}
-            @if($product->status == 'active')
-                <div class="product-badge">New</div>
+            @if($product->status === 'sold')
+            <div class="product-badge bg-danger">SOLD</div>
             @endif
 
             <img src="{{ $product->image }}" 

@@ -35,8 +35,8 @@ unset($__defined_vars, $__key, $__value); ?>
         <div class="product-image">
 
             
-            <?php if($product->status == 'active'): ?>
-                <div class="product-badge">New</div>
+            <?php if($product->status === 'sold'): ?>
+            <div class="product-badge bg-danger">SOLD</div>
             <?php endif; ?>
 
             <img src="<?php echo e($product->image); ?>" 

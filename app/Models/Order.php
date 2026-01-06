@@ -11,11 +11,14 @@ class Order extends Model
         'seller_id',
         'total',
         'status',
+        'bill_code',
+        'payment_ref',
+        'paid_at',
     ];
 
-    public function items()
+    // ✅ MUST MATCH CONTROLLER
+    public function orderItems()
     {
         return $this->hasMany(OrderItem::class);
     }
 }
-

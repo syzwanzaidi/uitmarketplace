@@ -17,6 +17,9 @@ return new class extends Migration
             $table->foreignId('seller_id')->constrained('users')->cascadeOnDelete();
             $table->decimal('total', 10, 2);
             $table->string('status')->default('pending');
+            $table->string('bill_code')->nullable();
+            $table->string('payment_ref')->nullable();
+            $table->timestamp('paid_at')->nullable();
             $table->timestamps();
         });
     }

@@ -9,11 +9,10 @@ class HomeController extends Controller
 {
     public function index()
     {
-        // latest active products, eager-load category
-        $products = Product::where('status', 'active')
-            ->with('category')
+        $products = Product::with('category')
+            ->where('status', 'active')
             ->latest()
-            ->take(8) // adjust how many you want on homepage
+            ->take(8)
             ->get();
 
         return view('user.home', compact('products'));

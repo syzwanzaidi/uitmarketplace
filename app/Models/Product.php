@@ -20,6 +20,10 @@ class Product extends Model
         'status',
     ];
 
+    protected $attributes = [
+    'status' => 'active',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);

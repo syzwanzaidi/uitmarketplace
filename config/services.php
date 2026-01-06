@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'toyyibpay' => [
+    'secret' => env('TOYYIBPAY_SECRET'),
+    'category' => env('TOYYIBPAY_CATEGORY'),
+    'url' => env('TOYYIBPAY_URL'),
+    ],
+
 ];
