@@ -14,6 +14,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\BuyerOrderController;
 
 use App\Http\Controllers\ListingsController;
 use App\Http\Controllers\SellerOrderController;
@@ -83,6 +84,11 @@ Route::middleware(['auth'])->group(function () {
     // Payment success page (USER REDIRECT)
     Route::get('/orders/{order}/success', [OrderController::class, 'success'])
         ->name('orders.success');
+
+    Route::get('/my-orders', [BuyerOrderController::class, 'index'])
+    ->middleware('auth')
+    ->name('buyer.orders');
+
 
     // Listings (Seller dashboard)
     Route::get('/listings', [ListingsController::class, 'index'])->name('listings');

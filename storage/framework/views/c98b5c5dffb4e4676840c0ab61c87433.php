@@ -107,6 +107,7 @@
             <li><a href="<?php echo e(route('about')); ?>">About</a></li>
             <li><a href="<?php echo e(route('cart')); ?>">Cart</a></li>
             <li><a href="<?php echo e(route('chat')); ?>">Chat</a></li>
+            <li><a href="<?php echo e(route('buyer.orders')); ?>">My Orders</a></li>
             <?php if(auth()->check() && auth()->user()->membership_type === 'uitm'): ?>
                 <li><a href="<?php echo e(route('listings')); ?>">Listing</a></li>
             <?php endif; ?>

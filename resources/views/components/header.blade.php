@@ -107,6 +107,7 @@
             <li><a href="{{ route('about')}}">About</a></li>
             <li><a href="{{ route('cart')}}">Cart</a></li>
             <li><a href="{{ route('chat')}}">Chat</a></li>
+            <li><a href="{{ route('buyer.orders')}}">My Orders</a></li>
             @if(auth()->check() && auth()->user()->membership_type === 'uitm')
                 <li><a href="{{ route('listings') }}">Listing</a></li>
             @endif
