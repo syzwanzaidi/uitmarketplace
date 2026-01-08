@@ -16,6 +16,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
 
 use App\Http\Controllers\ListingsController;
+use App\Http\Controllers\SellerOrderController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\WishlistController;
 
@@ -88,6 +89,12 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/listings/store', [ListingsController::class, 'store'])->name('listings.store');
     Route::patch('/listings/{product}/update', [ListingsController::class, 'update'])->name('listings.update');
     Route::delete('/listings/{product}/delete', [ListingsController::class, 'destroy'])->name('listings.delete');
+
+    // Orders (Seller view)
+    Route::get('/seller/orders', [SellerOrderController::class, 'index'])
+        ->name('seller.orders');
+    Route::patch('/seller/orders/{order}/tracking', [SellerOrderController::class, 'updateTracking'])
+        ->name('seller.orders.updateTracking');
 
     // Chat
     Route::get('/chat', [ChatController::class, 'index'])->name('chat');

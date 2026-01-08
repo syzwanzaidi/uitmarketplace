@@ -26,7 +26,7 @@
           <div class="dashboard-card">
             <i class="bi bi-currency-dollar"></i>
             <h4>Total Sales</h4>
-            <p>RM 12,540</p>
+            <p>RM <?php echo e(number_format($totalSales, 2)); ?></p>
           </div>
         </div>
 
@@ -34,25 +34,29 @@
           <div class="dashboard-card">
             <i class="bi bi-box-seam"></i>
             <h4>Active Listings</h4>
-            <p>8 Items</p>
+            <p> <?php echo e($activeListingsCount); ?> Items </p>
           </div>
         </div>
 
         <div class="col-md-3 col-sm-6">
-          <div class="dashboard-card">
+          <div class="dashboard-card"
+              style="cursor: pointer"
+              onclick="window.location='<?php echo e(route('chat')); ?>'">
             <i class="bi bi-chat-dots"></i>
             <h4>Messages</h4>
             <p>4 New</p>
           </div>
         </div>
 
-        <div class="col-md-3 col-sm-6">
-          <div class="dashboard-card">
-            <i class="bi bi-graph-up"></i>
-            <h4>Pending Orders</h4>
-            <p>3</p>
-          </div>
-        </div>
+<div class="col-md-3 col-sm-6">
+  <div class="dashboard-card"
+       style="cursor: pointer"
+       onclick="window.location='<?php echo e(route('seller.orders')); ?>'">
+    <i class="bi bi-graph-up"></i>
+    <h4>Pending Orders</h4>
+    <p><?php echo e($pendingOrdersCount); ?></p>
+  </div>
+</div>
       </div>
 
       <!-- Add New Listing Button -->

@@ -14,11 +14,16 @@ class Order extends Model
         'bill_code',
         'payment_ref',
         'paid_at',
+        'tracking_number',
     ];
 
-    // ✅ MUST MATCH CONTROLLER
-    public function orderItems()
+    public function items()
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function buyer()
+    {
+        return $this->belongsTo(User::class, 'buyer_id');
     }
 }

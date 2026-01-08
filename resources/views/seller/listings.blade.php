@@ -26,7 +26,7 @@
           <div class="dashboard-card">
             <i class="bi bi-currency-dollar"></i>
             <h4>Total Sales</h4>
-            <p>RM 12,540</p>
+            <p>RM {{ number_format($totalSales, 2) }}</p>
           </div>
         </div>
 
@@ -34,12 +34,14 @@
           <div class="dashboard-card">
             <i class="bi bi-box-seam"></i>
             <h4>Active Listings</h4>
-            <p>8 Items</p>
+            <p> {{ $activeListingsCount }} Items </p>
           </div>
         </div>
 
         <div class="col-md-3 col-sm-6">
-          <div class="dashboard-card">
+          <div class="dashboard-card"
+              style="cursor: pointer"
+              onclick="window.location='{{ route('chat') }}'">
             <i class="bi bi-chat-dots"></i>
             <h4>Messages</h4>
             <p>4 New</p>
@@ -47,17 +49,19 @@
         </div>
 
         <div class="col-md-3 col-sm-6">
-          <div class="dashboard-card">
+          <div class="dashboard-card"
+              style="cursor: pointer"
+              onclick="window.location='{{ route('seller.orders') }}'">
             <i class="bi bi-graph-up"></i>
             <h4>Pending Orders</h4>
-            <p>3</p>
+            <p>{{ $pendingOrdersCount }}</p>
           </div>
         </div>
       </div>
 
       <!-- Add New Listing Button -->
       <div class="d-flex justify-content-between align-items-center mb-4">
-        <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addListingModal">
+        <a href="#" class="btn btn-header" data-bs-toggle="modal" data-bs-target="#addListingModal">
           <i class="bi bi-plus-lg"></i> Add New Listing
         </a>
       </div>

@@ -3,23 +3,54 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Category;
-use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
 
+use App\Models\Category;
+use App\Models\Product;
+use App\Models\Order;
 
 class ListingsController extends Controller
 {
+    /**
+     * Seller dashboard (Listings + Stats)
+     */
     public function index()
     {
+        $sellerId = Auth::id();
+
+        // Categories (for add/edit modal)
         $categories = Category::all();
 
-        // Get only the logged-in seller’s products
-        $products = Product::where('user_id', Auth::id())->get();
+        // Seller products
+        $products = Product::with('category')
+            ->where('user_id', $sellerId)
+            ->get();
 
-        return view('user.listings', compact('categories', 'products'));
+        // DASHBOARD STATS
+        $totalSales = Order::where('seller_id', $sellerId)
+            ->where('status', 'paid')
+            ->sum('total');
+
+        $activeListingsCount = Product::where('user_id', $sellerId)
+            ->where('status', 'active')
+            ->count();
+
+        $pendingOrdersCount = Order::where('seller_id', $sellerId)
+            ->where('status', 'paid')
+            ->count();
+
+        return view('seller.listings', compact(
+            'categories',
+            'products',
+            'totalSales',
+            'activeListingsCount',
+            'pendingOrdersCount'
+        ));
     }
 
+    /**
+     * Store new product listing
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -31,11 +62,10 @@ class ListingsController extends Controller
             'image'       => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
-        // Save image to storage/app/public/products
         $imagePath = $request->file('image')->store('products', 'public');
 
         Product::create([
-            'user_id'     => $request->user()->id,
+            'user_id'     => Auth::id(),
             'category_id' => $request->category_id,
             'name'        => $request->name,
             'description' => $request->description,
@@ -48,6 +78,9 @@ class ListingsController extends Controller
         return redirect()->back()->with('success', 'Product added successfully!');
     }
 
+    /**
+     * Update listing
+     */
     public function update(Request $request, Product $product)
     {
         $this->authorize('update', $product);
@@ -62,7 +95,6 @@ class ListingsController extends Controller
             'image'       => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
-        // If seller uploads new image
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('products', 'public');
             $product->image = '/storage/' . $imagePath;
@@ -80,6 +112,9 @@ class ListingsController extends Controller
         return redirect()->back()->with('success', 'Listing updated successfully!');
     }
 
+    /**
+     * Delete listing
+     */
     public function destroy(Product $product)
     {
         $this->authorize('delete', $product);
@@ -88,6 +123,4 @@ class ListingsController extends Controller
 
         return redirect()->back()->with('success', 'Listing deleted successfully!');
     }
-
-
 }

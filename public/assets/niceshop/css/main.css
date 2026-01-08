@@ -12790,6 +12790,20 @@ section,
   transform: scale(1.1);
 }
 
+.btn-header {
+  background-color: #092131;
+  color: #fff;
+  border-radius: 10px;
+  padding: 10px 24px;
+  border: none;
+}
+
+.btn-header:hover {
+  background-color: #154d73;
+  color: #fff;
+}
+
+
 
 
 
