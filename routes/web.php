@@ -88,6 +88,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/listings', [ListingsController::class, 'index'])->name('listings');
     Route::post('/listings/store', [ListingsController::class, 'store'])->name('listings.store');
     Route::patch('/listings/{product}/update', [ListingsController::class, 'update'])->name('listings.update');
+    Route::patch('/listings/{product}/status', [ListingsController::class, 'updateStatus'])->name('listings.updateStatus');
     Route::delete('/listings/{product}/delete', [ListingsController::class, 'destroy'])->name('listings.delete');
 
     // Orders (Seller view)

@@ -42,7 +42,7 @@ class PaymentController extends Controller
                 'paid_at'               => now(),
             ]);
 
-            foreach ($order->orderItems as $item) {
+            foreach ($order->Items as $item) {
                 Product::where('id', $item->product_id)
                     ->update(['status' => 'sold']);
             }

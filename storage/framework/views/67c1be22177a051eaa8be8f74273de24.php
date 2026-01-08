@@ -16,13 +16,60 @@
     </div>
   </div>
 
-  <!-- IMPORTANT: SAME WRAPPER AS ACCOUNT PAGE -->
+  <!-- SAME WRAPPER AS ACCOUNT PAGE -->
   <section class="account section">
     <div class="container">
 
       <div class="content-area">
 
-        <!-- Section Header -->
+        
+        
+        
+        <div class="row g-4 mb-5">
+
+          <div class="col-md-3 col-sm-6">
+            <div class="dashboard-card">
+              <i class="bi bi-currency-dollar"></i>
+              <h4>Total Sales</h4>
+              <p>RM <?php echo e(number_format($totalSales, 2)); ?></p>
+            </div>
+          </div>
+
+          <div class="col-md-3 col-sm-6">
+            <div class="dashboard-card"
+                style="cursor: pointer"
+                onclick="window.location='<?php echo e(route('listings')); ?>'">
+              <i class="bi bi-box-seam"></i>
+              <h4>Active Listings</h4>
+              <p><?php echo e($activeListingsCount); ?> Items</p>
+            </div>
+          </div>
+
+          <div class="col-md-3 col-sm-6">
+            <div class="dashboard-card"
+                 style="cursor: pointer"
+                 onclick="window.location='<?php echo e(route('chat')); ?>'">
+              <i class="bi bi-chat-dots"></i>
+              <h4>Messages</h4>
+              <p>4 New</p>
+            </div>
+          </div>
+
+          <div class="col-md-3 col-sm-6">
+            <div class="dashboard-card"
+                 style="cursor: pointer"
+                 onclick="window.location='<?php echo e(route('seller.orders')); ?>'">
+              <i class="bi bi-graph-up"></i>
+              <h4>Pending Orders</h4>
+              <p><?php echo e($pendingOrdersCount); ?></p>
+            </div>
+          </div>
+
+        </div>
+
+        
+        
+        
         <div class="section-header" data-aos="fade-up">
           <div class="header-actions">
             <div class="search-box">
@@ -32,34 +79,49 @@
           </div>
         </div>
 
-        <!-- Orders Grid -->
+        
+        
+        
         <div class="orders-grid">
+
+          <?php
+            $statusClasses = [
+                'paid' => 'processing',
+                'shipped' => 'shipped',
+                'completed' => 'delivered',
+                'failed' => 'cancelled',
+            ];
+          ?>
+
 
           <?php $__empty_1 = true; $__currentLoopData = $orders; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $order): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
             <div class="order-card" data-aos="fade-up">
 
-              <!-- Header -->
+              
               <div class="order-header">
                 <div class="order-id">
                   <span class="label">Order ID:</span>
                   <span class="value">#ORDER-<?php echo e($order->id); ?></span>
-                  <span class="label">Tracking Number:</span>
+
+                  <span class="label ms-3">Tracking:</span>
                   <span class="value"><?php echo e($order->tracking_number ?? '-'); ?></span>
                 </div>
+
                 <div class="order-date">
                   <?php echo e($order->created_at->format('d M Y')); ?>
 
                 </div>
               </div>
 
-              <!-- Content -->
+              
               <div class="order-content">
 
-                <!-- Product Images -->
+                
                 <div class="product-grid">
+
                   <?php $__currentLoopData = $order->items->take(3); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                    <img 
-                      src="<?php echo e($item->product->image); ?>" 
+                    <img
+                      src="<?php echo e($item->product->image); ?>"
                       alt="Product"
                       loading="lazy">
                   <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
@@ -72,19 +134,21 @@
                   <?php endif; ?>
                 </div>
 
-                <!-- Order Info -->
+                
                 <div class="order-info">
                   <div class="info-row">
                     <span>Status</span>
-                    <span class="status processing">
-                      <?php echo e(strtoupper($order->status)); ?>
+                    <span class="status <?php echo e($statusClasses[$order->status] ?? 'processing'); ?>">
+                        <?php echo e(strtoupper($order->status)); ?>
 
                     </span>
                   </div>
+
                   <div class="info-row">
                     <span>Items</span>
                     <span><?php echo e($order->items->count()); ?> items</span>
                   </div>
+
                   <div class="info-row">
                     <span>Total</span>
                     <span class="price">
@@ -96,10 +160,10 @@
 
               </div>
 
-              <!-- Footer -->
+              
               <div class="order-footer">
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   class="btn-details"
                   data-bs-toggle="modal"
                   data-bs-target="#orderDetails<?php echo e($order->id); ?>">
@@ -109,7 +173,9 @@
 
             </div>
 
-            <!-- ORDER DETAILS MODAL -->
+            
+            
+            
             <div class="modal fade" id="orderDetails<?php echo e($order->id); ?>" tabindex="-1">
               <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content">
@@ -121,7 +187,7 @@
 
                   <div class="modal-body">
 
-                    <!-- Buyer Info -->
+                    
                     <div class="detail-section mb-4">
                       <h5>Buyer Information</h5>
                       <p>
@@ -129,28 +195,29 @@
                         <strong>Email:</strong> <?php echo e($order->buyer->email); ?> <br>
                         <strong>Phone:</strong> <?php echo e($order->buyer->phone ?? '-'); ?> <br>
                         <strong>Address:</strong>
-                            <?php echo e(collect([
-                                $order->buyer->address1,
-                                $order->buyer->address2,
-                                $order->buyer->postcode,
-                                $order->buyer->city,
-                                $order->buyer->state,
-                                $order->buyer->country,
-                            ])->filter()->implode(', ')); ?>
+                        <?php echo e(collect([
+                          $order->buyer->address1,
+                          $order->buyer->address2,
+                          $order->buyer->postcode,
+                          $order->buyer->city,
+                          $order->buyer->state,
+                          $order->buyer->country,
+                        ])->filter()->implode(', ')); ?>
 
                       </p>
                     </div>
 
-                    <!-- Items -->
+                    
                     <div class="detail-section mb-4">
                       <h5>Items</h5>
 
                       <?php $__currentLoopData = $order->items; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <div class="d-flex align-items-center mb-3">
-                          <img 
-                            src="<?php echo e($item->product->image); ?>" 
+                          <img
+                            src="<?php echo e($item->product->image); ?>"
                             width="70"
                             class="rounded me-3">
+
                           <div class="flex-grow-1">
                             <strong><?php echo e($item->product->name); ?></strong><br>
                             RM <?php echo e(number_format($item->price, 2)); ?>
@@ -160,7 +227,7 @@
                       <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </div>
 
-                    <!-- Tracking -->
+                    
                     <div class="detail-section">
                       <h5>Shipping</h5>
 
@@ -169,7 +236,7 @@
                         <?php echo method_field('PATCH'); ?>
 
                         <label class="form-label">Tracking Number</label>
-                        <input 
+                        <input
                           type="text"
                           name="tracking_number"
                           class="form-control mb-3"
@@ -177,12 +244,11 @@
                           placeholder="Enter tracking number">
 
                         <div class="d-flex justify-content-end mt-4">
-                            <button class="btn btn-header">
-                                Save Tracking
-                            </button>
+                          <button class="btn btn-header">
+                            Save Tracking
+                          </button>
                         </div>
                       </form>
-
                     </div>
 
                   </div>

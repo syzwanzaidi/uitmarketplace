@@ -93,14 +93,13 @@
 
                 <!-- Status Dropdown -->
                 <div class="col-lg-2 col-6 text-center">
-                    <form action="<?php echo e(route('listings.update', $product->id)); ?>" method="POST">
+                    <form action="<?php echo e(route('listings.updateStatus', $product->id)); ?>" method="POST">
                         <?php echo csrf_field(); ?>
                         <?php echo method_field('PATCH'); ?>
 
                         <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
                             <option value="active" <?php echo e($product->status == 'active' ? 'selected' : ''); ?>>Active</option>
-                            <option value="out_of_stock" <?php echo e($product->status == 'out_of_stock' ? 'selected' : ''); ?>>Out of Stock</option>
-                            <option value="hidden" <?php echo e($product->status == 'hidden' ? 'selected' : ''); ?>>Hidden</option>
+                            <option value="inactive" <?php echo e($product->status == 'inactive' ? 'selected' : ''); ?>>Inactive</option>
                         </select>
                     </form>
                 </div>

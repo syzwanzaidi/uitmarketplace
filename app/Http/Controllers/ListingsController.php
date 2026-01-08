@@ -24,6 +24,7 @@ class ListingsController extends Controller
         // Seller products
         $products = Product::with('category')
             ->where('user_id', $sellerId)
+            ->whereIn('status', ['active', 'inactive'])
             ->get();
 
         // DASHBOARD STATS
@@ -37,6 +38,7 @@ class ListingsController extends Controller
 
         $pendingOrdersCount = Order::where('seller_id', $sellerId)
             ->where('status', 'paid')
+            ->whereNull('tracking_number')
             ->count();
 
         return view('seller.listings', compact(
@@ -85,13 +87,18 @@ class ListingsController extends Controller
     {
         $this->authorize('update', $product);
 
+        // Prevent editing sold items
+        if ($product->status === 'sold') {
+            return back()->with('error', 'Sold products cannot be modified.');
+        }
+
         $request->validate([
             'name'        => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
             'description' => 'nullable|string',
             'price'       => 'required|numeric|min:0',
             'location'    => 'required|string|max:255',
-            'status'      => 'required|in:active,out_of_stock,hidden',
+            'status'      => 'required|in:active,inactive',
             'image'       => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
@@ -109,8 +116,29 @@ class ListingsController extends Controller
             'status'      => $request->status,
         ]);
 
-        return redirect()->back()->with('success', 'Listing updated successfully!');
+        return back()->with('success', 'Listing updated successfully!');
     }
+
+    public function updateStatus(Request $request, Product $product)
+    {
+        $this->authorize('update', $product);
+
+        // Prevent changing sold items
+        if ($product->status === 'sold') {
+            return back()->with('error', 'Sold products cannot be modified.');
+        }
+
+        $request->validate([
+            'status' => 'required|in:active,inactive',
+        ]);
+
+        $product->update([
+            'status' => $request->status,
+        ]);
+
+        return back()->with('success', 'Status updated.');
+    }
+
 
     /**
      * Delete listing

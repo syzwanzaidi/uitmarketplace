@@ -93,14 +93,13 @@
 
                 <!-- Status Dropdown -->
                 <div class="col-lg-2 col-6 text-center">
-                    <form action="{{ route('listings.update', $product->id) }}" method="POST">
+                    <form action="{{ route('listings.updateStatus', $product->id) }}" method="POST">
                         @csrf
                         @method('PATCH')
 
                         <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
                             <option value="active" {{ $product->status == 'active' ? 'selected' : '' }}>Active</option>
-                            <option value="out_of_stock" {{ $product->status == 'out_of_stock' ? 'selected' : '' }}>Out of Stock</option>
-                            <option value="hidden" {{ $product->status == 'hidden' ? 'selected' : '' }}>Hidden</option>
+                            <option value="inactive" {{ $product->status == 'inactive' ? 'selected' : '' }}>Inactive</option>
                         </select>
                     </form>
                 </div>
