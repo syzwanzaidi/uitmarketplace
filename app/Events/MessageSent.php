@@ -2,28 +2,40 @@
 
 namespace App\Events;
 
-use Illuminate\Broadcasting\Channel;
+use App\Models\Message;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use App\Models\Message;
 
 class MessageSent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $message;
-    public $conversationId;
+    public Message $message;
+    public int $conversationId;
 
-    public function __construct($conversationId, Message $message)
+    public function __construct(int $conversationId, Message $message)
     {
         $this->conversationId = $conversationId;
         $this->message = $message;
     }
 
-    public function broadcastOn()
+    /**
+     * Channel name
+     * chat.{conversationId}
+     */
+    public function broadcastOn(): PrivateChannel
     {
-        return new Channel("chat.{$this->conversationId}");
+        return new PrivateChannel('chat.' . $this->conversationId);
+    }
+
+    /**
+     * Event name on frontend
+     */
+    public function broadcastAs(): string
+    {
+        return 'message.sent';
     }
 }

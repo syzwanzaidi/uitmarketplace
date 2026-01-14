@@ -7,6 +7,8 @@
   <title>UiTMarketplace</title>
   <meta name="description" content="">
   <meta name="keywords" content="">
+  <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
+
 
   <!-- Laravel Vite -->
   <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>

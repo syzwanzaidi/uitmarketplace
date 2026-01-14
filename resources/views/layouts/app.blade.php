@@ -7,6 +7,8 @@
   <title>UiTMarketplace</title>
   <meta name="description" content="">
   <meta name="keywords" content="">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+
 
   <!-- Laravel Vite -->
   @vite(['resources/css/app.css', 'resources/js/app.js'])

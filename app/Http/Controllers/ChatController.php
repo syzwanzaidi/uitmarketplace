@@ -39,36 +39,45 @@ class ChatController extends Controller
     // Chat page: load conversation if provided
     public function index(Request $request)
     {
+        $userId = auth()->id();
         $conversationId = $request->conversation_id;
 
-        if (!$conversationId) {
-            return view('user.chat', [
-                'conversation' => null,
-                'messages' => [],
-                'product' => null,
-                'otherUser' => null
-            ]);
-        }
-
-        $conversation = Conversation::with(['product', 'buyer', 'seller'])
-            ->findOrFail($conversationId);
-
-        // determine who is the other user
-        $otherUser = $conversation->buyer_id === auth()->id()
-            ? $conversation->seller
-            : $conversation->buyer;
-
-        // load messages
-        $messages = Message::where('conversation_id', $conversationId)
-            ->orderBy('created_at')
+        // ALL conversations for left panel
+        $conversations = Conversation::with(['product', 'buyer', 'seller'])
+            ->where('buyer_id', $userId)
+            ->orWhere('seller_id', $userId)
+            ->latest('updated_at')
             ->get();
 
-        return view('user.chat', [
-            'conversation' => $conversation,
-            'messages' => $messages,
-            'product' => $conversation->product,
-            'otherUser' => $otherUser
-        ]);
+        // DEFAULT empty state
+        $conversation = null;
+        $messages = collect();
+        $product = null;
+        $otherUser = null;
+
+        // IF user clicked a conversation
+        if ($conversationId) {
+            $conversation = Conversation::with(['product', 'buyer', 'seller'])
+                ->findOrFail($conversationId);
+
+            $messages = Message::where('conversation_id', $conversationId)
+                ->orderBy('created_at')
+                ->get();
+
+            $otherUser = $conversation->buyer_id === $userId
+                ? $conversation->seller
+                : $conversation->buyer;
+
+            $product = $conversation->product;
+        }
+
+        return view('user.chat', compact(
+            'conversations',
+            'conversation',
+            'messages',
+            'product',
+            'otherUser'
+        ));
     }
 
     // simple send (store message + broadcast in later steps)
