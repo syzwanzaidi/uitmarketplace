@@ -99,29 +99,29 @@
       <!-- Pagination -->
         <div class="d-flex justify-content-between align-items-center mt-3">
 
-        {{-- Previous --}}
-        @if ($users->onFirstPage())
-            <button class="btn btn-secondary" disabled>Previous</button>
-        @else
-            <a href="{{ $users->previousPageUrl() }}"
-            class="btn btn-outline-primary">
-            Previous
-            </a>
-        @endif
+            {{-- Previous --}}
+            @if ($users->onFirstPage())
+                <button class="btn btn-secondary" disabled>Previous</button>
+            @else
+                <a href="{{ $users->previousPageUrl() }}"
+                class="btn btn-outline-primary">
+                Previous
+                </a>
+            @endif
 
-        <span class="text-muted">
-            Page {{ $users->currentPage() }} of {{ $users->lastPage() }}
-        </span>
+            <span class="text-muted">
+                Page {{ $users->currentPage() }} of {{ $users->lastPage() }}
+            </span>
 
-        {{-- Next --}}
-        @if ($users->hasMorePages())
-            <a href="{{ $users->nextPageUrl() }}"
-            class="btn btn-outline-primary">
-            Next
-            </a>
-        @else
-            <button class="btn btn-secondary" disabled>Next</button>
-        @endif
+            {{-- Next --}}
+            @if ($users->hasMorePages())
+                <a href="{{ $users->nextPageUrl() }}"
+                class="btn btn-outline-primary">
+                Next
+                </a>
+            @else
+                <button class="btn btn-secondary" disabled>Next</button>
+            @endif
 
         </div>
 

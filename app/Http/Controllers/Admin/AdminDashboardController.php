@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Complaint;
 use App\Models\Order;
 
 class AdminDashboardController extends Controller
@@ -20,7 +21,7 @@ class AdminDashboardController extends Controller
         $totalSalesValue = Order::whereNotNull('paid_at')->sum('total');
 
         // Complaints (not implemented yet)
-        $totalComplaints = 0;
+        $totalComplaints = Complaint::where('status', 'open')->count();
 
         return view('admin.dashboard', compact(
             'totalUsers',

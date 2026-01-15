@@ -24,6 +24,7 @@ use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AdminTransactionController;
+use App\Http\Controllers\Admin\AdminComplaintController;
 
 
 /*
@@ -38,7 +39,7 @@ Route::get('/about', function () {
     return view('user.about');
 })->name('about');
 
-Route::get('/contact', [ContactController::class, 'index'])->name('contact');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -124,6 +125,13 @@ Route::middleware(['auth', 'active', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Contact Us
+    Route::get('/contact', [ContactController::class, 'index'])
+        ->name('contact');
+
+    Route::post('/contact', [ContactController::class, 'store'])
+        ->name('contact.store');
 });
 
 Route::middleware(['auth', 'active', 'admin'])
@@ -145,6 +153,14 @@ Route::middleware(['auth', 'active', 'admin'])
         // View transactions
         Route::get('/transactions', [AdminTransactionController::class, 'index'])
             ->name('admin.transactions');
+        
+        // View complaints
+        Route::get('/complaints', [AdminComplaintController::class, 'index'])
+            ->name('admin.complaints');
+            
+        // Resolve / reopen complaint
+        Route::patch('/complaints/{complaint}/toggle', [AdminComplaintController::class, 'toggleStatus'])
+            ->name('admin.complaints.toggle');
 
 });
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\User;
+use App\Models\Complaint;
 use Illuminate\Http\Request;
 
 class AdminTransactionController extends Controller
@@ -35,7 +36,7 @@ class AdminTransactionController extends Controller
         $totalUsers = User::where('membership_type', '!=', 'admin')->count();
         $totalTransactions = Order::whereIn('status', ['paid', 'completed'])->count();
         $totalSalesValue = Order::whereIn('status', ['paid', 'completed'])->sum('total');
-        $totalComplaints = 0;
+        $totalComplaints = Complaint::where('status', 'open')->count();
 
         return view('admin.transactions.index', compact(
             'transactions',

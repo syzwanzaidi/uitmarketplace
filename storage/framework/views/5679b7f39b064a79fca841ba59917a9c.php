@@ -100,30 +100,30 @@
       <!-- Pagination -->
         <div class="d-flex justify-content-between align-items-center mt-3">
 
-        
-        <?php if($users->onFirstPage()): ?>
-            <button class="btn btn-secondary" disabled>Previous</button>
-        <?php else: ?>
-            <a href="<?php echo e($users->previousPageUrl()); ?>"
-            class="btn btn-outline-primary">
-            Previous
-            </a>
-        <?php endif; ?>
+            
+            <?php if($users->onFirstPage()): ?>
+                <button class="btn btn-secondary" disabled>Previous</button>
+            <?php else: ?>
+                <a href="<?php echo e($users->previousPageUrl()); ?>"
+                class="btn btn-outline-primary">
+                Previous
+                </a>
+            <?php endif; ?>
 
-        <span class="text-muted">
-            Page <?php echo e($users->currentPage()); ?> of <?php echo e($users->lastPage()); ?>
+            <span class="text-muted">
+                Page <?php echo e($users->currentPage()); ?> of <?php echo e($users->lastPage()); ?>
 
-        </span>
+            </span>
 
-        
-        <?php if($users->hasMorePages()): ?>
-            <a href="<?php echo e($users->nextPageUrl()); ?>"
-            class="btn btn-outline-primary">
-            Next
-            </a>
-        <?php else: ?>
-            <button class="btn btn-secondary" disabled>Next</button>
-        <?php endif; ?>
+            
+            <?php if($users->hasMorePages()): ?>
+                <a href="<?php echo e($users->nextPageUrl()); ?>"
+                class="btn btn-outline-primary">
+                Next
+                </a>
+            <?php else: ?>
+                <button class="btn btn-secondary" disabled>Next</button>
+            <?php endif; ?>
 
         </div>
 
