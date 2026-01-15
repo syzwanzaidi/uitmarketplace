@@ -21,6 +21,10 @@ use App\Http\Controllers\SellerOrderController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\WishlistController;
 
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminUserController;
+
+
 /*
 |--------------------------------------------------------------------------
 | PUBLIC ROUTES (NO LOGIN REQUIRED)
@@ -50,7 +54,7 @@ Route::post('/toyyibpay/callback', [PaymentController::class, 'callback'])
 | AUTHENTICATED ROUTES
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'active', 'verified'])->group(function () {
 
     // Home (login-first)
     Route::get('/', [HomeController::class, 'index'])
@@ -117,6 +121,25 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+Route::middleware(['auth', 'active', 'admin'])
+    ->prefix('admin')
+    ->group(function () {
+
+        Route::get('/dashboard', [AdminUserController::class, 'index'])
+            ->name('admin.dashboard');
+
+        // View users
+        Route::get('/users', function () {
+            return redirect()->route('admin.dashboard');
+        }) ->name('admin.users');
+
+        // Suspend / activate user
+        Route::patch('/users/{user}/toggle', [AdminUserController::class, 'toggleStatus'])
+            ->name('admin.users.toggle');
+
+});
+
 
 /*
 |--------------------------------------------------------------------------

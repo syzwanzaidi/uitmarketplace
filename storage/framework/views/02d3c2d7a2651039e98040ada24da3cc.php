@@ -208,14 +208,24 @@
     messagesArea.scrollTop = messagesArea.scrollHeight;
   }
 
-  if (window.chatConfig.conversationId) {
+  function waitForEchoAndSubscribe() {
+    if (!window.Echo || !window.chatConfig.conversationId) {
+      setTimeout(waitForEchoAndSubscribe, 100);
+      return;
+    }
+
     window.Echo
       .private(`chat.${window.chatConfig.conversationId}`)
       .listen('.message.sent', (e) => {
         if (e.message.sender_id === window.chatConfig.authUserId) return;
         appendIncomingMessage(e.message);
       });
+
+    console.log('Echo subscribed to chat channel');
   }
+
+  waitForEchoAndSubscribe();
+
 </script>
 <?php $__env->stopSection(); ?>
 
