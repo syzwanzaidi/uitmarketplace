@@ -24,8 +24,8 @@ class AdminUserController extends Controller
 
         // Dashboard stats (reuse)
         $totalUsers = User::where('membership_type', '!=', 'admin')->count();
-        $totalTransactions = Order::whereNotNull('paid_at')->count();
-        $totalSalesValue = Order::whereNotNull('paid_at')->sum('total');
+        $totalTransactions = Order::whereIn('status', ['paid', 'completed'])->count();
+        $totalSalesValue = Order::whereIn('status', ['paid', 'completed'])->sum('total');
         $totalComplaints = 0;
 
         return view('admin.users.index', compact(

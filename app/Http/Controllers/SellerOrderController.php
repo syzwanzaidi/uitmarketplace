@@ -16,22 +16,34 @@ class SellerOrderController extends Controller
     {
         $sellerId = Auth::id();
 
-        // Paid orders for this seller
+        /**
+         * ORDERS LIST (what seller sees)
+         * Only orders that still need seller action
+         */
         $orders = Order::with(['items.product', 'buyer'])
             ->where('seller_id', $sellerId)
             ->whereIn('status', ['paid', 'shipped'])
             ->latest()
             ->get();
 
-        // Total sales (sum of paid orders)
-        $totalSales = $orders->sum('total');
+        /**
+         * TOTAL SALES
+         * All successfully paid orders (DO NOT shrink)
+         */
+        $totalSales = Order::where('seller_id', $sellerId)
+            ->whereIn('status', ['paid', 'shipped', 'completed'])
+            ->sum('total');
 
-        // Active listings
+        /**
+         * ACTIVE LISTINGS
+         */
         $activeListingsCount = Product::where('user_id', $sellerId)
             ->where('status', 'active')
             ->count();
 
-        // Pending orders (paid but no tracking yet)
+        /**
+         * PENDING ORDERS (paid but not shipped)
+         */
         $pendingOrdersCount = Order::where('seller_id', $sellerId)
             ->where('status', 'paid')
             ->whereNull('tracking_number')
@@ -59,8 +71,8 @@ class SellerOrderController extends Controller
 
         $order->update([
             'tracking_number' => $request->tracking_number,
-            'status'          => 'shipped', //  auto mark as shipped
-        ]); 
+            'status'          => 'shipped',
+        ]);
 
         return back()->with('success', 'Tracking number saved and order marked as shipped.');
     }

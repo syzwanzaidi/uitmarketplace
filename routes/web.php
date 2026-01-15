@@ -23,6 +23,7 @@ use App\Http\Controllers\WishlistController;
 
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\AdminTransactionController;
 
 
 /*
@@ -140,6 +141,10 @@ Route::middleware(['auth', 'active', 'admin'])
         // Suspend / activate user
         Route::patch('/users/{user}/toggle', [AdminUserController::class, 'toggleStatus'])
             ->name('admin.users.toggle');
+        
+        // View transactions
+        Route::get('/transactions', [AdminTransactionController::class, 'index'])
+            ->name('admin.transactions');
 
 });
 

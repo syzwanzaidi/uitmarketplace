@@ -17,6 +17,12 @@ class Order extends Model
         'tracking_number',
     ];
 
+    protected $casts = [
+        'paid_at' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
     public function items()
     {
         return $this->hasMany(OrderItem::class);
