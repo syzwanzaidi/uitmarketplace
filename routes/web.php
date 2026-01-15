@@ -93,6 +93,9 @@ Route::middleware(['auth', 'active', 'verified'])->group(function () {
     ->middleware('auth')
     ->name('buyer.orders');
 
+    Route::patch('/my-orders/{order}/received', [BuyerOrderController::class, 'markAsReceived'])
+    ->name('buyer.orders.received');
+
 
     // Listings (Seller dashboard)
     Route::get('/listings', [ListingsController::class, 'index'])->name('listings');

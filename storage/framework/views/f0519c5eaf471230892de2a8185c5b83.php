@@ -125,6 +125,20 @@
                   data-bs-target="#orderDetails<?php echo e($order->id); ?>">
                   View Details
                 </button>
+
+                
+                <?php if($order->status === 'shipped'): ?>
+                  <form
+                    action="<?php echo e(route('buyer.orders.received', $order->id)); ?>"
+                    method="POST">
+                    <?php echo csrf_field(); ?>
+                    <?php echo method_field('PATCH'); ?>
+
+                    <button class="btn btn-header">
+                      Mark as Received
+                    </button>
+                  </form>
+                <?php endif; ?>
               </div>
 
             </div>

@@ -120,6 +120,20 @@
                   data-bs-target="#orderDetails{{ $order->id }}">
                   View Details
                 </button>
+
+                {{-- Mark as received button --}}
+                @if($order->status === 'shipped')
+                  <form
+                    action="{{ route('buyer.orders.received', $order->id) }}"
+                    method="POST">
+                    @csrf
+                    @method('PATCH')
+
+                    <button class="btn btn-header">
+                      Mark as Received
+                    </button>
+                  </form>
+                @endif
               </div>
 
             </div>
