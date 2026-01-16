@@ -61,6 +61,29 @@
         <div class="col-lg-8">
           <div class="card chat-wrapper">
 
+            {{-- PRODUCT PREVIEW (Shopee-style) --}}
+            @if($product)
+              <div class="chat-product-bar">
+                <img
+                  src="{{ $product->image }}"
+                  alt="{{ $product->name }}"
+                  class="chat-product-image"
+                  onerror="this.src='{{ asset('favicon.ico') }}'"
+                >
+
+                <div class="chat-product-info">
+                  <strong>{{ $product->name }}</strong>
+                  <div class="text-muted small">
+                    RM {{ number_format($product->price, 2) }}
+                  </div>
+                </div>
+
+                <a href="{{ route('product.show', $product->id) }}"
+                  class="btn btn-sm btn-outline-primary">
+                  View
+                </a>
+              </div>
+            @endif
             {{-- Header --}}
             <div class="card-header d-flex align-items-center gap-3">
               @if($conversation)

@@ -12881,6 +12881,40 @@ section,
   margin-top: 4px;
 }
 
+/* CHAT PRODUCT PREVIEW BAR */
+.chat-product-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #fafafa;
+}
+
+.chat-product-image {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.chat-product-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.chat-product-name {
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chat-product-price {
+  font-size: 13px;
+  color: #0d6efd;
+}
 
 
 

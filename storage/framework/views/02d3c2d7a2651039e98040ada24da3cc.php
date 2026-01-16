@@ -61,6 +61,30 @@
           <div class="card chat-wrapper">
 
             
+            <?php if($product): ?>
+              <div class="chat-product-bar">
+                <img
+                  src="<?php echo e($product->image); ?>"
+                  alt="<?php echo e($product->name); ?>"
+                  class="chat-product-image"
+                  onerror="this.src='<?php echo e(asset('favicon.ico')); ?>'"
+                >
+
+                <div class="chat-product-info">
+                  <strong><?php echo e($product->name); ?></strong>
+                  <div class="text-muted small">
+                    RM <?php echo e(number_format($product->price, 2)); ?>
+
+                  </div>
+                </div>
+
+                <a href="<?php echo e(route('product.show', $product->id)); ?>"
+                  class="btn btn-sm btn-outline-primary">
+                  View
+                </a>
+              </div>
+            <?php endif; ?>
+            
             <div class="card-header d-flex align-items-center gap-3">
               <?php if($conversation): ?>
                 <img
