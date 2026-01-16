@@ -6,56 +6,52 @@ use App\Models\Product;
 use App\Models\Conversation;
 use App\Models\Message;
 use Illuminate\Http\Request;
-use App\Events\MessageSent; // later step
+use App\Events\MessageSent;
 
 class ChatController extends Controller
 {
-    // Start or open a conversation and redirect to chat with conversation_id
+    // Start or open a conversation
     public function start(Product $product)
     {
         $buyer = auth()->user();
         $seller = $product->user;
 
         if (!$seller) {
-            return redirect()->back()->with('error', 'Product seller not found.');
+            return back()->with('error', 'Product seller not found.');
         }
 
         if ($buyer->id === $seller->id) {
-            return redirect()->back()->with('error', 'You cannot chat with yourself.');
+            return back()->with('error', 'You cannot chat with yourself.');
         }
 
-        $conversation = Conversation::firstOrCreate(
-            [
-                'buyer_id' => $buyer->id,
-                'seller_id' => $seller->id,
-                'product_id' => $product->id,
-            ]
-        );
+        $conversation = Conversation::firstOrCreate([
+            'buyer_id' => $buyer->id,
+            'seller_id' => $seller->id,
+            'product_id' => $product->id,
+        ]);
 
-        // redirect to chat page and pass conversation id
-        return redirect()->route('chat', ['conversation_id' => $conversation->id]);
+        return redirect()->route('chat', [
+            'conversation_id' => $conversation->id
+        ]);
     }
 
-    // Chat page: load conversation if provided
+    // Chat page
     public function index(Request $request)
     {
         $userId = auth()->id();
         $conversationId = $request->conversation_id;
 
-        // ALL conversations for left panel
         $conversations = Conversation::with(['product', 'buyer', 'seller'])
             ->where('buyer_id', $userId)
             ->orWhere('seller_id', $userId)
             ->latest('updated_at')
             ->get();
 
-        // DEFAULT empty state
         $conversation = null;
         $messages = collect();
         $product = null;
         $otherUser = null;
 
-        // IF user clicked a conversation
         if ($conversationId) {
             $conversation = Conversation::with(['product', 'buyer', 'seller'])
                 ->findOrFail($conversationId);
@@ -80,7 +76,7 @@ class ChatController extends Controller
         ));
     }
 
-    // simple send (store message + broadcast in later steps)
+    // Send message (REAL-TIME)
     public function send(Request $request)
     {
         $request->validate([
@@ -94,13 +90,12 @@ class ChatController extends Controller
             'message' => $request->message,
         ]);
 
-        // Broadcast real-time event
-        broadcast(new MessageSent($request->conversation_id, $message))->toOthers();
+        // 🔥 REAL-TIME broadcast (NO QUEUE)
+        broadcast(new MessageSent($message))->toOthers();
 
         return response()->json([
             'success' => true,
             'message' => $message
         ]);
     }
-
 }
