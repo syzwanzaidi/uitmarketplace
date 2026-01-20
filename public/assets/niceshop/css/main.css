@@ -12832,7 +12832,7 @@ section,
 .chat-row {
   display: flex;
   flex-direction: column;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
   max-width: 100%;
 }
 
@@ -12847,11 +12847,12 @@ section,
 /* ================= CHAT BUBBLE ================= */
 
 .chat-bubble {
-  padding: 10px 14px;
-  border-radius: 18px;
-
+  display: inline-block;
   max-width: 55%;
   width: fit-content;
+
+  padding: 10px 14px;
+  border-radius: 18px;
 
   white-space: pre-wrap;
   word-break: break-word;

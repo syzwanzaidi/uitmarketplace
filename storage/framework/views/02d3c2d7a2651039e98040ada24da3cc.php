@@ -1,7 +1,7 @@
 <?php $__env->startSection('content'); ?>
 <main class="main">
   <section class="section" style="padding:24px 0;">
-    <div class="container" data-aos="fade-up">
+    <div class="container">
       <div class="row g-4">
 
         
