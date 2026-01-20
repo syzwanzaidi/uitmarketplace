@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Order;
+use App\Models\Location;
 
 class ListingsController extends Controller
 {
@@ -18,39 +19,21 @@ class ListingsController extends Controller
     {
         $sellerId = Auth::id();
 
-        /**
-         * Categories (for add/edit modal)
-         */
         $categories = Category::all();
 
-        /**
-         * Seller products
-         * Only active & inactive (sold items hidden)
-         */
         $products = Product::with('category')
             ->where('user_id', $sellerId)
             ->whereIn('status', ['active', 'inactive'])
             ->get();
 
-        /**
-         * TOTAL SALES
-         * All successful orders (DO NOT shrink)
-         */
         $totalSales = Order::where('seller_id', $sellerId)
             ->whereIn('status', ['paid', 'shipped', 'completed'])
             ->sum('total');
 
-        /**
-         * ACTIVE LISTINGS COUNT
-         */
         $activeListingsCount = Product::where('user_id', $sellerId)
             ->where('status', 'active')
             ->count();
 
-        /**
-         * PENDING ORDERS
-         * Paid but not shipped yet
-         */
         $pendingOrdersCount = Order::where('seller_id', $sellerId)
             ->where('status', 'paid')
             ->whereNull('tracking_number')
@@ -75,14 +58,20 @@ class ListingsController extends Controller
             'category_id' => 'required|exists:categories,id',
             'description' => 'nullable|string',
             'price'       => 'required|numeric|min:0',
+
+            // location
             'location'    => 'required|string|max:255',
+            'latitude'    => 'required|numeric',
+            'longitude'   => 'required|numeric',
+
             'image'       => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         $imagePath = $request->file('image')->store('products', 'public');
 
-        Product::create([
-            'user_id'     => Auth::id(),
+        // CREATE PRODUCT
+        $product = Product::create([
+            'user_id'     => auth()->id(),
             'category_id' => $request->category_id,
             'name'        => $request->name,
             'description' => $request->description,
@@ -92,44 +81,63 @@ class ListingsController extends Controller
             'status'      => 'active',
         ]);
 
-        return redirect()->back()->with('success', 'Product added successfully!');
+        // CREATE LOCATION (THIS WAS MISSING)
+        $product->locationPoint()->create([
+            'latitude'  => $request->latitude,
+            'longitude' => $request->longitude,
+        ]);
+
+        return back()->with('success', 'Product added successfully!');
     }
+
+
 
     /**
      * Update listing
      */
     public function update(Request $request, Product $product)
     {
-        $this->authorize('update', $product);
-
-        // Prevent editing sold items
-        if ($product->status === 'sold') {
-            return back()->with('error', 'Sold products cannot be modified.');
-        }
-
         $request->validate([
             'name'        => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
             'description' => 'nullable|string',
             'price'       => 'required|numeric|min:0',
+
+            // product display location
             'location'    => 'required|string|max:255',
-            'status'      => 'required|in:active,inactive',
+
+            // geo location
+            'latitude'    => 'nullable|numeric',
+            'longitude'   => 'nullable|numeric',
+
             'image'       => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
+        // Image update
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('products', 'public');
             $product->image = '/storage/' . $imagePath;
         }
 
+        // 1️⃣ UPDATE PRODUCT TABLE
         $product->update([
             'name'        => $request->name,
             'category_id' => $request->category_id,
             'description' => $request->description,
             'price'       => $request->price,
             'location'    => $request->location,
-            'status'      => $request->status,
         ]);
+
+        // 2️⃣ UPDATE / CREATE LOCATION TABLE
+        if ($request->filled(['latitude', 'longitude'])) {
+            $product->locationPoint()->updateOrCreate(
+                ['product_id' => $product->id],
+                [
+                    'latitude'  => $request->latitude,
+                    'longitude' => $request->longitude,
+                ]
+            );
+        }
 
         return back()->with('success', 'Listing updated successfully!');
     }
@@ -162,6 +170,9 @@ class ListingsController extends Controller
     public function destroy(Product $product)
     {
         $this->authorize('delete', $product);
+
+        // Optional: also delete location
+        $product->locationPoint()?->delete();
 
         $product->delete();
 

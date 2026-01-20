@@ -133,6 +133,12 @@
           <?php endif; ?>
 
           <li><a href="<?php echo e(route('contact')); ?>">Contact</a></li>
+
+          <div class="nav-extra ms-auto">
+              <a href="#" data-bs-toggle="modal" data-bs-target="#locationModal" class="nav-link"> 
+              <i class="bi bi-geo-alt me-1"></i> Set Location              
+              </a>
+          </div>
         </ul>
       </nav>
     </div>

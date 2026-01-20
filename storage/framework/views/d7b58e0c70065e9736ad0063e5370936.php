@@ -21,6 +21,8 @@
   <link href="<?php echo e(asset('assets/niceshop/vendor/glightbox/css/glightbox.min.css')); ?>" rel="stylesheet">
   <link href="<?php echo e(asset('assets/niceshop/vendor/drift-zoom/drift-basic.css')); ?>" rel="stylesheet">
 
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
   <!-- Main CSS File -->
   <link href="<?php echo e(asset('assets/niceshop/css/main.css')); ?>" rel="stylesheet">
 
@@ -32,6 +34,7 @@
   <script src="<?php echo e(asset('assets/niceshop/vendor/glightbox/js/glightbox.min.js')); ?>"></script>
   <script src="<?php echo e(asset('assets/niceshop/vendor/drift-zoom/Drift.min.js')); ?>"></script>
   <script src="<?php echo e(asset('assets/niceshop/vendor/purecounter/purecounter_vanilla.js')); ?>"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"> </script>
 
   <!-- Custom JS -->
   <script>

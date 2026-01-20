@@ -1,49 +1,94 @@
+<!-- Edit Listing Modal -->
 <div class="modal fade" id="editModal{{ $product->id }}" tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-centered">
-      <div class="modal-content">
-          <form action="{{ route('listings.update', $product->id) }}" method="POST" enctype="multipart/form-data">
-              @csrf
-              @method('PATCH')
+    <div class="modal-content">
 
-              <div class="modal-header">
-                  <h5 class="modal-title">Edit Listing</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-              </div>
+      <form action="{{ route('listings.update', $product->id) }}"
+            method="POST" enctype="multipart/form-data">
+        @csrf
+        @method('PATCH')
 
-              <div class="modal-body">
+        <div class="modal-header">
+          <h5 class="modal-title">Edit Listing</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
 
-                  <label class="form-label fw-semibold">Name</label>
-                  <input type="text" name="name" class="form-control mb-3" value="{{ $product->name }}" required>
+        <div class="modal-body">
 
-                  <label class="form-label fw-semibold">Category</label>
-                  <select name="category_id" class="form-select mb-3" required>
-                      @foreach($categories as $cat)
-                          <option value="{{ $cat->id }}" {{ $product->category_id == $cat->id ? 'selected' : '' }}>
-                              {{ $cat->name }}
-                          </option>
-                      @endforeach
-                  </select>
+          <!-- Name -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Product Name</label>
+            <input type="text" name="name"
+                   class="form-control"
+                   value="{{ $product->name }}" required>
+          </div>
 
-                  <label class="form-label fw-semibold">Price</label>
-                  <input type="number" name="price" class="form-control mb-3" value="{{ $product->price }}" required>
+          <!-- Category -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Category</label>
+            <select name="category_id" class="form-select" required>
+              @foreach($categories as $cat)
+                <option value="{{ $cat->id }}"
+                  {{ $product->category_id == $cat->id ? 'selected' : '' }}>
+                  {{ $cat->name }}
+                </option>
+              @endforeach
+            </select>
+          </div>
 
-                  <label class="form-label fw-semibold">Location</label>
-                  <input type="text" name="location" class="form-control mb-3" value="{{ $product->location }}" required>
+          <!-- Price -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Price (RM)</label>
+            <input type="number" name="price"
+                   class="form-control"
+                   value="{{ $product->price }}" required>
+          </div>
 
-                  <label class="form-label fw-semibold">Description</label>
-                  <textarea name="description" class="form-control mb-3">{{ $product->description }}</textarea>
+          <!-- Location (auto) -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Location</label>
+            <input type="text"
+                   id="edit_location_{{ $product->id }}"
+                   name="location"
+                   class="form-control"
+                   value="{{ $product->location }}"
+                   readonly>
+          </div>
 
-                  <label class="form-label fw-semibold">Image</label>
-                  <input type="file" name="image" class="form-control mb-3">
+          <!-- Map -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Pin Location</label>
+            <div id="editMap_{{ $product->id }}"
+                 style="height:300px;border-radius:8px;"></div>
+          </div>
 
-              </div>
+          <!-- Hidden lat/lng -->
+          <input type="hidden" name="latitude"
+                 id="edit_latitude_{{ $product->id }}">
+          <input type="hidden" name="longitude"
+                 id="edit_longitude_{{ $product->id }}">
 
-              <div class="modal-footer">
-                  <button type="submit" class="btn btn-primary">Save Changes</button>
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-              </div>
+          <!-- Description -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Description</label>
+            <textarea name="description"
+                      class="form-control">{{ $product->description }}</textarea>
+          </div>
 
-          </form>
-      </div>
+          <!-- Image -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Image</label>
+            <input type="file" name="image" class="form-control">
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button class="btn btn-primary">Save Changes</button>
+        </div>
+
+      </form>
+    </div>
   </div>
 </div>
