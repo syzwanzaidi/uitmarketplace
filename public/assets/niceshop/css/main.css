@@ -12917,6 +12917,12 @@ section,
   color: #0d6efd;
 }
 
+.location-btn {
+  border-radius: 999px;   /* pill shape */
+  padding: 8px 20px;      /* same height & width feel */
+  font-weight: 500;
+}
+
 
 
 

@@ -18,7 +18,6 @@
 
   <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-
 </head>
 
 <body class="index-page">
@@ -38,7 +37,6 @@
 
 <x-footer />
 
-<!-- Scroll Top -->
 <a href="#" id="scroll-top" class="scroll-top">
   <i class="bi bi-arrow-up-short"></i>
 </a>
@@ -52,14 +50,12 @@
 <div class="modal fade" id="locationModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
-
       <div class="modal-body">
+
         <h4 class="mb-3">Select Your Location</h4>
 
         <!-- MAP -->
-        <div id="buyerMap"
-             style="height:300px;border-radius:8px;"
-             class="mb-3"></div>
+        <div id="buyerMap" style="height:300px;border-radius:8px;" class="mb-3"></div>
 
         <!-- LOCATION NAME -->
         <input type="text"
@@ -75,9 +71,12 @@
                class="form-range mb-4"
                min="1" max="50" value="10">
 
-        <div class="text-end">
-          <button class="btn btn-primary"
-                  data-bs-dismiss="modal">
+        <div class="d-flex justify-content-between">
+          <button class="btn btn-outline-danger location-btn" id="clearLocationBtn">
+            Clear Location
+          </button>
+
+          <button class="btn btn-primary location-btn btn-confirm" data-bs-dismiss="modal">
             Confirm
           </button>
         </div>
@@ -91,70 +90,93 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
-  let map, marker;
+  let buyerMap, buyerMarker;
 
-  const locationText = document.getElementById('currentLocationText');
+  const locationText  = document.getElementById('currentLocationText');
   const locationInput = document.getElementById('buyer_location_name');
-  const radiusInput = document.getElementById('buyer_radius');
+  const radiusInput   = document.getElementById('buyer_radius');
 
-  // Load saved location
-  const saved = localStorage.getItem('buyer_location');
-  if (saved && locationText) {
-    const data = JSON.parse(saved);
+  /* ========== AUTO APPLY FILTER ON HOME ========== */
+  const savedLocation = localStorage.getItem('buyer_location');
+  const params = new URLSearchParams(window.location.search);
+
+  if (window.location.pathname === '/' && savedLocation && !params.has('lat')) {
+    const data = JSON.parse(savedLocation);
+    window.location.replace(
+      `/?lat=${data.lat}&lng=${data.lng}&radius=${data.radius}`
+    );
+    return;
+  }
+
+  /* ========== LOAD HEADER LOCATION ========== */
+  if (savedLocation) {
+    const data = JSON.parse(savedLocation);
     locationText.textContent = ` ${data.area}`;
   }
 
+  /* ========== INIT MAP ========== */
   const modal = document.getElementById('locationModal');
 
   modal.addEventListener('shown.bs.modal', function () {
 
-    if (!map) {
-      map = L.map('buyerMap').setView([3.0738, 101.5183], 13);
+    if (!buyerMap) {
+      buyerMap = L.map('buyerMap')
+        .setView([3.0738, 101.5183], 13);
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap'
-      }).addTo(map);
+      }).addTo(buyerMap);
 
-      map.on('click', async function (e) {
+      buyerMap.on('click', async function (e) {
         const { lat, lng } = e.latlng;
 
-        if (marker) map.removeLayer(marker);
-        marker = L.marker([lat, lng]).addTo(map);
+        if (buyerMarker) buyerMap.removeLayer(buyerMarker);
+        buyerMarker = L.marker([lat, lng]).addTo(buyerMap);
 
-        try {
-          const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
-          );
-          const data = await res.json();
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
+        );
+        const data = await res.json();
 
-          const address = data.address || {};
-          const area =
-            address.city ||
-            address.town ||
-            address.suburb ||
-            address.state ||
-            'Unknown';
+        const address = data.address || {};
+        const area =
+          address.city ||
+          address.town ||
+          address.suburb ||
+          address.village ||
+          address.state ||
+          'Unknown';
 
-          locationInput.value = area;
+        locationInput.value = area;
 
-          localStorage.setItem('buyer_location', JSON.stringify({
-            lat,
-            lng,
-            area,
-            radius: radiusInput.value
-          }));
+        localStorage.setItem('buyer_location', JSON.stringify({
+          lat,
+          lng,
+          area,
+          radius: radiusInput.value
+        }));
 
-          if (locationText) {
-            locationText.textContent = ` ${area}`;
-          }
-
-        } catch (err) {
-          console.error(err);
-        }
+        locationText.textContent = ` ${area}`;
       });
     }
 
-    map.invalidateSize();
+    buyerMap.invalidateSize();
+  });
+
+  /* ========== CONFIRM BUTTON ========== */
+  document.querySelector('.btn-confirm').addEventListener('click', function () {
+    const saved = localStorage.getItem('buyer_location');
+    if (!saved) return;
+
+    const data = JSON.parse(saved);
+    window.location.href = `/?lat=${data.lat}&lng=${data.lng}&radius=${data.radius}`;
+  });
+
+  /* ========== CLEAR LOCATION ========== */
+  document.getElementById('clearLocationBtn').addEventListener('click', function () {
+    localStorage.removeItem('buyer_location');
+    locationText.textContent = 'Set Location';
+    window.location.href = '/';
   });
 
 });
