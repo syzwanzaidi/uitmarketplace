@@ -82,6 +82,16 @@ unset($__defined_vars, $__key, $__value); ?>
                 RM <?php echo e(number_format($product->price, 2)); ?>
 
             </div>
+
+                
+            <div class="product-location small text-muted mt-1">
+                <?php echo e($product->location); ?>
+
+
+                <?php if(isset($product->distance)): ?>
+                    • <?php echo e(number_format($product->distance, 1)); ?> km away
+                <?php endif; ?>
+            </div>
         </div>
 
     </div>

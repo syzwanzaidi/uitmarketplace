@@ -51,6 +51,15 @@
             <div class="product-price">
                 RM {{ number_format($product->price, 2) }}
             </div>
+
+                {{-- LOCATION + DISTANCE --}}
+            <div class="product-location small text-muted mt-1">
+                {{ $product->location }}
+
+                @if(isset($product->distance))
+                    • {{ number_format($product->distance, 1) }} km away
+                @endif
+            </div>
         </div>
 
     </div>
