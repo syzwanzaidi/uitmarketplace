@@ -135,9 +135,14 @@
           <li><a href="{{ route('contact') }}">Contact</a></li>
 
           <div class="nav-extra ms-auto">
-              <a href="#" data-bs-toggle="modal" data-bs-target="#locationModal" class="nav-link"> 
-              <i class="bi bi-geo-alt me-1"></i> Set Location              
-              </a>
+            <a href="#"
+              id="setLocationBtn"
+              data-bs-toggle="modal"
+              data-bs-target="#locationModal"
+              class="nav-link"> 
+              <i class="bi bi-geo-alt me-1"></i>
+              <span id="currentLocationText">Set Location</span>
+            </a>
           </div>
         </ul>
       </nav>
