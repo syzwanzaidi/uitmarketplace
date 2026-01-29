@@ -204,6 +204,14 @@ document.addEventListener('DOMContentLoaded', function () {
     window.location.href = '/';
   });
 
+  const el = document.getElementById('emptyLocationText');
+  const saved = localStorage.getItem('buyer_location');
+
+  if (el && saved) {
+    const data = JSON.parse(saved);
+    el.textContent = `of ${data.area}.`;
+  }
+
 });
 </script>
 

@@ -90,7 +90,12 @@
                                 </div>
 
                                 <div class="quantity-left">
-                                    Location: <strong>{{ $product->location }}</strong>
+                                    <i class="bi bi-geo-alt"></i>
+                                    <strong>{{ $product->location }}</strong>
+
+                                    @if(isset($product->distance))
+                                        • {{ number_format($product->distance, 1) }} km away
+                                    @endif
                                 </div>
                             </div>
 

@@ -90,7 +90,12 @@
                                 </div>
 
                                 <div class="quantity-left">
-                                    Location: <strong><?php echo e($product->location); ?></strong>
+                                    <i class="bi bi-geo-alt"></i>
+                                    <strong><?php echo e($product->location); ?></strong>
+
+                                    <?php if(isset($product->distance)): ?>
+                                        • <?php echo e(number_format($product->distance, 1)); ?> km away
+                                    <?php endif; ?>
                                 </div>
                             </div>
 

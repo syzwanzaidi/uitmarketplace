@@ -36,15 +36,15 @@ unset($__defined_vars, $__key, $__value); ?>
 
             
             <?php if($product->status === 'sold'): ?>
-            <div class="product-badge bg-danger">SOLD</div>
+                <div class="product-badge bg-danger">SOLD</div>
             <?php endif; ?>
 
-            <img src="<?php echo e($product->image); ?>" 
-                 alt="<?php echo e($product->name); ?>" 
-                 class="img-fluid" 
+            <img src="<?php echo e($product->image); ?>"
+                 alt="<?php echo e($product->name); ?>"
+                 class="img-fluid"
                  loading="lazy">
 
-            <!-- Action Buttons (same as template) -->
+            <!-- Action Buttons -->
             <div class="product-actions">
                 <button class="action-btn wishlist-btn">
                     <i class="bi bi-heart"></i>
@@ -59,20 +59,25 @@ unset($__defined_vars, $__key, $__value); ?>
                 </button>
             </div>
 
-            <button class="cart-btn" onclick="window.location='<?php echo e(route('product.show', $product->id)); ?>'">
+            <!-- VIEW BUTTON -->
+            <button class="cart-btn"
+                    onclick="goToProduct(<?php echo e($product->id); ?>)">
                 View
             </button>
         </div>
 
         <!-- Product Info Section -->
         <div class="product-info">
+
             <div class="product-category">
                 <?php echo e($product->category->name ?? 'Uncategorized'); ?>
 
             </div>
 
+            <!-- PRODUCT NAME (FIXED) -->
             <h4 class="product-name">
-                <a href="<?php echo e(route('product.show', $product->id)); ?>">
+                <a href="javascript:void(0)"
+                   onclick="goToProduct(<?php echo e($product->id); ?>)">
                     <?php echo e($product->name); ?>
 
                 </a>
@@ -83,7 +88,7 @@ unset($__defined_vars, $__key, $__value); ?>
 
             </div>
 
-                
+            <!-- LOCATION + DISTANCE -->
             <div class="product-location small text-muted mt-1">
                 <?php echo e($product->location); ?>
 
@@ -92,8 +97,24 @@ unset($__defined_vars, $__key, $__value); ?>
                     • <?php echo e(number_format($product->distance, 1)); ?> km away
                 <?php endif; ?>
             </div>
+
         </div>
 
     </div>
 </div>
+
+<script>
+function goToProduct(productId) {
+    const saved = localStorage.getItem('buyer_location');
+
+    if (!saved) {
+        window.location.href = `/product/${productId}`;
+        return;
+    }
+
+    const data = JSON.parse(saved);
+    window.location.href =
+        `/product/${productId}?lat=${data.lat}&lng=${data.lng}`;
+}
+</script>
 <?php /**PATH C:\fyp\uitmarketplace\resources\views/components/product-card.blade.php ENDPATH**/ ?>
