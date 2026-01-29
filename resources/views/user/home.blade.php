@@ -91,9 +91,33 @@
           @forelse($products as $product)
             <x-product-card :product="$product" />
           @empty
-            <div class="col-12">
-              <p class="text-center">No products available.</p>
-            </div>
+
+            @if(request()->has('lat'))
+              <div class="col-12 text-center py-5">
+                <i class="bi bi-geo-alt fs-1 text-muted mb-3 d-block"></i>
+
+                <h5 class="mb-2">
+                  No items found within
+                  {{ request('radius', 10) }} km
+                </h5>
+
+                <p class="text-muted mb-4" id="emptyLocationText">
+                  of your selected location.
+                </p>
+
+                <button
+                  class="btn btn-outline-primary"
+                  data-bs-toggle="modal"
+                  data-bs-target="#locationModal">
+                  Change Location / Radius
+                </button>
+              </div>
+            @else
+              <div class="col-12 text-center py-5">
+                <p class="text-muted">No products available at the moment.</p>
+              </div>
+            @endif
+
           @endforelse
 
         </div>

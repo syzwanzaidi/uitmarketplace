@@ -94,7 +94,9 @@
         <h4 class="mb-3">Select Your Location</h4>
 
         <!-- MAP -->
-        <div id="buyerMap" style="height:300px;border-radius:8px;" class="mb-3"></div>
+        <div id="buyerMap"
+             style="height:300px;border-radius:8px;"
+             class="mb-3"></div>
 
         <!-- LOCATION NAME -->
         <input type="text"
@@ -104,18 +106,26 @@
                readonly>
 
         <!-- RADIUS -->
-        <label class="fw-semibold">Radius (km)</label>
+        <div class="mb-2 fw-semibold">
+          Radius: <span id="radiusValue">10</span> km
+        </div>
+
         <input type="range"
                id="buyer_radius"
                class="form-range mb-4"
                min="1" max="50" value="10">
 
+        <!-- ACTION BUTTONS -->
         <div class="d-flex justify-content-between">
-          <button class="btn btn-outline-danger location-btn" id="clearLocationBtn">
+          <button type="button"
+                  class="btn btn-outline-danger location-btn"
+                  id="clearLocationBtn">
             Clear Location
           </button>
 
-          <button class="btn btn-primary location-btn btn-confirm" data-bs-dismiss="modal">
+          <button type="button"
+                  class="btn btn-primary location-btn btn-confirm"
+                  data-bs-dismiss="modal">
             Confirm
           </button>
         </div>
@@ -134,11 +144,20 @@ document.addEventListener('DOMContentLoaded', function () {
   const locationText  = document.getElementById('currentLocationText');
   const locationInput = document.getElementById('buyer_location_name');
   const radiusInput   = document.getElementById('buyer_radius');
+  const radiusValue   = document.getElementById('radiusValue');
 
-  /* ========== AUTO APPLY FILTER ON HOME ========== */
+  /* ================= LOAD SAVED LOCATION ================= */
   const savedLocation = localStorage.getItem('buyer_location');
   const params = new URLSearchParams(window.location.search);
 
+  if (savedLocation) {
+    const data = JSON.parse(savedLocation);
+    locationText.textContent = ` ${data.area}`;
+    radiusInput.value = data.radius;
+    radiusValue.textContent = data.radius;
+  }
+
+  /* ================= AUTO APPLY FILTER ON HOME ================= */
   if (window.location.pathname === '/' && savedLocation && !params.has('lat')) {
     const data = JSON.parse(savedLocation);
     window.location.replace(
@@ -147,13 +166,19 @@ document.addEventListener('DOMContentLoaded', function () {
     return;
   }
 
-  /* ========== LOAD HEADER LOCATION ========== */
-  if (savedLocation) {
-    const data = JSON.parse(savedLocation);
-    locationText.textContent = ` ${data.area}`;
-  }
+  /* ================= RADIUS LIVE UPDATE ================= */
+  radiusInput.addEventListener('input', function () {
+    radiusValue.textContent = this.value;
 
-  /* ========== INIT MAP ========== */
+    const saved = localStorage.getItem('buyer_location');
+    if (!saved) return;
+
+    const data = JSON.parse(saved);
+    data.radius = this.value;
+    localStorage.setItem('buyer_location', JSON.stringify(data));
+  });
+
+  /* ================= INIT MAP ================= */
   const modal = document.getElementById('locationModal');
 
   modal.addEventListener('shown.bs.modal', function () {
@@ -202,7 +227,7 @@ document.addEventListener('DOMContentLoaded', function () {
     buyerMap.invalidateSize();
   });
 
-  /* ========== CONFIRM BUTTON ========== */
+  /* ================= CONFIRM ================= */
   document.querySelector('.btn-confirm').addEventListener('click', function () {
     const saved = localStorage.getItem('buyer_location');
     if (!saved) return;
@@ -211,7 +236,7 @@ document.addEventListener('DOMContentLoaded', function () {
     window.location.href = `/?lat=${data.lat}&lng=${data.lng}&radius=${data.radius}`;
   });
 
-  /* ========== CLEAR LOCATION ========== */
+  /* ================= CLEAR LOCATION ================= */
   document.getElementById('clearLocationBtn').addEventListener('click', function () {
     localStorage.removeItem('buyer_location');
     locationText.textContent = 'Set Location';
