@@ -16,20 +16,7 @@
                  class="img-fluid"
                  loading="lazy">
 
-            <!-- Action Buttons -->
-            <div class="product-actions">
-                <button class="action-btn wishlist-btn">
-                    <i class="bi bi-heart"></i>
-                </button>
 
-                <button class="action-btn compare-btn">
-                    <i class="bi bi-arrow-left-right"></i>
-                </button>
-
-                <button class="action-btn quickview-btn">
-                    <i class="bi bi-zoom-in"></i>
-                </button>
-            </div>
 
             <!-- VIEW BUTTON -->
             <button class="cart-btn"

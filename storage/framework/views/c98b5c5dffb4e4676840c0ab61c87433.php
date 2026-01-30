@@ -120,8 +120,7 @@
       <nav class="navmenu">
         <ul>
           <li><a href="<?php echo e(route('home')); ?>">Home</a></li>
-          <li><a href="<?php echo e(route('category')); ?>">Category</a></li>
-          <li><a href="<?php echo e(route('checkout')); ?>">Checkout</a></li>
+          <li><a href="<?php echo e(route('category')); ?>">Browse</a></li>
           <li><a href="<?php echo e(route('cart')); ?>">Cart</a></li>
           <li><a href="<?php echo e(route('chat')); ?>">Chat</a></li>
           <li><a href="<?php echo e(route('buyer.orders')); ?>">My Orders</a></li>
