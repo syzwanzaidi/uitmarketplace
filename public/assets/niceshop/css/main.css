@@ -12923,6 +12923,23 @@ section,
   font-weight: 500;
 }
 
+/* FORCE product card border (category + home) */
+.best-sellers .product-item,
+.category-product-list .product-item {
+  border: 2px solid #000000 !important;
+  border-radius: 12px !important;
+  background: #fff !important;
+  overflow: hidden !important;
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+/* Hover effect */
+.best-sellers .product-item:hover,
+.category-product-list .product-item:hover {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08) !important;
+  transform: translateY(-3px);
+}
+
 
 
 

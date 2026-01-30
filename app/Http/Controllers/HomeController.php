@@ -59,7 +59,7 @@ class HomeController extends Controller
 
         // Limit for homepage
         $products = $productsQuery
-            ->take(20)
+            ->take(8)
             ->get();
 
         return view('user.home', compact('products'));

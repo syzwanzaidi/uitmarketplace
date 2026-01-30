@@ -118,12 +118,16 @@ document.addEventListener('DOMContentLoaded', function () {
     radiusValue.textContent = data.radius;
   }
 
-  /* ================= AUTO APPLY FILTER ON HOME ================= */
-  if (window.location.pathname === '/' && savedLocation && !params.has('lat')) {
+  /* ================= AUTO APPLY LOCATION FILTER (ALL PAGES) ================= */
+  if (savedLocation && !params.has('lat')) {
     const data = JSON.parse(savedLocation);
-    window.location.replace(
-      `/?lat=${data.lat}&lng=${data.lng}&radius=${data.radius}`
-    );
+
+    const url = new URL(window.location.href);
+    url.searchParams.set('lat', data.lat);
+    url.searchParams.set('lng', data.lng);
+    url.searchParams.set('radius', data.radius);
+
+    window.location.replace(url.toString());
     return;
   }
 
@@ -194,14 +198,28 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!saved) return;
 
     const data = JSON.parse(saved);
-    window.location.href = `/?lat=${data.lat}&lng=${data.lng}&radius=${data.radius}`;
+
+    const url = new URL(window.location.href);
+
+    // Update / inject location params
+    url.searchParams.set('lat', data.lat);
+    url.searchParams.set('lng', data.lng);
+    url.searchParams.set('radius', data.radius);
+
+    window.location.href = url.toString();
   });
 
   /* ================= CLEAR LOCATION ================= */
   document.getElementById('clearLocationBtn').addEventListener('click', function () {
     localStorage.removeItem('buyer_location');
     locationText.textContent = 'Set Location';
-    window.location.href = '/';
+
+    const url = new URL(window.location.href);
+    url.searchParams.delete('lat');
+    url.searchParams.delete('lng');
+    url.searchParams.delete('radius');
+
+    window.location.href = url.toString();
   });
 
   const el = document.getElementById('emptyLocationText');
