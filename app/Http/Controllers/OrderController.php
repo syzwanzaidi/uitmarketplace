@@ -66,8 +66,7 @@ class OrderController extends Controller
             }
 
             // 6️⃣ Create ToyyibPay bill
-            $response = Http::withoutVerifying()
-                ->asForm()
+            $response = Http::asForm()
                 ->timeout(30)
                 ->post(
                     config('services.toyyibpay.url') . '/index.php/api/createBill',
