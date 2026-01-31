@@ -11,13 +11,16 @@ class PaymentController extends Controller
 {
     public function callback(Request $request)
     {
+        // 0️⃣ Log EVERYTHING (for audit)
         logger()->info('TOYYIBPAY CALLBACK HIT', $request->all());
 
         // 1️⃣ Validate required payload
         if (!$request->filled(['billcode', 'status_id', 'amount'])) {
+            logger()->error('Invalid ToyyibPay callback payload');
             return response('Invalid callback', 400);
         }
 
+        // 2️⃣ Find order
         $order = Order::where('bill_code', $request->billcode)->first();
 
         if (!$order) {
@@ -27,29 +30,29 @@ class PaymentController extends Controller
             return response('Order not found', 404);
         }
 
-        // 2️⃣ Idempotency check (VERY IMPORTANT)
+        // 3️⃣ Idempotency guard (CRITICAL)
         if ($order->status === 'paid') {
-            logger()->info('Order already paid, ignoring duplicate callback', [
+            logger()->info('Duplicate callback ignored', [
                 'order_id' => $order->id
             ]);
             return response('OK');
         }
 
-        // 3️⃣ Verify amount (ToyyibPay sends SEN)
-        $expectedAmount = (int) ($order->total * 100);
-        $paidAmount     = (int) $request->amount;
+        // 4️⃣ Amount verification (RM → SEN)
+        $expectedAmountSen = (int) round(((float) $order->total) * 100);
+        $paidAmountSen     = (int) round(((float) $request->amount) * 100);
 
-        if ($expectedAmount !== $paidAmount) {
+        if ($expectedAmountSen !== $paidAmountSen) {
             logger()->error('Payment amount mismatch', [
                 'order_id' => $order->id,
-                'expected' => $expectedAmount,
-                'paid'     => $paidAmount,
+                'expected' => $expectedAmountSen,
+                'paid'     => $paidAmountSen,
             ]);
 
             return response('Amount mismatch', 400);
         }
 
-        // 4️⃣ Payment success
+        // 5️⃣ Payment SUCCESS
         if ((int) $request->status_id === 1) {
 
             $transactionRef = $request->refno
@@ -70,23 +73,26 @@ class PaymentController extends Controller
                 'paid_at'               => now(),
             ]);
 
+            // 6️⃣ Mark products as sold
             foreach ($order->items as $item) {
                 Product::where('id', $item->product_id)
                     ->update(['status' => 'sold']);
             }
 
-            logger()->info('Payment completed', [
+            logger()->info('Payment completed successfully', [
                 'order_id' => $order->id
             ]);
 
         } else {
-            // Only mark failed if not already paid
-            if ($order->status !== 'paid') {
-                $order->update(['status' => 'failed']);
-            }
+            // 7️⃣ Payment FAILED
+            $order->update(['status' => 'failed']);
+
+            logger()->warning('Payment failed', [
+                'order_id' => $order->id,
+                'status_id' => $request->status_id
+            ]);
         }
 
         return response('OK');
     }
-
 }
