@@ -17,96 +17,142 @@
   </div>
 
   <!-- Seller Dashboard Section -->
-  <section id="seller-dashboard" class="section">
+  <section id="seller-dashboard" class="account section">
     <div class="container">
 
-      <!-- Add New Listing Button -->
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <a href="#" class="btn btn-header"
-           data-bs-toggle="modal"
-           data-bs-target="#addListingModal">
-          <i class="bi bi-plus-lg"></i> Add New Listing
-        </a>
-      </div>
+      <div class="content-area">
 
-      <!-- Listings -->
-      <div class="listing-items">
+        <div class="row g-4 mb-5">
 
-        @foreach($products as $product)
-        <div class="listing-item mb-4 p-3 rounded shadow-sm">
-          <div class="row align-items-center">
-
-            <!-- Image + Title -->
-            <div class="col-lg-6 col-12">
-              <div class="product-info d-flex align-items-center">
-                <div class="product-image me-3">
-                  <img src="{{ $product->image }}" class="img-fluid rounded" width="80">
-                </div>
-                <div class="product-details">
-                  <h6 class="product-title mb-1">{{ $product->name }}</h6>
-                  <p class="text-muted small mb-0">
-                    Category: {{ $product->category->name }}
-                  </p>
-                </div>
-              </div>
+          <div class="col-md-3 col-sm-6">
+            <div class="dashboard-card">
+              <i class="bi bi-currency-dollar"></i>
+              <h4>Total Sales</h4>
+              <p>RM {{ number_format($totalSales, 2) }}</p>
             </div>
-
-            <!-- Price -->
-            <div class="col-lg-2 col-6 text-center">
-              <span class="fw-bold text-dark">
-                RM {{ number_format($product->price, 2) }}
-              </span>
-            </div>
-
-            <!-- Status -->
-            <div class="col-lg-2 col-6 text-center">
-              <form action="{{ route('listings.updateStatus', $product->id) }}" method="POST">
-                @csrf
-                @method('PATCH')
-                <select name="status"
-                        class="form-select form-select-sm"
-                        onchange="this.form.submit()">
-                  <option value="active" {{ $product->status == 'active' ? 'selected' : '' }}>
-                    Active
-                  </option>
-                  <option value="inactive" {{ $product->status == 'inactive' ? 'selected' : '' }}>
-                    Inactive
-                  </option>
-                </select>
-              </form>
-            </div>
-
-            <!-- Edit + Delete (UNCHANGED) -->
-            <div class="col-lg-2 col-12 text-center mt-3 mt-lg-0">
-              
-              <!-- Edit Button -->
-              <button class="btn btn-sm btn-outline-secondary me-2"
-                      data-bs-toggle="modal"
-                      data-bs-target="#editModal{{ $product->id }}">
-                <i class="bi bi-pencil"></i>
-              </button>
-
-              <!-- Delete -->
-              <form action="{{ route('listings.delete', $product->id) }}"
-                    method="POST"
-                    class="d-inline">
-                @csrf
-                @method('DELETE')
-                <button class="btn btn-sm btn-outline-danger"
-                        onclick="return confirm('Delete this listing?')">
-                  <i class="bi bi-trash"></i>
-                </button>
-              </form>
-
-            </div>
-
           </div>
+
+          <div class="col-md-3 col-sm-6">
+            <div class="dashboard-card"
+                style="cursor: pointer"
+                onclick="window.location='{{ route('listings') }}'">
+              <i class="bi bi-box-seam"></i>
+              <h4>Active Listings</h4>
+              <p>{{ $activeListingsCount }} Items</p>
+            </div>
+          </div>
+
+          <div class="col-md-3 col-sm-6">
+            <div class="dashboard-card"
+                  style="cursor: pointer"
+                  onclick="window.location='{{ route('chat') }}'">
+              <i class="bi bi-chat-dots"></i>
+              <h4>Messages</h4>
+              <p>4 New</p>
+            </div>
+          </div>
+
+          <div class="col-md-3 col-sm-6">
+            <div class="dashboard-card"
+                  style="cursor: pointer"
+                  onclick="window.location='{{ route('seller.orders') }}'">
+              <i class="bi bi-graph-up"></i>
+              <h4>Pending Orders</h4>
+              <p>{{ $pendingOrdersCount }}</p>
+            </div>
+          </div>
+
         </div>
 
-        <!-- Edit Modal -->
-        @include('components.listing.edit-listing-modal')
+        <!-- Add New Listing Button -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <a href="#" class="btn btn-header"
+            data-bs-toggle="modal"
+            data-bs-target="#addListingModal">
+            <i class="bi bi-plus-lg"></i> Add New Listing
+          </a>
+        </div>
 
-        @endforeach
+        <!-- Listings -->
+        <div class="listing-items">
+
+          @foreach($products as $product)
+          <div class="listing-item mb-4 p-3 rounded shadow-sm">
+            <div class="row align-items-center">
+
+              <!-- Image + Title -->
+              <div class="col-lg-6 col-12">
+                <div class="product-info d-flex align-items-center">
+                  <div class="product-image me-3">
+                    <img src="{{ $product->image }}" class="img-fluid rounded" width="80">
+                  </div>
+                  <div class="product-details">
+                    <h6 class="product-title mb-1">{{ $product->name }}</h6>
+                    <p class="text-muted small mb-0">
+                      Category: {{ $product->category->name }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Price -->
+              <div class="col-lg-2 col-6 text-center">
+                <span class="fw-bold text-dark">
+                  RM {{ number_format($product->price, 2) }}
+                </span>
+              </div>
+
+              <!-- Status -->
+              <div class="col-lg-2 col-6 text-center">
+                <form action="{{ route('listings.updateStatus', $product->id) }}" method="POST">
+                  @csrf
+                  @method('PATCH')
+                  <select name="status"
+                          class="form-select form-select-sm"
+                          onchange="this.form.submit()">
+                    <option value="active" {{ $product->status == 'active' ? 'selected' : '' }}>
+                      Active
+                    </option>
+                    <option value="inactive" {{ $product->status == 'inactive' ? 'selected' : '' }}>
+                      Inactive
+                    </option>
+                  </select>
+                </form>
+              </div>
+
+              <!-- Edit + Delete (UNCHANGED) -->
+              <div class="col-lg-2 col-12 text-center mt-3 mt-lg-0">
+                
+                <!-- Edit Button -->
+                <button class="btn btn-sm btn-outline-secondary me-2"
+                        data-bs-toggle="modal"
+                        data-bs-target="#editModal{{ $product->id }}">
+                  <i class="bi bi-pencil"></i>
+                </button>
+
+                <!-- Delete -->
+                <form action="{{ route('listings.delete', $product->id) }}"
+                      method="POST"
+                      class="d-inline">
+                  @csrf
+                  @method('DELETE')
+                  <button class="btn btn-sm btn-outline-danger"
+                          onclick="return confirm('Delete this listing?')">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Edit Modal -->
+          @include('components.listing.edit-listing-modal')
+
+          @endforeach
+
+        </div>
 
       </div>
     </div>
