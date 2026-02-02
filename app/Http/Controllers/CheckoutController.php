@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cart;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
 class CheckoutController extends Controller
@@ -43,9 +44,30 @@ class CheckoutController extends Controller
         // 5. Group selected items by seller
         $grouped = $cartItems->groupBy('seller_id');
 
-        // 🚫 NOT creating orders yet
-        // 🚫 NOT payment yet
+        //  NOT creating orders yet
+        // NOT payment yet
 
         return view('user.checkout', compact('grouped'));
+    }
+
+    public function buyNow(Product $product)
+    {
+        $user = auth()->user();
+
+        if ($product->user_id === $user->id) {
+            return back()->with('error', 'You cannot buy your own product.');
+        }
+
+        Cart::where('user_id', $user->id)->delete();
+
+        $cart = Cart::create([
+            'user_id'    => $user->id,
+            'product_id' => $product->id,
+            'seller_id'  => $product->user_id,
+        ]);
+
+        return response()->view('redirects.post-checkout', [
+            'cartId' => $cart->id
+        ]);
     }
 }

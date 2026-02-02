@@ -116,10 +116,13 @@
                                 </button>
                               </form>
                               
-                              <button class="btn secondary-action">
-                                  <i class="bi bi-lightning"></i>
-                                  Buy Now
-                              </button>
+                              <form action="<?php echo e(route('buy.now', $product->id)); ?>" method="POST">
+                                <?php echo csrf_field(); ?>
+                                <button type="submit" class="btn secondary-action w-100">
+                                    <i class="bi bi-lightning"></i>
+                                    Buy Now
+                                </button>
+                              </form>
 
                               <form action="<?php echo e(route('wishlist.add', $product->id)); ?>" method="POST">
                                 <?php echo csrf_field(); ?>

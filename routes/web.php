@@ -35,6 +35,7 @@ use App\Http\Controllers\Admin\AdminComplaintController;
 
 Route::get('/category', [CategoryController::class, 'index'])->name('category');
 
+
 Route::get('/about', function () {
     return view('user.about');
 })->name('about');
@@ -82,6 +83,9 @@ Route::middleware(['auth', 'active', 'verified'])->group(function () {
     // Checkout (page logic only)
     Route::post('/checkout', [CheckoutController::class, 'index'])
         ->name('checkout');
+
+    Route::post('/buy-now/{product}', [CheckoutController::class, 'buyNow'])
+        ->name('buy.now');
 
     // Orders (CREATE ORDER + PAY)
     Route::post('/orders', [OrderController::class, 'store'])
