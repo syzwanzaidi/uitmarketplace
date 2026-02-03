@@ -25,12 +25,17 @@
         
         
         <div class="section-header" data-aos="fade-up">
-          <div class="header-actions">
+          <form method="GET" action="<?php echo e(route('buyer.orders')); ?>">
             <div class="search-box">
               <i class="bi bi-search"></i>
-              <input type="text" placeholder="Search orders...">
+              <input
+                type="text"
+                name="search"
+                value="<?php echo e(request('search')); ?>"
+                placeholder="Search by Order ID..."
+                class="form-control">
             </div>
-          </div>
+          </form>
         </div>
 
         
@@ -209,6 +214,15 @@
           <?php endif; ?>
 
         </div>
+
+        <?php if($orders->hasPages()): ?>
+          <section class="category-pagination section">
+            <div class="mt-4 d-flex justify-content-center">
+              <?php echo e($orders->links()); ?>
+
+            </div>
+          </section>
+        <?php endif; ?>
 
       </div>
     </div>

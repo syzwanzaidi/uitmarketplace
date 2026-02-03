@@ -25,12 +25,17 @@
         {{-- SECTION HEADER --}}
         {{-- ===================== --}}
         <div class="section-header" data-aos="fade-up">
-          <div class="header-actions">
+          <form method="GET" action="{{ route('buyer.orders') }}">
             <div class="search-box">
               <i class="bi bi-search"></i>
-              <input type="text" placeholder="Search orders...">
+              <input
+                type="text"
+                name="search"
+                value="{{ request('search') }}"
+                placeholder="Search by Order ID..."
+                class="form-control">
             </div>
-          </div>
+          </form>
         </div>
 
         {{-- ===================== --}}
@@ -201,6 +206,14 @@
           @endforelse
 
         </div>
+
+        @if($orders->hasPages())
+          <section class="category-pagination section">
+            <div class="mt-4 d-flex justify-content-center">
+              {{ $orders->links() }}
+            </div>
+          </section>
+        @endif
 
       </div>
     </div>
