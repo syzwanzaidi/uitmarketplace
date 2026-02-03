@@ -12649,10 +12649,12 @@ section,
   color: #092131;
 }
 .listing-item {
+  border: 2px solid #dcdcdc;
   background-color: #fff;
-  transition: 0.2s;
+  transition: all 0.2s ease;
 }
 .listing-item:hover {
+  border-color: #000000; 
   transform: scale(1.01);
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
@@ -12804,12 +12806,17 @@ section,
 }
 
 .dashboard-card {
+  border: 2px solid #dcdcdc;   /* light border */
+  border-radius: 12px;        /* smooth corners */
+  padding: 20px;
+  background: #fff;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .dashboard-card:hover {
-  transform: translateY(-2px);
+  border-color: #000000;      /* Bootstrap primary */
   box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
 }
 
 /* ================= CHAT LAYOUT ================= */
@@ -12968,6 +12975,60 @@ section,
 .system-card p {
     font-size: 0.9rem;
     color: #666;
+}
+
+.search-box {
+    position: relative;
+    width: 260px; /* optional, control size */
+}
+
+.search-box i {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    transform: translateY(-50%);
+    color: #999;
+    pointer-events: none;
+}
+
+.search-box input {
+    padding-left: 38px;
+}
+
+/* Pagination wrapper */
+.category-pagination .pagination {
+    margin-left: 20px; /* space from text */
+}
+
+/* Result text */
+.category-pagination .text-sm {
+    margin-right: 16px;
+    color: #555;
+}
+
+/* Align everything nicely */
+.category-pagination .flex {
+    align-items: center;
+    gap: 12px;
+}
+
+/* Optional: tighten pagination buttons */
+.category-pagination .page-link {
+    padding: 6px 12px;
+}
+
+.content-area {
+    background: #ffffff;
+    border: 2px solid #dcdcdc;
+    border-radius: 24px;
+    padding: 32px;
+}
+
+.contact-form-wrapper {
+    background: #ffffff;
+    border: 2px solid #dcdcdc;
+    border-radius: 24px;
+    padding: 32px;
 }
 
 

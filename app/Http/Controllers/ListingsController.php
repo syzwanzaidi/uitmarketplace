@@ -15,16 +15,22 @@ class ListingsController extends Controller
     /**
      * Seller dashboard (Listings + Stats)
      */
-    public function index()
+    public function index(Request $request)
     {
         $sellerId = Auth::id();
+        $search = $request->query('search');
 
         $categories = Category::all();
 
         $products = Product::with('category')
             ->where('user_id', $sellerId)
             ->whereIn('status', ['active', 'inactive'])
-            ->get();
+            ->when($search, function ($query, $search) {
+                $query->where('name', 'like', '%' . $search . '%');
+            })
+            ->latest()
+            ->paginate(8)
+            ->withQueryString(); // keeps search during pagination
 
         $totalSales = Order::where('seller_id', $sellerId)
             ->whereIn('status', ['paid', 'shipped', 'completed'])
@@ -44,7 +50,8 @@ class ListingsController extends Controller
             'products',
             'totalSales',
             'activeListingsCount',
-            'pendingOrdersCount'
+            'pendingOrdersCount',
+            'search'
         ));
     }
 
@@ -81,7 +88,7 @@ class ListingsController extends Controller
             'status'      => 'active',
         ]);
 
-        // CREATE LOCATION (THIS WAS MISSING)
+        // CREATE LOCATION
         $product->locationPoint()->create([
             'latitude'  => $request->latitude,
             'longitude' => $request->longitude,
@@ -89,8 +96,6 @@ class ListingsController extends Controller
 
         return back()->with('success', 'Product added successfully!');
     }
-
-
 
     /**
      * Update listing
@@ -119,7 +124,7 @@ class ListingsController extends Controller
             $product->image = '/storage/' . $imagePath;
         }
 
-        // 1️⃣ UPDATE PRODUCT TABLE
+        // UPDATE PRODUCT
         $product->update([
             'name'        => $request->name,
             'category_id' => $request->category_id,
@@ -128,7 +133,7 @@ class ListingsController extends Controller
             'location'    => $request->location,
         ]);
 
-        // 2️⃣ UPDATE / CREATE LOCATION TABLE
+        // UPDATE / CREATE LOCATION
         if ($request->filled(['latitude', 'longitude'])) {
             $product->locationPoint()->updateOrCreate(
                 ['product_id' => $product->id],

@@ -162,7 +162,7 @@
     
     <?php if($products->hasPages()): ?>
       <section class="category-pagination section">
-        <div class="d-flex justify-content-center">
+        <div class="mt-4 d-flex justify-content-center">
           <?php echo e($products->withQueryString()->links()); ?>
 
         </div>

@@ -66,11 +66,31 @@
 
         <!-- Add New Listing Button -->
         <div class="d-flex justify-content-between align-items-center mb-4">
-          <a href="#" class="btn btn-header"
+
+          <!-- LEFT: Add Listing -->
+          <a href="#"
+            class="btn btn-header"
             data-bs-toggle="modal"
             data-bs-target="#addListingModal">
             <i class="bi bi-plus-lg"></i> Add New Listing
           </a>
+
+          <!-- RIGHT: Search -->
+          <form method="GET"
+                action="<?php echo e(route('listings')); ?>"
+                class="d-flex align-items-center">
+
+            <div class="search-box">
+              <i class="bi bi-search"></i>
+              <input type="text"
+                    name="search"
+                    value="<?php echo e(request('search')); ?>"
+                    placeholder="Search listings..."
+                    class="form-control">
+            </div>
+
+          </form>
+
         </div>
 
         <!-- Listings -->
@@ -153,8 +173,17 @@
           <?php echo $__env->make('components.listing.edit-listing-modal', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
           <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-
         </div>
+
+
+        <?php if($products->hasPages()): ?>
+          <section class="category-pagination section">
+            <div class="mt-4 d-flex justify-content-center">
+              <?php echo e($products->links()); ?>
+
+            </div>
+          </section>
+        <?php endif; ?>
 
       </div>
     </div>
