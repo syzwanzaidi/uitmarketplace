@@ -1,5 +1,5 @@
 <!-- Reviews Tab -->
-<div class="tab-pane fade {{ request('tab') === 'reviews' ? 'show active' : '' }}" id="reviews">
+<div class="tab-pane fade <?php echo e(request('tab') === 'reviews' ? 'show active' : ''); ?>" id="reviews">
     <div class="section-header" data-aos="fade-up">
     <h2>My Reviews</h2>
     <div class="header-actions">
@@ -71,3 +71,4 @@
     </div>
     </div>
 </div>
+<?php /**PATH C:\fyp\uitmarketplace\resources\views/components/account/review.blade.php ENDPATH**/ ?>

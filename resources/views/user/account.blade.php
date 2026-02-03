@@ -58,35 +58,13 @@
               <!-- Navigation Menu -->
               <nav class="menu-nav">
                 <ul class="nav flex-column" role="tablist">
-                  <li class="nav-item">
-                      <a class="nav-link {{ request('tab') === 'orders' ? 'active' : '' }}" 
-                        data-bs-toggle="tab" href="#orders">
-                          <i class="bi bi-box-seam"></i>
-                          <span>My Orders</span>
-                      </a>
-                  </li>
+
 
                   <li class="nav-item">
                       <a class="nav-link {{ request('tab') === 'wishlist' ? 'active' : '' }}" 
                         data-bs-toggle="tab" href="#wishlist">
                           <i class="bi bi-heart"></i>
                           <span>Wishlist</span>
-                      </a>
-                  </li>
-
-                  <li class="nav-item">
-                      <a class="nav-link {{ request('tab') === 'wallet' ? 'active' : '' }}" 
-                        data-bs-toggle="tab" href="#wallet">
-                          <i class="bi bi-wallet2"></i>
-                          <span>Payment Methods</span>
-                      </a>
-                  </li>
-
-                  <li class="nav-item">
-                      <a class="nav-link {{ request('tab') === 'reviews' ? 'active' : '' }}" 
-                        data-bs-toggle="tab" href="#reviews">
-                          <i class="bi bi-star"></i>
-                          <span>My Reviews</span>
                       </a>
                   </li>
 
@@ -100,15 +78,16 @@
                 </ul>
 
                 <div class="menu-footer">
-                  <a href="#" class="help-link">
-                    <i class="bi bi-question-circle"></i>
-                    <span>Help Center</span>
-                  </a>
-                  <a href="#" class="logout-link">
-                    <i class="bi bi-box-arrow-right"></i>
-                    <span>Log Out</span>
-                  </a>
+                    <form method="POST" action="{{ route('logout') }}" class="logout-form">
+                        @csrf
+                        <a href="#" class="logout-link"
+                          onclick="event.preventDefault(); this.closest('form').submit();">
+                            <i class="bi bi-box-arrow-right"></i>
+                            <span>Log Out</span>
+                        </a>
+                    </form>
                 </div>
+
               </nav>
             </div>
           </div>
@@ -118,10 +97,7 @@
             <div class="content-area">
               <div class="tab-content">
 
-                <x-account.order :user="auth()->user()" />
                 <x-account.wishlist :user="auth()->user()" />
-                <x-account.payment :user="auth()->user()" />
-                <x-account.review :user="auth()->user()" />
                 <x-account.personal-info :user="auth()->user()" />
 
               </div>

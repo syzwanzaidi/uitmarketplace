@@ -12926,7 +12926,7 @@ section,
 /* FORCE product card border (category + home) */
 .best-sellers .product-item,
 .category-product-list .product-item {
-  border: 2px solid #000000 !important;
+  border: 2px solid #dcdcdc !important;
   border-radius: 12px !important;
   background: #fff !important;
   overflow: hidden !important;
@@ -12939,6 +12939,37 @@ section,
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08) !important;
   transform: translateY(-3px);
 }
+
+.system-visual {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.system-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+.system-card i {
+    font-size: 2rem;
+    color: #092131;
+    margin-bottom: 10px;
+}
+
+.system-card h5 {
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.system-card p {
+    font-size: 0.9rem;
+    color: #666;
+}
+
 
 
 

@@ -10,67 +10,48 @@
       <div class="hero-container">
         <div class="hero-content">
           <div class="content-wrapper" data-aos="fade-up" data-aos-delay="100">
-            <h1 class="hero-title">Discover Amazing Products</h1>
-            <p class="hero-description">Explore our curated collection of premium items designed to enhance your lifestyle. From fashion to tech, find everything you need with exclusive deals and fast shipping.</p>
+            <h1 class="hero-title">Discover Product From UiTM Students</h1>
+            <p class="hero-description">
+              This web application is developed to provide UiTM students with a secure
+              platform for buying and selling items within the campus environment.
+            </p>
             <div class="hero-actions" data-aos="fade-up" data-aos-delay="200">
-              <a href="#products" class="btn-primary">Shop Now</a>
-              <a href="#categories" class="btn-secondary">Browse Categories</a>
+              <a href="{{ route('category') }}" class="btn-primary">Shop Now</a>
             </div>
-            <div class="features-list" data-aos="fade-up" data-aos-delay="300">
-              <div class="feature-item">
-                <i class="bi bi-truck"></i>
-                <span>Free Shipping</span>
-              </div>
-              <div class="feature-item">
-                <i class="bi bi-award"></i>
-                <span>Quality Guarantee</span>
-              </div>
-              <div class="feature-item">
-                <i class="bi bi-headset"></i>
-                <span>24/7 Support</span>
-              </div>
-            </div>
+
           </div>
         </div>
 
-        <div class="hero-visuals">
-          <div class="product-showcase" data-aos="fade-left" data-aos-delay="200">
-            <div class="product-card featured">
-              <img src="{{asset('assets/niceshop/img/product/product-2.webp')}}" alt="Featured Product" class="img-fluid">
-              <div class="product-badge">Best Seller</div>
-              <div class="product-info">
-                <h4>Premium Wireless Headphones</h4>
-                <div class="price">
-                  <span class="sale-price">RM299</span>
-                  <span class="original-price">RM399</span>
-                </div>
-              </div>
+        <div class="hero-visuals" data-aos="fade-left" data-aos-delay="200">
+
+          <div class="system-visual">
+
+            <div class="system-card">
+              <i class="bi bi-shop"></i>
+              <h5>Student Marketplace</h5>
+              <p>Buy and sell items within UiTM campus</p>
             </div>
 
-            <div class="product-grid">
-              <div class="product-mini" data-aos="zoom-in" data-aos-delay="400">
-                <img src="{{asset('assets/niceshop/img/product/product-3.webp')}}" alt="Product" class="img-fluid">
-                <span class="mini-price">RM89</span>
-              </div>
-              <div class="product-mini" data-aos="zoom-in" data-aos-delay="500">
-                <img src="{{asset('assets/niceshop/img/product/product-5.webp')}}" alt="Product" class="img-fluid">
-                <span class="mini-price">RM149</span>
-              </div>
+            <div class="system-card">
+              <i class="bi bi-chat-dots"></i>
+              <h5>Direct Chat</h5>
+              <p>Communicate with sellers before purchasing</p>
             </div>
+
+            <div class="system-card">
+              <i class="bi bi-geo-alt"></i>
+              <h5>Location-Based Items</h5>
+              <p>View products based on nearby locations</p>
+            </div>
+
+            <div class="system-card">
+              <i class="bi bi-credit-card"></i>
+              <h5>Online Payment</h5>
+              <p>Secure payment using ToyyibPay</p>
+            </div>
+
           </div>
 
-          <div class="floating-elements">
-            <div class="floating-icon cart" data-aos="fade-up" data-aos-delay="600">
-              <i class="bi bi-cart3"></i>
-              <span class="notification-dot">3</span>
-            </div>
-            <div class="floating-icon wishlist" data-aos="fade-up" data-aos-delay="700">
-              <i class="bi bi-heart"></i>
-            </div>
-            <div class="floating-icon search" data-aos="fade-up" data-aos-delay="800">
-              <i class="bi bi-search"></i>
-            </div>
-          </div>
         </div>
       </div>
 

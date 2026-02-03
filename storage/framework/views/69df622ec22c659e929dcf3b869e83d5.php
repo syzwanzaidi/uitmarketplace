@@ -1,5 +1,5 @@
                 <!-- Orders Tab -->
-                <div class="tab-pane fade {{ request('tab') === 'orders' ? 'show active' : '' }}" id="orders">
+                <div class="tab-pane fade <?php echo e(request('tab') === 'orders' ? 'show active' : ''); ?>" id="orders">
                   <div class="section-header" data-aos="fade-up">
                     <h2>My Orders</h2>
                     <div class="header-actions">
@@ -472,4 +472,4 @@
                       <i class="bi bi-chevron-right"></i>
                     </button>
                   </div>
-                </div>
+                </div><?php /**PATH C:\fyp\uitmarketplace\resources\views/components/account/order.blade.php ENDPATH**/ ?>
