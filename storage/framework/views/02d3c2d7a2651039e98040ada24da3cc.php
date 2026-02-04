@@ -14,7 +14,7 @@
             </div>
 
             <div class="p-3 border-bottom">
-              <input class="form-control" placeholder="Search contacts..." disabled>
+              <input id="chatSearch" class="form-control" placeholder="Search contacts...">
             </div>
 
             <div class="list-group list-group-flush chat-list">
@@ -27,16 +27,16 @@
 
                 <a href="<?php echo e(route('chat', ['conversation_id' => $conv->id])); ?>"
                    id="conv-<?php echo e($conv->id); ?>"
-                   class="list-group-item list-group-item-action d-flex gap-3 py-3
+                   class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-3
                    <?php echo e(optional($conversation)->id === $conv->id ? 'active' : ''); ?>">
 
                   <img
                     src="<?php echo e($partner->profile_photo
-                        ? asset('storage/'.$partner->profile_photo)
-                        : asset('favicon.ico')); ?>"
+                      ? asset('storage/'.$partner->profile_photo)
+                      : asset('favicon.ico')); ?>"
                     width="40"
                     height="40"
-                    class="rounded-circle object-fit-cover">
+                    class="rounded-circle">
 
                   <div class="flex-grow-1 overflow-hidden">
                     <strong class="d-block text-truncate"><?php echo e($partner->name); ?></strong>
@@ -45,6 +45,13 @@
 
                     </div>
                   </div>
+
+                  <?php if($conv->unread_count > 0): ?>
+                    <span class="badge bg-danger rounded-pill">
+                      <?php echo e($conv->unread_count); ?>
+
+                    </span>
+                  <?php endif; ?>
                 </a>
               <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                 <div class="text-center text-muted p-4">
@@ -60,16 +67,9 @@
         <div class="col-lg-8">
           <div class="card chat-wrapper">
 
-            
             <?php if($product): ?>
               <div class="chat-product-bar">
-                <img
-                  src="<?php echo e($product->image); ?>"
-                  alt="<?php echo e($product->name); ?>"
-                  class="chat-product-image"
-                  onerror="this.src='<?php echo e(asset('favicon.ico')); ?>'"
-                >
-
+                <img src="<?php echo e($product->image); ?>" class="chat-product-image">
                 <div class="chat-product-info">
                   <strong><?php echo e($product->name); ?></strong>
                   <div class="text-muted small">
@@ -77,24 +77,15 @@
 
                   </div>
                 </div>
-
                 <a href="<?php echo e(route('product.show', $product->id)); ?>"
-                  class="btn btn-sm btn-outline-primary">
+                   class="btn btn-sm btn-outline-primary">
                   View
                 </a>
               </div>
             <?php endif; ?>
-            
-            <div class="card-header d-flex align-items-center gap-3">
-              <?php if($conversation): ?>
-                <img
-                  src="<?php echo e($otherUser->profile_photo
-                      ? asset('storage/'.$otherUser->profile_photo)
-                      : asset('favicon.ico')); ?>"
-                  width="40"
-                  height="40"
-                  class="rounded-circle object-fit-cover">
 
+            <div class="card-header">
+              <?php if($conversation): ?>
                 <strong><?php echo e($otherUser->name); ?></strong>
               <?php else: ?>
                 <strong>Select a conversation</strong>
@@ -103,22 +94,11 @@
 
             
             <div id="messagesArea" class="chat-messages">
+              <?php $__currentLoopData = $messages; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $msg): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <?php $isMe = $msg->sender_id === auth()->id(); ?>
 
-              <?php if(!$conversation): ?>
-                <div class="text-center text-muted mt-5">
-                  Choose a conversation to start chatting
-                </div>
-
-              <?php elseif($messages->isEmpty()): ?>
-                <div class="text-center text-muted mt-5">
-                  No messages yet
-                </div>
-
-              <?php else: ?>
-                <?php $__currentLoopData = $messages; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $msg): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                  <?php $isMe = $msg->sender_id === auth()->id(); ?>
-
-                  <div class="chat-row <?php echo e($isMe ? 'me' : 'other'); ?>">
+                <div class="chat-line <?php echo e($isMe ? 'me' : 'other'); ?>">
+                  <div class="chat-bubble-wrapper">
                     <div class="chat-bubble <?php echo e($isMe ? 'chat-bubble-me' : 'chat-bubble-other'); ?>">
                       <?php echo e($msg->message); ?>
 
@@ -128,12 +108,10 @@
 
                     </div>
                   </div>
-                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-              <?php endif; ?>
-
+                </div>
+              <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </div>
 
-            
             <?php if($conversation): ?>
               <div class="card-footer">
                 <div class="d-flex gap-2">
@@ -161,11 +139,11 @@
   const messagesArea = document.getElementById('messagesArea');
   const messageInput = document.getElementById('messageInput');
   const sendBtn = document.getElementById('sendBtn');
+  const chatSearch = document.getElementById('chatSearch');
 
   function scrollToBottom() {
     messagesArea.scrollTop = messagesArea.scrollHeight;
   }
-
   scrollToBottom();
 
   if (sendBtn) sendBtn.addEventListener('click', sendMessage);
@@ -179,16 +157,17 @@
       message: text
     }).then(res => {
       appendMyMessage(res.data.message);
-      updateConversationPreview(res.data.message);
       messageInput.value = '';
     });
   }
 
   function appendMyMessage(msg) {
     messagesArea.insertAdjacentHTML('beforeend', `
-      <div class="chat-row me">
-        <div class="chat-bubble chat-bubble-me">${msg.message}</div>
-        <div class="chat-time text-end">${formatTime(msg.created_at)}</div>
+      <div class="chat-line me">
+        <div class="chat-bubble-wrapper">
+          <div class="chat-bubble chat-bubble-me">${msg.message}</div>
+          <div class="chat-time text-end">${formatTime(msg.created_at)}</div>
+        </div>
       </div>
     `);
     scrollToBottom();
@@ -196,17 +175,14 @@
 
   function appendIncomingMessage(msg) {
     messagesArea.insertAdjacentHTML('beforeend', `
-      <div class="chat-row other">
-        <div class="chat-bubble chat-bubble-other">${msg.message}</div>
-        <div class="chat-time">${formatTime(msg.created_at)}</div>
+      <div class="chat-line other">
+        <div class="chat-bubble-wrapper">
+          <div class="chat-bubble chat-bubble-other">${msg.message}</div>
+          <div class="chat-time">${formatTime(msg.created_at)}</div>
+        </div>
       </div>
     `);
     scrollToBottom();
-  }
-
-  function updateConversationPreview(msg) {
-    const el = document.querySelector(`#conv-${msg.conversation_id} .preview-text`);
-    if (el) el.textContent = msg.message;
   }
 
   function formatTime(datetime) {
@@ -224,7 +200,6 @@
       .listen('.message.sent', (e) => {
         if (e.message.sender_id === window.chatConfig.authUserId) return;
         appendIncomingMessage(e.message);
-        updateConversationPreview(e.message);
       });
   }
 

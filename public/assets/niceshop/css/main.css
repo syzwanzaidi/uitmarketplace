@@ -12825,6 +12825,7 @@ section,
   height: 78vh;
   display: flex;
   flex-direction: column;
+  background: #fff;
 }
 
 .chat-messages {
@@ -12834,39 +12835,43 @@ section,
   background: #f5f6f7;
 }
 
-/* ================= MESSAGE ROW ================= */
+/* ================= MESSAGE LINE ================= */
 
-.chat-row {
+.chat-line {
   display: flex;
-  flex-direction: column;
-  margin-bottom: 10px;
-  max-width: 100%;
+  width: 100%;
+  margin-bottom: 12px;
 }
 
-.chat-row.me {
-  align-items: flex-end;
+.chat-line.me {
+  justify-content: flex-end;
 }
 
-.chat-row.other {
-  align-items: flex-start;
+.chat-line.other {
+  justify-content: flex-start;
+}
+
+/* ================= BUBBLE CONTAINER ================= */
+/* THIS IS THE ANCHOR – NOTHING CAN GROW PAST THIS */
+
+.chat-bubble-wrapper {
+  display: block;
+  max-width: 65%;
 }
 
 /* ================= CHAT BUBBLE ================= */
 
 .chat-bubble {
   display: inline-block;
-  max-width: 55%;
-  width: fit-content;
-
   padding: 10px 14px;
-  border-radius: 18px;
-
-  white-space: pre-wrap;
-  word-break: break-word;
-  overflow-wrap: break-word;
+  border-radius: 16px;
 
   font-size: 14px;
   line-height: 1.4;
+
+  word-wrap: break-word;
+  word-break: break-word;
+  white-space: normal;
 }
 
 .chat-bubble-me {
@@ -12889,13 +12894,14 @@ section,
   margin-top: 4px;
 }
 
-/* CHAT PRODUCT PREVIEW BAR */
+/* ================= PRODUCT BAR ================= */
+
 .chat-product-bar {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 12px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid #ddd;
   background: #fafafa;
 }
 
@@ -12909,19 +12915,6 @@ section,
 .chat-product-info {
   flex: 1;
   min-width: 0;
-}
-
-.chat-product-name {
-  font-weight: 600;
-  font-size: 14px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.chat-product-price {
-  font-size: 13px;
-  color: #0d6efd;
 }
 
 .location-btn {

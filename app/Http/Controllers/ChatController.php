@@ -25,8 +25,8 @@ class ChatController extends Controller
         }
 
         $conversation = Conversation::firstOrCreate([
-            'buyer_id' => $buyer->id,
-            'seller_id' => $seller->id,
+            'buyer_id'   => $buyer->id,
+            'seller_id'  => $seller->id,
             'product_id' => $product->id,
         ]);
 
@@ -41,9 +41,18 @@ class ChatController extends Controller
         $userId = auth()->id();
         $conversationId = $request->conversation_id;
 
+        // 🔥 Conversations + unread count ONLY
         $conversations = Conversation::with(['product', 'buyer', 'seller'])
-            ->where('buyer_id', $userId)
-            ->orWhere('seller_id', $userId)
+            ->withCount([
+                'messages as unread_count' => function ($q) use ($userId) {
+                    $q->where('sender_id', '!=', $userId)
+                      ->whereNull('read_at');
+                }
+            ])
+            ->where(function ($q) use ($userId) {
+                $q->where('buyer_id', $userId)
+                  ->orWhere('seller_id', $userId);
+            })
             ->latest('updated_at')
             ->get();
 
@@ -56,6 +65,7 @@ class ChatController extends Controller
             $conversation = Conversation::with(['product', 'buyer', 'seller'])
                 ->findOrFail($conversationId);
 
+            // ❌ DO NOT mark as read (keep realtime safe)
             $messages = Message::where('conversation_id', $conversationId)
                 ->orderBy('created_at')
                 ->get();
@@ -81,16 +91,16 @@ class ChatController extends Controller
     {
         $request->validate([
             'conversation_id' => 'required|exists:conversations,id',
-            'message' => 'required|string',
+            'message'         => 'required|string',
         ]);
 
         $message = Message::create([
             'conversation_id' => $request->conversation_id,
-            'sender_id' => auth()->id(),
-            'message' => $request->message,
+            'sender_id'       => auth()->id(),
+            'message'         => $request->message,
         ]);
 
-        // 🔥 REAL-TIME broadcast (NO QUEUE)
+        // 🔥 REAL-TIME broadcast (unchanged)
         broadcast(new MessageSent($message))->toOthers();
 
         return response()->json([
