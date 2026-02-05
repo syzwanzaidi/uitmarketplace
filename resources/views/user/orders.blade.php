@@ -64,7 +64,14 @@
 
                   <span class="label ms-3">Tracking:</span>
                   <span class="value">
-                    {{ $order->tracking_number ?? '-' }}
+                    @if($order->tracking_number)
+                      {{ $order->tracking_number }}
+                      @if($order->courier)
+                        ({{ $order->courier }})
+                      @endif
+                    @else
+                      -
+                    @endif
                   </span>
                 </div>
 
@@ -189,6 +196,12 @@
                     {{-- Shipping --}}
                     <div class="detail-section">
                       <h5>Shipping</h5>
+
+                      <p>
+                        <strong>Courier:</strong>
+                        {{ $order->courier ?? 'Not assigned yet' }}
+                      </p>
+
                       <p>
                         <strong>Tracking Number:</strong>
                         {{ $order->tracking_number ?? 'Not available yet' }}

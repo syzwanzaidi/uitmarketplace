@@ -111,7 +111,16 @@
                   <span class="value">#ORDER-{{ $order->id }}</span>
 
                   <span class="label ms-3">Tracking:</span>
-                  <span class="value">{{ $order->tracking_number ?? '-' }}</span>
+                  <span class="value">
+                    @if($order->tracking_number)
+                      {{ $order->tracking_number }}
+                      @if($order->courier)
+                        ({{ $order->courier }})
+                      @endif
+                    @else
+                      -
+                    @endif
+                  </span>
                 </div>
 
                 <div class="order-date">
@@ -236,13 +245,27 @@
                         @csrf
                         @method('PATCH')
 
+                        {{-- Courier --}}
+                        <label class="form-label">Courier</label>
+                        <select name="courier" class="form-select mb-3" required>
+                          <option value="">Select courier</option>
+                          @foreach(['Pos Laju', 'J&T Express', 'NinjaVan', 'GD Express', 'DHL'] as $courier)
+                            <option value="{{ $courier }}"
+                              {{ $order->courier === $courier ? 'selected' : '' }}>
+                              {{ $courier }}
+                            </option>
+                          @endforeach
+                        </select>
+
+                        {{-- Tracking --}}
                         <label class="form-label">Tracking Number</label>
                         <input
                           type="text"
                           name="tracking_number"
-                          class="form-control mb-3"
+                          class="form-control"
                           value="{{ $order->tracking_number }}"
-                          placeholder="Enter tracking number">
+                          placeholder="Enter tracking number"
+                          required>
 
                         <div class="d-flex justify-content-end mt-4">
                           <button class="btn btn-header">
@@ -251,6 +274,7 @@
                         </div>
                       </form>
                     </div>
+
 
                   </div>
 

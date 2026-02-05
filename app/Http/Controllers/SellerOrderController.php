@@ -69,14 +69,16 @@ class SellerOrderController extends Controller
         abort_if($order->seller_id !== Auth::id(), 403);
 
         $request->validate([
+            'courier' => 'required|string|max:100',
             'tracking_number' => 'required|string|max:255',
         ]);
 
         $order->update([
+            'courier' => $request->courier,
             'tracking_number' => $request->tracking_number,
-            'status'          => 'shipped',
+            'status' => 'shipped',
         ]);
 
-        return back()->with('success', 'Tracking number saved and order marked as shipped.');
+        return back()->with('success', 'Tracking information saved.');
     }
 }

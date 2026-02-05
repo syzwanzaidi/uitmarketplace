@@ -15,6 +15,7 @@ class Order extends Model
         'payment_ref',
         'paid_at',
         'tracking_number',
+        'courier',
     ];
 
     protected $casts = [
