@@ -4,6 +4,7 @@
 
 <main class="main">
 
+  {{-- PAGE TITLE --}}
   <div class="page-title light-background">
     <div class="container d-lg-flex justify-content-between align-items-center">
       <h1 class="mb-2 mb-lg-0">Cart</h1>
@@ -13,16 +14,26 @@
   <section id="cart" class="cart section">
     <div class="container">
 
-      {{-- EMPTY CART --}}
+      {{-- =====================
+           EMPTY CART
+           ===================== --}}
       @if($grouped->isEmpty())
-        <div class="text-center py-5">
-          <h4>Your cart is empty</h4>
-          <a href="/" class="btn btn-accent mt-3">Browse Products</a>
+        <div class="d-flex flex-column align-items-center justify-content-center py-5 text-center">
+          <i class="bi bi-cart-x" style="font-size:64px;color:#ccc;"></i>
+
+          <h4 class="mt-3">Your cart is empty</h4>
+          <p class="text-muted mb-4">
+            Looks like you haven’t added anything yet
+          </p>
+
+          <a href="{{ route('home') }}" class="btn btn-dark px-4">
+            Browse Products
+          </a>
         </div>
       @endif
 
       {{-- =====================
-           CHECKOUT FORM (CHECKBOXES ONLY)
+           CHECKOUT FORM
            ===================== --}}
       <form action="{{ route('checkout') }}" method="POST" id="checkoutForm">
         @csrf
@@ -30,23 +41,26 @@
         @foreach($grouped as $sellerId => $items)
           @php $seller = $items->first()->product->user; @endphp
 
-          <div class="mb-4 p-3 border rounded shadow-sm">
+          <div class="mb-4 p-4 border rounded-3 shadow-sm bg-white">
 
-            {{-- SELLER CHECKBOX --}}
-            <h5 class="mb-3 d-flex align-items-center">
+            {{-- SELLER HEADER --}}
+            <div class="d-flex align-items-center mb-3">
               <input type="checkbox"
                      class="form-check-input me-2 seller-checkbox"
                      data-seller="{{ $sellerId }}">
-              Seller: {{ $seller->name }}
-            </h5>
+              <h5 class="mb-0 fw-semibold">
+                Seller: {{ $seller->name }}
+              </h5>
+            </div>
 
+            {{-- ITEMS --}}
             @foreach($items as $cart)
               <div class="cart-item mb-3 pb-3 border-bottom">
-                <div class="row align-items-center">
+                <div class="row align-items-center g-3">
 
+                  {{-- LEFT --}}
                   <div class="col-lg-8 d-flex align-items-center">
 
-                    {{-- ITEM CHECKBOX --}}
                     <input type="checkbox"
                            name="cart_items[]"
                            value="{{ $cart->id }}"
@@ -54,12 +68,14 @@
                            data-seller="{{ $sellerId }}"
                            data-price="{{ $cart->product->price }}">
 
-                    <img src="{{ $cart->product->image }}" width="80" class="rounded">
+                    <img src="{{ $cart->product->image }}"
+                         width="80"
+                         height="80"
+                         class="rounded object-fit-cover">
 
                     <div class="ms-3">
-                      <h6>{{ $cart->product->name }}</h6>
+                      <h6 class="mb-1">{{ $cart->product->name }}</h6>
 
-                      {{-- REMOVE BUTTON (NO FORM HERE) --}}
                       <button type="button"
                               class="btn btn-sm btn-outline-danger mt-2"
                               onclick="submitRemove({{ $cart->id }})">
@@ -69,8 +85,11 @@
 
                   </div>
 
+                  {{-- RIGHT --}}
                   <div class="col-lg-4 text-end">
-                    <strong>RM{{ number_format($cart->product->price, 2) }}</strong>
+                    <div class="fw-semibold fs-6">
+                      RM{{ number_format($cart->product->price, 2) }}
+                    </div>
                   </div>
 
                 </div>
@@ -87,21 +106,19 @@
            ORDER SUMMARY
            ===================== --}}
       @if(!$grouped->isEmpty())
-        <div class="cart-summary p-4 border rounded shadow-sm">
+        <div class="cart-summary p-4 border rounded-3 shadow-sm bg-white">
 
-          <div class="d-flex justify-content-between">
+          <div class="d-flex justify-content-between fs-5 mb-3">
             <span>Total</span>
             <span class="fw-bold" id="grandTotal">RM0.00</span>
           </div>
 
-          {{-- CHECKOUT BUTTON --}}
           <button type="submit"
-                  class="btn btn-accent w-100 mt-4"
+                  class="btn btn-dark w-100 py-2"
                   form="checkoutForm">
             Proceed to Checkout
           </button>
 
-          {{-- CLEAR CART --}}
           <form action="{{ route('cart.clear') }}" method="POST" class="mt-2">
             @csrf
             @method('DELETE')
@@ -114,7 +131,7 @@
       @endif
 
       {{-- =====================
-           HIDDEN REMOVE FORMS (OUTSIDE CHECKOUT FORM)
+           HIDDEN REMOVE FORMS
            ===================== --}}
       @foreach($grouped as $items)
         @foreach($items as $cart)
@@ -134,7 +151,7 @@
 </main>
 
 {{-- =====================
-     JS
+     JS (UNCHANGED)
      ===================== --}}
 <script>
 document.addEventListener('DOMContentLoaded', () => {
