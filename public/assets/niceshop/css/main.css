@@ -12819,6 +12819,12 @@ section,
   transform: translateY(-2px);
 }
 
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+}
+
 /* ================= CHAT LAYOUT ================= */
 
 .chat-wrapper {

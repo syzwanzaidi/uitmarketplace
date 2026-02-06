@@ -65,7 +65,7 @@
           </div>
 
           {{-- ACTION --}}
-          <a href="{{ route('account.orders') }}"
+          <a href="{{ route('buyer.orders') }}"
               class="btn btn-dark btn-lg w-100">
             View My Orders
           </a>

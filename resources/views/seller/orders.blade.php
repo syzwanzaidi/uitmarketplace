@@ -25,47 +25,48 @@
         {{-- ===================== --}}
         {{-- DASHBOARD STATS --}}
         {{-- ===================== --}}
-        <div class="row g-4 mb-5">
+        <div class="dashboard-grid mb-5">
 
-          <div class="col-md-3 col-sm-6">
-            <div class="dashboard-card">
-              <i class="bi bi-currency-dollar"></i>
-              <h4>Total Sales</h4>
-              <p>RM {{ number_format($totalSales, 2) }}</p>
-            </div>
+          <div class="dashboard-card">
+            <i class="bi bi-currency-dollar"></i>
+            <h4>Total Sales</h4>
+            <p>RM {{ number_format($totalSales, 2) }}</p>
           </div>
 
-          <div class="col-md-3 col-sm-6">
-            <div class="dashboard-card"
-                style="cursor: pointer"
-                onclick="window.location='{{ route('listings') }}'">
-              <i class="bi bi-box-seam"></i>
-              <h4>Active Listings</h4>
-              <p>{{ $activeListingsCount }} Items</p>
-            </div>
+          <div class="dashboard-card"
+              style="cursor: pointer"
+              onclick="window.location='{{ route('listings') }}'">
+            <i class="bi bi-box-seam"></i>
+            <h4>Active Listings</h4>
+            <p>{{ $activeListingsCount }} Items</p>
           </div>
 
-          <div class="col-md-3 col-sm-6">
-            <div class="dashboard-card"
-                 style="cursor: pointer"
-                 onclick="window.location='{{ route('chat') }}'">
-              <i class="bi bi-chat-dots"></i>
-              <h4>Messages</h4>
-              <p>Click to View</p>
-            </div>
+          <div class="dashboard-card"
+              style="cursor: pointer"
+              onclick="window.location='{{ route('chat') }}'">
+            <i class="bi bi-chat-dots"></i>
+            <h4>Messages</h4>
+            <p>Click to View</p>
           </div>
 
-          <div class="col-md-3 col-sm-6">
-            <div class="dashboard-card"
-                 style="cursor: pointer"
-                 onclick="window.location='{{ route('seller.orders') }}'">
-              <i class="bi bi-graph-up"></i>
-              <h4>Pending Orders</h4>
-              <p>{{ $pendingOrdersCount }}</p>
-            </div>
+          <div class="dashboard-card"
+              style="cursor: pointer"
+              onclick="window.location='{{ route('seller.orders') }}'">
+            <i class="bi bi-graph-up"></i>
+            <h4>Pending Orders</h4>
+            <p>{{ $pendingOrdersCount }}</p>
+          </div>
+
+          <div class="dashboard-card"
+              style="cursor: pointer"
+              onclick="window.location='{{ route('seller.orders.history') }}'">
+            <i class="bi bi-clock-history"></i>
+            <h4>Order History</h4>
+            <p>{{ $completedOrdersCount }} Completed</p>
           </div>
 
         </div>
+
 
         {{-- ===================== --}}
         {{-- SECTION HEADER --}}
@@ -93,7 +94,7 @@
 
           @php
             $statusClasses = [
-                'paid' => 'processing',
+                'paid' => 'delivered',
                 'shipped' => 'shipped',
                 'completed' => 'delivered',
                 'failed' => 'cancelled',

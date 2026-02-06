@@ -46,7 +46,7 @@
           <?php
             $statusClasses = [
               'pending'   => 'processing',
-              'paid'      => 'processing',
+              'paid'      => 'delivered',
               'shipped'   => 'shipped',
               'completed' => 'delivered',
               'failed'    => 'cancelled',

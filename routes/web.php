@@ -115,6 +115,8 @@ Route::middleware(['auth', 'active', 'verified'])->group(function () {
         ->name('seller.orders');
     Route::patch('/seller/orders/{order}/tracking', [SellerOrderController::class, 'updateTracking'])
         ->name('seller.orders.updateTracking');
+    Route::get('/seller/orders/history', [SellerOrderController::class, 'history'])
+    ->name('seller.orders.history');
 
     // Chat
     Route::get('/chat', [ChatController::class, 'index'])->name('chat');

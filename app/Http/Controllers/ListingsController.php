@@ -45,12 +45,17 @@ class ListingsController extends Controller
             ->whereNull('tracking_number')
             ->count();
 
+        $completedOrdersCount = Order::where('seller_id', $sellerId)
+            ->where('status', 'completed')
+            ->count();
+
         return view('seller.listings', compact(
             'categories',
             'products',
             'totalSales',
             'activeListingsCount',
             'pendingOrdersCount',
+            'completedOrdersCount',
             'search'
         ));
     }

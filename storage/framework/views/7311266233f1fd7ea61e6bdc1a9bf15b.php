@@ -22,44 +22,44 @@
 
       <div class="content-area">
 
-        <div class="row g-4 mb-5">
+        <div class="dashboard-grid mb-5">
 
-          <div class="col-md-3 col-sm-6">
-            <div class="dashboard-card">
-              <i class="bi bi-currency-dollar"></i>
-              <h4>Total Sales</h4>
-              <p>RM <?php echo e(number_format($totalSales, 2)); ?></p>
-            </div>
+          <div class="dashboard-card">
+            <i class="bi bi-currency-dollar"></i>
+            <h4>Total Sales</h4>
+            <p>RM <?php echo e(number_format($totalSales, 2)); ?></p>
           </div>
 
-          <div class="col-md-3 col-sm-6">
-            <div class="dashboard-card"
-                style="cursor: pointer"
-                onclick="window.location='<?php echo e(route('listings')); ?>'">
-              <i class="bi bi-box-seam"></i>
-              <h4>Active Listings</h4>
-              <p><?php echo e($activeListingsCount); ?> Items</p>
-            </div>
+          <div class="dashboard-card"
+              style="cursor: pointer"
+              onclick="window.location='<?php echo e(route('listings')); ?>'">
+            <i class="bi bi-box-seam"></i>
+            <h4>Active Listings</h4>
+            <p><?php echo e($activeListingsCount); ?> Items</p>
           </div>
 
-          <div class="col-md-3 col-sm-6">
-            <div class="dashboard-card"
-                  style="cursor: pointer"
-                  onclick="window.location='<?php echo e(route('chat')); ?>'">
-              <i class="bi bi-chat-dots"></i>
-              <h4>Messages</h4>
-              <p>Click to View</p>
-            </div>
+          <div class="dashboard-card"
+              style="cursor: pointer"
+              onclick="window.location='<?php echo e(route('chat')); ?>'">
+            <i class="bi bi-chat-dots"></i>
+            <h4>Messages</h4>
+            <p>Click to View</p>
           </div>
 
-          <div class="col-md-3 col-sm-6">
-            <div class="dashboard-card"
-                  style="cursor: pointer"
-                  onclick="window.location='<?php echo e(route('seller.orders')); ?>'">
-              <i class="bi bi-graph-up"></i>
-              <h4>Pending Orders</h4>
-              <p><?php echo e($pendingOrdersCount); ?></p>
-            </div>
+          <div class="dashboard-card"
+              style="cursor: pointer"
+              onclick="window.location='<?php echo e(route('seller.orders')); ?>'">
+            <i class="bi bi-graph-up"></i>
+            <h4>Pending Orders</h4>
+            <p><?php echo e($pendingOrdersCount); ?></p>
+          </div>
+
+          <div class="dashboard-card"
+              style="cursor: pointer"
+              onclick="window.location='<?php echo e(route('seller.orders.history')); ?>'">
+            <i class="bi bi-clock-history"></i>
+            <h4>Order History</h4>
+            <p><?php echo e($completedOrdersCount); ?> Completed</p>
           </div>
 
         </div>
