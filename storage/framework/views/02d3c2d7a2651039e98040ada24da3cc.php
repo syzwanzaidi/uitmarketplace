@@ -30,13 +30,13 @@
                    class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-3
                    <?php echo e(optional($conversation)->id === $conv->id ? 'active' : ''); ?>">
 
-                  <img
-                    src="<?php echo e($partner->profile_photo
-                      ? asset('storage/'.$partner->profile_photo)
-                      : asset('favicon.ico')); ?>"
-                    width="40"
-                    height="40"
-                    class="rounded-circle">
+                  <div class="chat-avatar">
+                    <img
+                      src="<?php echo e($partner->profile_photo
+                        ? asset('storage/'.$partner->profile_photo)
+                        : asset('assets/img/person/person-f-1.webp')); ?>"
+                      alt="Profile">
+                  </div>
 
                   <div class="flex-grow-1 overflow-hidden">
                     <strong class="d-block text-truncate"><?php echo e($partner->name); ?></strong>

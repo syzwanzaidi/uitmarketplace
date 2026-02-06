@@ -44,7 +44,14 @@
 <?php endif; ?>
 
 <main class="main">
-  <?php if(session('success')): ?>
+  <?php if(session('error')): ?>
+    <div class="alert alert-danger alert-dismissible fade show mt-3">
+      <?php echo e(session('error')); ?>
+
+      <button class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+  <?php elseif(session('success')): ?>
     <div class="alert alert-success alert-dismissible fade show mt-3">
       <?php echo e(session('success')); ?>
 

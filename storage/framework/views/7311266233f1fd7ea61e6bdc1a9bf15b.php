@@ -48,7 +48,7 @@
                   onclick="window.location='<?php echo e(route('chat')); ?>'">
               <i class="bi bi-chat-dots"></i>
               <h4>Messages</h4>
-              <p>4 New</p>
+              <p>Click to View</p>
             </div>
           </div>
 

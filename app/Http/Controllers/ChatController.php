@@ -64,8 +64,14 @@ class ChatController extends Controller
         if ($conversationId) {
             $conversation = Conversation::with(['product', 'buyer', 'seller'])
                 ->findOrFail($conversationId);
+            
+            // Mark messages as read when opening conversation
+            Message::where('conversation_id', $conversationId)
+                ->where('sender_id', '!=', $userId)
+                ->whereNull('read_at')
+                ->update(['read_at' => now()]);
 
-            // ❌ DO NOT mark as read (keep realtime safe)
+            // DO NOT mark as read (keep realtime safe)
             $messages = Message::where('conversation_id', $conversationId)
                 ->orderBy('created_at')
                 ->get();
@@ -100,7 +106,7 @@ class ChatController extends Controller
             'message'         => $request->message,
         ]);
 
-        // 🔥 REAL-TIME broadcast (unchanged)
+        // REAL-TIME broadcast (unchanged)
         broadcast(new MessageSent($message))->toOthers();
 
         return response()->json([

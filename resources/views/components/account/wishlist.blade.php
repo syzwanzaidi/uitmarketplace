@@ -2,9 +2,6 @@
 
     <div class="section-header" data-aos="fade-up">
         <h2>My Wishlist</h2>
-        <div class="header-actions">
-            <button type="button" class="btn-add-all">Add All to Cart</button>
-        </div>
     </div>
 
     <div class="wishlist-grid">

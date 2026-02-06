@@ -25,7 +25,13 @@
 <x-header />
 
 <main class="main">
-  @if (session('success'))
+  @if (session('error'))
+    <div class="alert alert-danger alert-dismissible fade show mt-3">
+      {{ session('error') }}
+      <button class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+  @elseif (session('success'))
     <div class="alert alert-success alert-dismissible fade show mt-3">
       {{ session('success') }}
       <button class="btn-close" data-bs-dismiss="alert"></button>
