@@ -7,7 +7,7 @@
               <a href="index.html" class="logo">
                 <span class="sitename">UiTMarketplace</span>
               </a>
-              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in nibh vehicula, facilisis magna ut, consectetur lorem. Proin eget tortor risus.</p>
+              <p>This web application is developed to provide UiTM students with a secure platform for buying and selling items within the campus environment.</p>
 
             </div>
           </div>
