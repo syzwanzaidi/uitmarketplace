@@ -77,7 +77,7 @@ class CategoryController extends Controller
         }
 
         /* ---------- PAGINATION ---------- */
-        $products = $query->paginate(4)->withQueryString();
+        $products = $query->paginate(12)->withQueryString();
 
         return view('user.category', compact(
             'products',

@@ -48,7 +48,6 @@
                   onclick="window.location='{{ route('chat') }}'">
               <i class="bi bi-chat-dots"></i>
               <h4>Messages</h4>
-              <p>4 New</p>
             </div>
           </div>
 
