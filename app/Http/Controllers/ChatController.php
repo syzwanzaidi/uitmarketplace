@@ -41,7 +41,7 @@ class ChatController extends Controller
         $userId = auth()->id();
         $conversationId = $request->conversation_id;
 
-        // 🔥 Conversations + unread count ONLY
+        // Conversations + unread count ONLY
         $conversations = Conversation::with(['product', 'buyer', 'seller'])
             ->withCount([
                 'messages as unread_count' => function ($q) use ($userId) {

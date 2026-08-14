@@ -17,7 +17,7 @@ class OrderController extends Controller
     {
         $user = auth()->user();
 
-        // 1️⃣ Get selected cart items
+        // 1️Get selected cart items
         $cartItems = Cart::with('product')
             ->where('user_id', $user->id)
             ->whereIn('id', $request->cart_items ?? [])
@@ -28,7 +28,7 @@ class OrderController extends Controller
                 ->with('error', 'No items selected for checkout.');
         }
 
-        // 2️⃣ Group by seller (marketplace logic)
+        // 2️Group by seller (marketplace logic)
         $grouped = $cartItems->groupBy('seller_id');
 
         $lastBillCode = null;
@@ -37,7 +37,7 @@ class OrderController extends Controller
 
             $total = $items->sum(fn ($i) => $i->product->price);
 
-            // 3️⃣ Create NEW order (NO reuse)
+            // 3️Create NEW order (NO reuse)
             $order = Order::create([
                 'buyer_id' => $user->id,
                 'seller_id'=> $sellerId,
@@ -45,7 +45,7 @@ class OrderController extends Controller
                 'status'   => 'pending',
             ]);
 
-            // 4️⃣ Create order items
+            // 4️Create order items
             foreach ($items as $cart) {
                 OrderItem::create([
                     'order_id'   => $order->id,
@@ -54,7 +54,7 @@ class OrderController extends Controller
                 ]);
             }
 
-            // 5️⃣ Fix phone number (ToyyibPay requirement)
+            // 5️Fix phone number (ToyyibPay requirement)
             $phone = preg_replace('/[^0-9]/', '', $user->phone ?? '');
 
             if (str_starts_with($phone, '0')) {
@@ -65,7 +65,7 @@ class OrderController extends Controller
                 $phone = '60100000000';
             }
 
-            // 6️⃣ Create ToyyibPay bill
+            // 6️Create ToyyibPay bill
             $response = Http::asForm()
                 ->timeout(30)
                 ->post(
@@ -96,7 +96,7 @@ class OrderController extends Controller
                     ->with('error', 'Payment gateway error. Please try again.');
             }
 
-            // 7️⃣ Save bill code (CRITICAL)
+            // 7️Save bill code (CRITICAL)
             $billCode = $response[0]['BillCode'];
 
             $order->update([
@@ -106,10 +106,10 @@ class OrderController extends Controller
             $lastBillCode = $billCode;
         }
 
-        // 8️⃣ Remove purchased items from cart
+        // 8️Remove purchased items from cart
         Cart::whereIn('id', $cartItems->pluck('id'))->delete();
 
-        // 9️⃣ Redirect to ToyyibPay
+        // 9️Redirect to ToyyibPay
         return redirect(config('services.toyyibpay.url') . '/' . $lastBillCode);
     }
 

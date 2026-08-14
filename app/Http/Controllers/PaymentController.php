@@ -11,16 +11,16 @@ class PaymentController extends Controller
 {
     public function callback(Request $request)
     {
-        // 0️⃣ Log EVERYTHING (for audit)
+        // Log EVERYTHING (for audit)
         logger()->info('TOYYIBPAY CALLBACK HIT', $request->all());
 
-        // 1️⃣ Validate required payload
+        // 1️Validate required payload
         if (!$request->filled(['billcode', 'status_id', 'amount'])) {
             logger()->error('Invalid ToyyibPay callback payload');
             return response('Invalid callback', 400);
         }
 
-        // 2️⃣ Find order
+        // 2 Find order
         $order = Order::where('bill_code', $request->billcode)->first();
 
         if (!$order) {
@@ -30,7 +30,7 @@ class PaymentController extends Controller
             return response('Order not found', 404);
         }
 
-        // 3️⃣ Idempotency guard (CRITICAL)
+        // 3 Idempotency guard (CRITICAL)
         if ($order->status === 'paid') {
             logger()->info('Duplicate callback ignored', [
                 'order_id' => $order->id
@@ -38,7 +38,7 @@ class PaymentController extends Controller
             return response('OK');
         }
 
-        // 4️⃣ Amount verification (RM → SEN)
+        // 4 Amount verification (RM → SEN)
         $expectedAmountSen = (int) round(((float) $order->total) * 100);
         $paidAmountSen     = (int) round(((float) $request->amount) * 100);
 
@@ -52,7 +52,7 @@ class PaymentController extends Controller
             return response('Amount mismatch', 400);
         }
 
-        // 5️⃣ Payment SUCCESS
+        // 5 Payment SUCCESS
         if ((int) $request->status_id === 1) {
 
             $transactionRef = $request->refno
@@ -73,7 +73,7 @@ class PaymentController extends Controller
                 'paid_at'               => now(),
             ]);
 
-            // 6️⃣ Mark products as sold
+            // 6️ Mark products as sold
             foreach ($order->items as $item) {
                 Product::where('id', $item->product_id)
                     ->update(['status' => 'sold']);
@@ -84,7 +84,7 @@ class PaymentController extends Controller
             ]);
 
         } else {
-            // 7️⃣ Payment FAILED
+            // 7️ Payment FAILED
             $order->update(['status' => 'failed']);
 
             logger()->warning('Payment failed', [
