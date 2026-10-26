@@ -1,60 +1,155 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# UiTMarketplace
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A location-based online marketplace for the UiTM Shah Alam community. Students list items for sale, buyers discover what is near them, chat with the seller in real time, and pay online. Built as a final year project.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+**Buying**
+- Browse by category, search by keyword, and sort by price or newest
+- Location filter: pick a radius and see only items within that distance of you (Haversine distance, calculated in SQL)
+- Product pages, wishlist, cart, and "Buy now" checkout
+- Online payment through the ToyyibPay gateway
+- Order history, courier and tracking number from the seller, and a "mark as received" confirmation
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+**Selling**
+- Seller dashboard to create, edit, activate/deactivate and delete listings with photos
+- Drop a pin on a Leaflet map when listing an item so buyers can see how far away it is
+- Seller order view with tracking number and courier updates, plus order history
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+**Chat**
+- One conversation per product between buyer and seller
+- Real-time delivery over Pusher using Laravel Echo, with read receipts
 
-## Learning Laravel
+**Accounts and admin**
+- Registration, login and email verification (Laravel Breeze)
+- Suspended accounts are blocked by an `active` middleware
+- Admin area to suspend or reactivate users, review all transactions, and resolve complaints submitted through the contact form
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Tech stack
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+| Layer | Tools |
+|---|---|
+| Backend | PHP 8.2+, Laravel 12, Laravel Breeze |
+| Frontend | Blade, Tailwind CSS, Alpine.js, Vite |
+| Database | MySQL in production (SQLite by default for local development) |
+| Maps | Leaflet (seller location picker) |
+| Real-time | Pusher, Laravel Echo |
+| Payments | ToyyibPay |
+| Deployment | DigitalOcean droplet with Nginx |
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## How the main flows work
 
-## Laravel Sponsors
+**Distance filtering.** Each product has a row in `locations` (latitude and longitude). When a buyer chooses a radius, the category query computes the Haversine distance in SQL, filters by the radius and orders by nearest first.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+**Payment.** Checkout creates an order and a ToyyibPay bill. ToyyibPay then calls `POST /toyyibpay/callback`, which is a public route. The callback is idempotent (a repeated callback for a paid order is ignored), checks that the paid amount matches the order total, marks the order as paid, records the payment, and sets the purchased products to `sold`. A failed payment marks the order `failed`.
 
-### Premium Partners
+## Getting started
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### Requirements
+- PHP 8.2 or newer and Composer
+- Node.js and npm
+- A database (SQLite works out of the box; MySQL for production)
+- Optional for full functionality: a Pusher app and a ToyyibPay account
 
-## Contributing
+### Setup
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+git clone https://github.com/syzwanzaidi/uitmarketplace.git
+cd uitmarketplace
 
-## Code of Conduct
+composer install
+cp .env.example .env
+php artisan key:generate
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# SQLite: create the database file (skip if you use MySQL)
+touch database/database.sqlite
 
-## Security Vulnerabilities
+php artisan migrate --seed
+php artisan storage:link      # makes uploaded product photos reachable
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+npm install
+```
+
+### Run in development
+
+```bash
+composer dev
+```
+
+This starts the PHP server, the queue listener, the log viewer and Vite together. Open http://localhost:8000.
+
+To run the pieces yourself instead:
+
+```bash
+php artisan serve
+php artisan queue:listen --tries=1
+npm run dev
+```
+
+### Environment variables
+
+`.env.example` covers the standard Laravel settings. For the full app you also need the following in your `.env`.
+
+```env
+# Real-time chat
+BROADCAST_CONNECTION=pusher
+PUSHER_APP_ID=
+PUSHER_APP_KEY=
+PUSHER_APP_SECRET=
+PUSHER_APP_CLUSTER=
+VITE_PUSHER_APP_KEY="${PUSHER_APP_KEY}"
+VITE_PUSHER_APP_CLUSTER="${PUSHER_APP_CLUSTER}"
+
+# Payments
+TOYYIBPAY_SECRET=
+TOYYIBPAY_CATEGORY=
+TOYYIBPAY_URL=
+```
+
+Notes:
+- With the default `BROADCAST_CONNECTION=log`, the app runs but chat messages are not pushed live.
+- Registration requires email verification. With the default `MAIL_MAILER=log`, the verification email is written to `storage/logs/laravel.log` instead of being sent.
+- ToyyibPay must be able to reach your callback URL, so use a public URL (for example a tunnel) when testing payments locally.
+- For MySQL, set `DB_CONNECTION=mysql` and the `DB_*` values.
+
+### Seed data
+
+`php artisan migrate --seed` creates the categories, some sample products and a test seller account (`seller@example.com`). See `database/seeders/` for details.
+
+### Production build
+
+```bash
+npm run build
+php artisan migrate --force
+php artisan config:cache
+```
+
+Serve `public/` with Nginx and PHP-FPM, and run the queue worker under a process manager such as Supervisor.
+
+## Project structure
+
+```
+app/
+  Events/MessageSent.php        broadcast event for chat
+  Http/Controllers/             Category, Product, Cart, Checkout, Order, Payment, Chat, Listings, Wishlist, ...
+  Http/Controllers/Admin/       users, transactions, complaints
+  Http/Middleware/              admin and active-account checks
+  Models/                       User, Product, Location, Order, Payment, Conversation, Message, ...
+database/migrations/            schema
+resources/views/                user, seller, admin and auth pages (Blade)
+routes/web.php                  application routes
+routes/channels.php             broadcast channel authorisation
+```
+
+## Tests
+
+```bash
+composer test
+```
+
+## Author
+
+Muhammad Syazwan Syahmi Bin Mat Zaidi. [GitHub](https://github.com/syzwanzaidi) | [Portfolio](https://syzwanzaidi-portfolio.vercel.app/)
 
 ## License
 
