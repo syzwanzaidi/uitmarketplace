@@ -2,116 +2,114 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product;
+use App\Events\MessageSent;
 use App\Models\Conversation;
 use App\Models\Message;
+use App\Models\Product;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Events\MessageSent;
+use Illuminate\View\View;
+use Throwable;
 
 class ChatController extends Controller
 {
-    // Start or open a conversation
-    public function start(Product $product)
+    public function index(?Conversation $conversation = null): View
     {
-        $buyer = auth()->user();
-        $seller = $product->user;
+        $user = auth()->user();
 
-        if (!$seller) {
-            return back()->with('error', 'Product seller not found.');
+        if ($conversation) {
+            abort_unless($conversation->hasParticipant($user), 403);
+            $conversation->load(['product', 'buyer', 'seller']);
+            $this->markRead($conversation);
         }
 
-        if ($buyer->id === $seller->id) {
-            return back()->with('error', 'You cannot chat with yourself.');
-        }
-
-        $conversation = Conversation::firstOrCreate([
-            'buyer_id'   => $buyer->id,
-            'seller_id'  => $seller->id,
-            'product_id' => $product->id,
-        ]);
-
-        return redirect()->route('chat', [
-            'conversation_id' => $conversation->id
-        ]);
-    }
-
-    // Chat page
-    public function index(Request $request)
-    {
-        $userId = auth()->id();
-        $conversationId = $request->conversation_id;
-
-        // Conversations + unread count ONLY
-        $conversations = Conversation::with(['product', 'buyer', 'seller'])
-            ->withCount([
-                'messages as unread_count' => function ($q) use ($userId) {
-                    $q->where('sender_id', '!=', $userId)
-                      ->whereNull('read_at');
-                }
-            ])
-            ->where(function ($q) use ($userId) {
-                $q->where('buyer_id', $userId)
-                  ->orWhere('seller_id', $userId);
-            })
+        $conversations = Conversation::with(['product', 'buyer', 'seller', 'latestMessage'])
+            ->withCount(['messages as unread_count' => fn ($q) => $q
+                ->where('sender_id', '!=', $user->id)
+                ->whereNull('read_at')])
+            ->involving($user->id)
             ->latest('updated_at')
             ->get();
 
-        $conversation = null;
-        $messages = collect();
-        $product = null;
-        $otherUser = null;
-
-        if ($conversationId) {
-            $conversation = Conversation::with(['product', 'buyer', 'seller'])
-                ->findOrFail($conversationId);
-            
-            // Mark messages as read when opening conversation
-            Message::where('conversation_id', $conversationId)
-                ->where('sender_id', '!=', $userId)
-                ->whereNull('read_at')
-                ->update(['read_at' => now()]);
-
-            // DO NOT mark as read (keep realtime safe)
-            $messages = Message::where('conversation_id', $conversationId)
-                ->orderBy('created_at')
-                ->get();
-
-            $otherUser = $conversation->buyer_id === $userId
-                ? $conversation->seller
-                : $conversation->buyer;
-
-            $product = $conversation->product;
-        }
-
-        return view('user.chat', compact(
-            'conversations',
-            'conversation',
-            'messages',
-            'product',
-            'otherUser'
-        ));
+        return view('user.chat', [
+            'conversations' => $conversations,
+            'conversation' => $conversation,
+            'messages' => $conversation?->messages()->get() ?? collect(),
+            'partner' => $conversation?->partnerOf($user),
+        ]);
     }
 
-    // Send message (REAL-TIME)
-    public function send(Request $request)
+    public function start(Product $product): RedirectResponse
     {
-        $request->validate([
-            'conversation_id' => 'required|exists:conversations,id',
-            'message'         => 'required|string',
+        $user = auth()->user();
+
+        if ($product->user_id === $user->id) {
+            return back()->with('error', 'This is your own listing.');
+        }
+
+        $conversation = Conversation::firstOrCreate([
+            'buyer_id' => $user->id,
+            'seller_id' => $product->user_id,
+            'product_id' => $product->id,
         ]);
 
-        $message = Message::create([
-            'conversation_id' => $request->conversation_id,
-            'sender_id'       => auth()->id(),
-            'message'         => $request->message,
+        return redirect()->route('chat.show', $conversation);
+    }
+
+    public function send(Request $request, Conversation $conversation): JsonResponse
+    {
+        abort_unless($conversation->hasParticipant($request->user()), 403);
+
+        $validated = $request->validate([
+            'message' => ['required', 'string', 'max:2000'],
         ]);
 
-        // REAL-TIME broadcast (unchanged)
-        broadcast(new MessageSent($message))->toOthers();
-
-        return response()->json([
-            'success' => true,
-            'message' => $message
+        $message = $conversation->messages()->create([
+            'sender_id' => $request->user()->id,
+            'message' => trim($validated['message']),
         ]);
+
+        try {
+            broadcast(new MessageSent($message))->toOthers();
+        } catch (Throwable $e) {
+            // Realtime is a nice-to-have; the message is saved and polling will deliver it.
+            report($e);
+        }
+
+        return response()->json(['message' => self::present($message)], 201);
+    }
+
+    /** Polling fallback: messages newer than ?after=<id>. */
+    public function poll(Request $request, Conversation $conversation): JsonResponse
+    {
+        abort_unless($conversation->hasParticipant($request->user()), 403);
+
+        $messages = $conversation->messages()
+            ->where('id', '>', (int) $request->query('after', 0))
+            ->get();
+
+        $this->markRead($conversation);
+
+        return response()->json(['messages' => $messages->map(fn ($m) => self::present($m))]);
+    }
+
+    private function markRead(Conversation $conversation): void
+    {
+        $conversation->messages()
+            ->where('sender_id', '!=', auth()->id())
+            ->whereNull('read_at')
+            ->update(['read_at' => now()]);
+    }
+
+    /** The only message fields the browser needs (no user details leak). */
+    public static function present(Message $message): array
+    {
+        return [
+            'id' => $message->id,
+            'sender_id' => $message->sender_id,
+            'message' => $message->message,
+            'created_at' => $message->created_at->toIso8601String(),
+        ];
     }
 }

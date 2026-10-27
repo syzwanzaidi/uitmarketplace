@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Conversation extends Model
 {
@@ -14,33 +16,43 @@ class Conversation extends Model
         'product_id',
     ];
 
-    // buyer (user)
     public function buyer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'buyer_id');
     }
 
-    // seller (user)
     public function seller(): BelongsTo
     {
         return $this->belongsTo(User::class, 'seller_id');
     }
 
-    // product
     public function product(): BelongsTo
     {
-        return $this->belongsTo(Product::class, 'product_id');
+        return $this->belongsTo(Product::class);
     }
 
-    // messages
     public function messages(): HasMany
     {
-        return $this->hasMany(Message::class, 'conversation_id')->orderBy('created_at');
+        return $this->hasMany(Message::class)->orderBy('created_at')->orderBy('id');
     }
 
-    // convenience: last message
-    public function lastMessage()
+    public function latestMessage(): HasOne
     {
-        return $this->messages()->latest()->first();
+        return $this->hasOne(Message::class)->latestOfMany();
+    }
+
+    public function scopeInvolving(Builder $query, int $userId): Builder
+    {
+        return $query->where(fn ($q) => $q->where('buyer_id', $userId)->orWhere('seller_id', $userId));
+    }
+
+    public function hasParticipant(User $user): bool
+    {
+        return $user->id === $this->buyer_id || $user->id === $this->seller_id;
+    }
+
+    public function partnerOf(User $user): ?User
+    {
+        return $user->id === $this->buyer_id ? $this->seller : $this->buyer;
     }
 }

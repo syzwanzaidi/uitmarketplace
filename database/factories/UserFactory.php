@@ -29,7 +29,28 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
+            'membership_type' => 'non_uitm',
+            'status' => 'active',
         ];
+    }
+
+    /** A UiTM member, who can sell. */
+    public function seller(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'email' => fake()->unique()->userName() . '@student.uitm.edu.my',
+            'membership_type' => 'uitm',
+        ]);
+    }
+
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes) => ['membership_type' => 'admin']);
+    }
+
+    public function suspended(): static
+    {
+        return $this->state(fn (array $attributes) => ['status' => 'suspended']);
     }
 
     /**

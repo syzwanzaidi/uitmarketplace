@@ -8,51 +8,32 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
-use Illuminate\Support\Str;
-
-
 
 class RegisteredUserController extends Controller
 {
-    /**
-     * Display the registration view.
-     */
     public function create(): View
     {
         return view('auth.register');
     }
 
     /**
-     * Handle an incoming registration request.
-     *
-     * @throws \Illuminate\Validation\ValidationException
+     * UiTM email addresses become sellers; everyone else can buy only.
      */
-
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => ['required','string','email','max:255','unique:users'],
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $email = $request->input('email');
-
-        // Determine membership type
-        if (Str::endsWith($email, '@student.uitm.edu.my') || Str::endsWith($email, '@uitm.edu.my')) {
-            $membership = 'uitm'; // Can buy + sell
-        } else {
-            $membership = 'non_uitm'; // Can only buy
-        }
-
         $user = User::create([
-            'name' => $request->name,
-            'email' => $email,
-            'password' => Hash::make($request->password),
-            'membership_type' => $membership,
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => $validated['password'],
+            'membership_type' => User::membershipForEmail($validated['email']),
         ]);
 
         event(new Registered($user));
@@ -61,5 +42,4 @@ class RegisteredUserController extends Controller
 
         return redirect()->route('home');
     }
-
 }

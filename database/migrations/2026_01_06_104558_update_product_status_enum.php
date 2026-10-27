@@ -1,31 +1,26 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Allow the "sold" status. A plain string column keeps this portable
+     * across MySQL and SQLite (used by the test suite).
      */
     public function up(): void
     {
-        DB::statement("
-            ALTER TABLE products
-            MODIFY status ENUM('active','inactive','sold')
-            NOT NULL DEFAULT 'active'
-        ");
+        Schema::table('products', function (Blueprint $table) {
+            $table->string('status', 20)->default('active')->change();
+        });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        DB::statement("
-            ALTER TABLE products
-            MODIFY status ENUM('active','inactive')
-            NOT NULL DEFAULT 'active'
-        ");
+        Schema::table('products', function (Blueprint $table) {
+            $table->enum('status', ['active', 'inactive'])->default('active')->change();
+        });
     }
 };

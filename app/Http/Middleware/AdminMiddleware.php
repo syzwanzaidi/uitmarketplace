@@ -10,11 +10,7 @@ class AdminMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $user = $request->user();
-
-        if (!$user || $user->membership_type !== 'admin') {
-            abort(403, 'Unauthorized');
-        }
+        abort_unless($request->user()?->isAdmin(), 403);
 
         return $next($request);
     }

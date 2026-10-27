@@ -4,48 +4,34 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Models\Order;
-use App\Models\Complaint;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class AdminUserController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): View
     {
-        $query = User::where('membership_type', '!=', 'admin');
+        $search = trim((string) $request->query('search'));
 
-        if ($request->filled('search')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%')
-                ->orWhere('email', 'like', '%' . $request->search . '%');
-            });
-        }
+        $users = User::where('membership_type', '!=', User::TYPE_ADMIN)
+            ->withCount('products')
+            ->when($search !== '', fn ($q) => $q->where(fn ($q) => $q
+                ->where('name', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%")))
+            ->latest()
+            ->paginate(15)
+            ->withQueryString();
 
-        $users = $query->paginate(10);
-
-        // Dashboard stats (reuse)
-        $totalUsers = User::where('membership_type', '!=', 'admin')->count();
-        $totalTransactions = Order::whereIn('status', ['paid', 'completed'])->count();
-        $totalSalesValue = Order::whereIn('status', ['paid', 'completed'])->sum('total');
-        $totalComplaints = Complaint::where('status', 'open')->count();
-
-        return view('admin.users.index', compact(
-            'users',
-            'totalUsers',
-            'totalTransactions',
-            'totalSalesValue',
-            'totalComplaints'
-        ));
+        return view('admin.users', compact('users', 'search'));
     }
 
-    public function toggleStatus(User $user)
+    public function toggleStatus(User $user): RedirectResponse
     {
-        $user->status = $user->status === 'active'
-            ? 'suspended'
-            : 'active';
+        abort_if($user->isAdmin(), 403);
 
-        $user->save();
+        $user->update(['status' => $user->isSuspended() ? 'active' : 'suspended']);
 
-        return back()->with('success', 'User status updated.');
+        return back()->with('success', $user->isSuspended() ? "{$user->name} has been suspended." : "{$user->name} is active again.");
     }
 }

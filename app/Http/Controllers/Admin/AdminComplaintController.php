@@ -4,48 +4,33 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Complaint;
-use App\Models\User;
-use App\Models\Order;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class AdminComplaintController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): View
     {
-        $query = Complaint::with('user');
+        $search = trim((string) $request->query('search'));
+        $status = in_array($request->query('status'), ['open', 'resolved'], true) ? $request->query('status') : null;
 
-        if ($request->filled('search')) {
-            $query->where('subject', 'like', '%' . $request->search . '%')
-                  ->orWhereHas('user', function ($q) use ($request) {
-                      $q->where('email', 'like', '%' . $request->search . '%');
-                  });
-        }
+        $complaints = Complaint::with('user')
+            ->when($status, fn ($q) => $q->where('status', $status))
+            ->when($search !== '', fn ($q) => $q->where(fn ($q) => $q
+                ->where('subject', 'like', "%{$search}%")
+                ->orWhereHas('user', fn ($u) => $u->where('email', 'like', "%{$search}%"))))
+            ->latest()
+            ->paginate(15)
+            ->withQueryString();
 
-        $complaints = $query->latest()->paginate(10)->withQueryString();
-
-        // Dashboard cards (required)
-        $totalUsers = User::where('membership_type', '!=', 'admin')->count();
-        $totalTransactions = Order::whereIn('status', ['paid', 'completed'])->count();
-        $totalSalesValue = Order::whereIn('status', ['paid', 'completed'])->sum('total');
-        $totalComplaints = Complaint::where('status', 'open')->count();
-
-        return view('admin.complaints.index', compact(
-            'complaints',
-            'totalUsers',
-            'totalTransactions',
-            'totalSalesValue',
-            'totalComplaints'
-        ));
+        return view('admin.complaints', compact('complaints', 'search', 'status'));
     }
 
-    public function toggleStatus(Complaint $complaint)
+    public function toggleStatus(Complaint $complaint): RedirectResponse
     {
-        $complaint->status = $complaint->status === 'open'
-            ? 'resolved'
-            : 'open';
+        $complaint->update(['status' => $complaint->status === 'open' ? 'resolved' : 'open']);
 
-        $complaint->save();
-
-        return back()->with('success', 'Complaint status updated.');
+        return back()->with('success', 'Complaint marked as ' . $complaint->status . '.');
     }
 }

@@ -1,211 +1,79 @@
 @extends('layouts.app')
 
+@section('title', 'Checkout')
+
 @section('content')
+@php($count = $grouped->flatten()->count())
 
-@php
-  $user = auth()->user();
-  $grandTotal = 0;
-@endphp
+<div class="container">
+    <x-page-head title="Checkout" subtitle="Confirm your details, then pay securely with FPX."
+                 :crumbs="['Cart' => route('cart'), 'Checkout' => null]" />
 
-<main class="main">
+    <form method="POST" action="{{ route('orders.store') }}" class="row g-4">
+        @csrf
+        @foreach ($grouped->flatten() as $item)
+            <input type="hidden" name="items[]" value="{{ $item->id }}">
+        @endforeach
 
-  <!-- Page Title -->
-  <div class="page-title light-background">
-    <div class="container d-lg-flex justify-content-between align-items-center">
-      <h1 class="mb-2 mb-lg-0">Checkout</h1>
-      <nav class="breadcrumbs">
-        <ol>
-          <li><a href="{{ route('home') }}">Home</a></li>
-          <li class="current">Checkout</li>
-        </ol>
-      </nav>
-    </div>
-  </div>
-
-  <!-- Checkout Section -->
-  <section id="checkout" class="checkout section">
-    <div class="container">
-
-      <div class="row">
-
-        <!-- LEFT: CUSTOMER + ADDRESS -->
         <div class="col-lg-7">
-
-          <!-- SINGLE FORM -->
-          <form action="{{ route('orders.store') }}" method="POST" class="checkout-container">
-            @csrf
-
-            @foreach($grouped as $items)
-              @foreach($items as $cart)
-                <input type="hidden" name="cart_items[]" value="{{ $cart->id }}">
-              @endforeach
-            @endforeach
-
-            <!-- Customer Information -->
-            <div class="checkout-section">
-              <div class="section-header">
-                <div class="section-number">1</div>
-                <h3>Customer Information</h3>
-              </div>
-              <div class="section-content">
-
+            <section class="surface surface-pad mb-4">
+                <div class="step-title"><span class="num">1</span><h2>Contact</h2></div>
                 <div class="row">
-                  <div class="col-md-6 form-group">
-                    <label>Full Name</label>
-                    <input type="text" name="name" class="form-control"
-                           value="{{ $user->name }}">
-                  </div>
-
-                  <div class="col-md-6 form-group">
-                    <label>Email Address</label>
-                    <input type="email" name="email" class="form-control"
-                           value="{{ $user->email }}" readonly>
-                  </div>
+                    <x-field class="col-md-6" name="shipping_name" label="Full name" :value="$user->name" required autocomplete="name" />
+                    <x-field class="col-md-6" name="shipping_phone" label="Phone number" type="tel" :value="$user->phone" required autocomplete="tel" placeholder="012-345 6789" />
                 </div>
+                <div class="small text-muted"><i class="bi bi-envelope"></i> Receipt goes to <strong>{{ $user->email }}</strong></div>
+            </section>
 
-                <div class="form-group">
-                  <label>Phone Number</label>
-                  <input type="text" name="phone" class="form-control"
-                         value="{{ $user->phone }}">
-                </div>
-
-              </div>
-            </div>
-
-            <!-- Shipping Address -->
-            <div class="checkout-section">
-              <div class="section-header">
-                <div class="section-number">2</div>
-                <h3>Shipping Address</h3>
-              </div>
-              <div class="section-content">
-
-                <div class="form-group">
-                  <label>Street Address</label>
-                  <input type="text" name="address1" class="form-control"
-                         value="{{ $user->address1 }}">
-                </div>
-
-                <div class="form-group">
-                  <label>Apartment / Unit</label>
-                  <input type="text" name="address2" class="form-control"
-                         value="{{ $user->address2 }}">
-                </div>
-
+            <section class="surface surface-pad mb-4">
+                <div class="step-title"><span class="num">2</span><h2>Delivery address</h2></div>
+                <x-field name="address1" label="Address line 1" :value="$user->address1" required autocomplete="address-line1" placeholder="Street, house or room number" />
+                <x-field name="address2" label="Address line 2 (optional)" :value="$user->address2" autocomplete="address-line2" placeholder="College, block, apartment" />
                 <div class="row">
-                  <div class="col-md-4 form-group">
-                    <label>City</label>
-                    <input type="text" name="city" class="form-control"
-                           value="{{ $user->city }}">
-                  </div>
-
-                  <div class="col-md-4 form-group">
-                    <label>State</label>
-                    <input type="text" name="state" class="form-control"
-                           value="{{ $user->state }}">
-                  </div>
-
-                  <div class="col-md-4 form-group">
-                    <label>Postcode</label>
-                    <input type="text" name="postcode" class="form-control"
-                           value="{{ $user->postcode }}">
-                  </div>
+                    <x-field class="col-md-4" name="postcode" label="Postcode" :value="$user->postcode" required autocomplete="postal-code" inputmode="numeric" />
+                    <x-field class="col-md-4" name="city" label="City" :value="$user->city" required autocomplete="address-level2" />
+                    <x-field class="col-md-4" name="state" label="State" :value="$user->state" required autocomplete="address-level1" />
                 </div>
-
-                <div class="form-group">
-                  <label>Country</label>
-                  <input type="text" name="country" class="form-control"
-                         value="{{ $user->country }}">
+                <div class="form-check">
+                    <input type="hidden" name="save_address" value="0">
+                    <input class="form-check-input" type="checkbox" name="save_address" value="1" id="saveAddress" @checked(old('save_address', ! $user->hasCompleteAddress()))>
+                    <label class="form-check-label" for="saveAddress">Save these details to my profile</label>
                 </div>
+            </section>
 
-              </div>
+            <div class="notice">
+                <i class="bi bi-info-circle"></i>
+                <div>Items from different sellers become separate orders, but you pay once. Each seller ships or arranges a meetup with you.</div>
             </div>
-
-            <!-- Place Order -->
-            <div class="checkout-section" id="order-review">
-              <div class="section-header">
-                <div class="section-number">3</div>
-                <h3>Review &amp; Place Order</h3>
-              </div>
-              <div class="section-content">
-
-                <div class="place-order-container">
-                  <button type="submit" class="btn btn-primary place-order-btn w-100">
-                    <span class="btn-text">Place Order</span>
-                    <span class="btn-price">
-                      RM{{ number_format($grouped->flatten()->sum(fn($i) => $i->product->price), 2) }}
-                    </span>
-                  </button>
-                </div>
-
-              </div>
-            </div>
-
-          </form>
-          <!-- ✅ END FORM -->
-
         </div>
 
-        <!-- RIGHT: ORDER SUMMARY -->
         <div class="col-lg-5">
+            <aside class="surface summary">
+                <div class="surface-header">
+                    <h2>Order summary</h2>
+                    <span class="small text-muted">{{ $count }} {{ Str::plural('item', $count) }}</span>
+                </div>
 
-          <div class="order-summary">
-            <div class="order-summary-header">
-              <h3>Order Summary</h3>
-              <span class="item-count">
-                {{ $grouped->flatten()->count() }} Items
-              </span>
-            </div>
-
-            <div class="order-summary-content">
-
-              <div class="order-items">
-
-                @foreach($grouped as $items)
-                  @foreach($items as $cart)
-                    @php $grandTotal += $cart->product->price; @endphp
-
-                    <div class="order-item">
-                      <div class="order-item-image">
-                        <img src="{{ $cart->product->image }}" class="img-fluid">
-                      </div>
-
-                      <div class="order-item-details">
-                        <h4>{{ $cart->product->name }}</h4>
-                        <p class="order-item-variant">
-                          Seller: {{ $cart->product->user->name }}
-                        </p>
-                        <div class="order-item-price">
-                          <span class="quantity">1 ×</span>
-                          <span class="price">
-                            RM{{ number_format($cart->product->price, 2) }}
-                          </span>
+                @foreach ($grouped as $items)
+                    <div class="px-4 pt-3 small-caps">From {{ $items->first()->product->user->name }}</div>
+                    @foreach ($items as $item)
+                        <div class="d-flex align-items-center gap-3 px-4 py-2">
+                            <img src="{{ $item->product->image_url }}" alt="" class="thumb-xs">
+                            <div class="flex-grow-1 min-w-0 small fw-semibold text-truncate">{{ $item->product->name }}</div>
+                            <div class="small fw-bold">RM {{ number_format($item->product->price, 2) }}</div>
                         </div>
-                      </div>
-                    </div>
-
-                  @endforeach
+                    @endforeach
                 @endforeach
 
-              </div>
-
-              <div class="order-totals mt-4">
-                <div class="order-total d-flex justify-content-between fw-bold">
-                  <span>Total</span>
-                  <span>RM{{ number_format($grandTotal, 2) }}</span>
+                <div class="px-4 pb-4 pt-2">
+                    <div class="total"><span class="fw-semibold">Total to pay</span><strong>RM {{ number_format($total, 2) }}</strong></div>
+                    <button type="submit" class="btn btn-primary btn-lg w-100 mt-3" data-loading="Redirecting to payment…">
+                        <i class="bi bi-lock-fill"></i> Pay RM {{ number_format($total, 2) }}
+                    </button>
+                    <p class="small text-muted text-center mt-3 mb-0">You'll be redirected to ToyyibPay to complete payment.</p>
                 </div>
-              </div>
-
-            </div>
-          </div>
-
+            </aside>
         </div>
-
-      </div>
-
-    </div>
-  </section>
-
-</main>
-
+    </form>
+</div>
 @endsection

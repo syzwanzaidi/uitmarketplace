@@ -3,96 +3,63 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
-use App\Models\Payment;
-use App\Models\Product;
+use App\Services\PaymentSettlement;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\View\View;
 
 class PaymentController extends Controller
 {
-    public function callback(Request $request)
+    public function __construct(private readonly PaymentSettlement $settlement)
     {
-        // Log EVERYTHING (for audit)
-        logger()->info('TOYYIBPAY CALLBACK HIT', $request->all());
+    }
 
-        // 1️Validate required payload
-        if (!$request->filled(['billcode', 'status_id', 'amount'])) {
-            logger()->error('Invalid ToyyibPay callback payload');
-            return response('Invalid callback', 400);
+    /**
+     * Server-to-server notification from ToyyibPay. The payload is only
+     * used to find the bill; its status is re-checked with ToyyibPay's
+     * API so a forged request cannot mark an order as paid.
+     */
+    public function callback(Request $request): Response
+    {
+        $billCode = (string) $request->input('billcode');
+
+        if ($billCode === '' || ! Order::where('bill_code', $billCode)->exists()) {
+            logger()->warning('ToyyibPay callback for unknown bill', ['billcode' => $billCode]);
+
+            return response('Unknown bill', 404);
         }
 
-        // 2 Find order
-        $order = Order::where('bill_code', $request->billcode)->first();
-
-        if (!$order) {
-            logger()->error('Order not found for billcode', [
-                'billcode' => $request->billcode
-            ]);
-            return response('Order not found', 404);
-        }
-
-        // 3 Idempotency guard (CRITICAL)
-        if ($order->status === 'paid') {
-            logger()->info('Duplicate callback ignored', [
-                'order_id' => $order->id
-            ]);
-            return response('OK');
-        }
-
-        // 4 Amount verification (RM → SEN)
-        $expectedAmountSen = (int) round(((float) $order->total) * 100);
-        $paidAmountSen     = (int) round(((float) $request->amount) * 100);
-
-        if ($expectedAmountSen !== $paidAmountSen) {
-            logger()->error('Payment amount mismatch', [
-                'order_id' => $order->id,
-                'expected' => $expectedAmountSen,
-                'paid'     => $paidAmountSen,
-            ]);
-
-            return response('Amount mismatch', 400);
-        }
-
-        // 5 Payment SUCCESS
-        if ((int) $request->status_id === 1) {
-
-            $transactionRef = $request->refno
-                ?? $request->transaction_id
-                ?? $request->billcode;
-
-            $order->update([
-                'status'      => 'paid',
-                'payment_ref' => $transactionRef,
-                'paid_at'     => now(),
-            ]);
-
-            Payment::create([
-                'order_id'              => $order->id,
-                'payment_method'        => 'toyyibpay',
-                'payment_status'        => 'paid',
-                'transaction_reference' => $transactionRef,
-                'paid_at'               => now(),
-            ]);
-
-            // 6️ Mark products as sold
-            foreach ($order->items as $item) {
-                Product::where('id', $item->product_id)
-                    ->update(['status' => 'sold']);
-            }
-
-            logger()->info('Payment completed successfully', [
-                'order_id' => $order->id
-            ]);
-
-        } else {
-            // 7️ Payment FAILED
-            $order->update(['status' => 'failed']);
-
-            logger()->warning('Payment failed', [
-                'order_id' => $order->id,
-                'status_id' => $request->status_id
-            ]);
-        }
+        $this->settlement->settle($billCode);
 
         return response('OK');
+    }
+
+    /**
+     * Where the buyer lands after paying. Callbacks cannot reach a local
+     * machine, so this also settles the bill (after verifying it).
+     */
+    public function return(Request $request): View
+    {
+        $billCode = (string) $request->query('billcode');
+
+        $orders = Order::with('items.product')
+            ->where('bill_code', $billCode)
+            ->where('buyer_id', auth()->id())
+            ->get();
+
+        abort_if($billCode === '' || $orders->isEmpty(), 404);
+
+        $this->settlement->settle($billCode);
+
+        $orders = $orders->fresh('items.product');
+
+        return view('user.order-confirmation', [
+            'orders' => $orders,
+            'status' => match (true) {
+                $orders->every(fn (Order $o) => in_array($o->status, Order::SETTLED_STATUSES)) => 'paid',
+                $orders->contains('status', Order::STATUS_FAILED) => 'failed',
+                default => 'pending',
+            },
+        ]);
     }
 }

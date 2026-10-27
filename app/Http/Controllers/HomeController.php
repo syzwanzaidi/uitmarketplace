@@ -2,66 +2,36 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\Category;
 use App\Models\Product;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class HomeController extends Controller
 {
-    public function index(Request $request)
+    public function index(): View|RedirectResponse
     {
-        // Buyer location from query (will be sent by JS later)
-        $buyerLat = $request->query('lat');
-        $buyerLng = $request->query('lng');
-        $radius   = $request->query('radius', 10); // default 10km
-
-        $productsQuery = Product::query()
-            ->with('category', 'locationPoint')
-            ->where('status', 'active');
-
-        /**
-         * ===============================
-         * APPLY LOCATION FILTER (STEP 4)
-         * ===============================
-         */
-        if ($buyerLat && $buyerLng) {
-
-            // Haversine formula (km)
-            $haversine = "
-                (6371 * acos(
-                    cos(radians(?)) *
-                    cos(radians(locations.latitude)) *
-                    cos(radians(locations.longitude) - radians(?)) +
-                    sin(radians(?)) *
-                    sin(radians(locations.latitude))
-                ))
-            ";
-
-            $productsQuery
-                ->join('locations', 'products.id', '=', 'locations.product_id')
-                ->select('products.*')
-                ->selectRaw("$haversine AS distance", [
-                    $buyerLat,
-                    $buyerLng,
-                    $buyerLat,
-                ])
-                ->whereRaw("$haversine <= ?", [
-                    $buyerLat,
-                    $buyerLng,
-                    $buyerLat,
-                    $radius,
-                ])
-                ->orderBy('distance');
-        } else {
-            // No location yet → normal latest products
-            $productsQuery->latest();
+        if (auth()->user()->isAdmin()) {
+            return redirect()->route('admin.users');
         }
 
-        // Limit for homepage
-        $products = $productsQuery
-            ->take(8)
-            ->get();
+        $location = LocationController::current();
 
-        return view('user.home', compact('products'));
+        $query = Product::query()
+            ->with(['category', 'locationPoint'])
+            ->active()
+            ->where('products.user_id', '!=', auth()->id());
+
+        if ($location) {
+            $query->withDistanceFrom($location['lat'], $location['lng'], $location['radius'])->orderBy('distance');
+        } else {
+            $query->latest('products.created_at');
+        }
+
+        return view('user.home', [
+            'products' => $query->take(8)->get(),
+            'categories' => Category::withCount(['products' => fn ($q) => $q->active()])->orderBy('name')->get(),
+            'location' => $location,
+        ]);
     }
 }

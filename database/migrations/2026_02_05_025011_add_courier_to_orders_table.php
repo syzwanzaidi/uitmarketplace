@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up()
     {
+        if (Schema::hasColumn('orders', 'courier')) {
+            return; // some databases had this column added by hand
+        }
+
         Schema::table('orders', function (Blueprint $table) {
             $table->string('courier')->nullable()->after('tracking_number');
         });

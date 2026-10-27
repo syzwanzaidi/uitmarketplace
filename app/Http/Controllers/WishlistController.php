@@ -2,30 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Wishlist;
 use App\Models\Product;
-use Illuminate\Http\Request;
+use App\Models\Wishlist;
+use Illuminate\Http\RedirectResponse;
 
 class WishlistController extends Controller
 {
-    // Add to wishlist
-    public function store(Product $product)
+    /** Save the item if it isn't saved yet, otherwise remove it. */
+    public function toggle(Product $product): RedirectResponse
     {
-        Wishlist::firstOrCreate([
-            'user_id' => auth()->id(),
-            'product_id' => $product->id,
-        ]);
+        $attributes = ['user_id' => auth()->id(), 'product_id' => $product->id];
 
-        return back()->with('success', 'Added to wishlist!');
-    }
+        if (Wishlist::where($attributes)->delete()) {
+            return back()->with('success', 'Removed from your wishlist.');
+        }
 
-    // Remove from wishlist
-    public function destroy(Product $product)
-    {
-        Wishlist::where('user_id', auth()->id())
-            ->where('product_id', $product->id)
-            ->delete();
+        if ($product->user_id === auth()->id()) {
+            return back()->with('error', 'You cannot save your own listing.');
+        }
 
-        return back()->with('success', 'Removed from wishlist!');
+        Wishlist::create($attributes);
+
+        return back()->with('success', 'Saved to your wishlist.');
     }
 }

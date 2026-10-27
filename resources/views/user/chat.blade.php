@@ -1,205 +1,111 @@
 @extends('layouts.app')
 
+@section('title', 'Messages')
+
 @section('content')
-<main class="main">
-  <section class="section" style="padding:24px 0;">
-    <div class="container">
-      <div class="row g-4">
+@php($me = auth()->user())
 
-        {{-- LEFT: Conversation list --}}
-        <div class="col-lg-4">
-          <div class="card chat-sidebar">
+<div class="container py-4">
+    <div class="surface chat-shell {{ $conversation ? 'has-active' : '' }}">
 
-            <div class="card-header">
-              <h5 class="mb-0">Messages</h5>
-              <small class="text-muted">Marketplace</small>
+        <aside class="chat-inbox">
+            <div class="head">
+                <h1 class="h5 mb-0">Messages</h1>
             </div>
-
-            <div class="p-3 border-bottom">
-              <input id="chatSearch" class="form-control" placeholder="Search contacts...">
+            <div class="chat-list">
+                @forelse ($conversations as $conv)
+                    @php($other = $conv->partnerOf($me))
+                    <a href="{{ route('chat.show', $conv) }}" class="chat-item {{ $conversation?->is($conv) ? 'active' : '' }}">
+                        <x-avatar :user="$other" />
+                        <div class="flex-grow-1 min-w-0">
+                            <div class="d-flex justify-content-between gap-2">
+                                <span class="who text-truncate">{{ $other?->name ?? 'Deleted user' }}</span>
+                                <span class="when">{{ $conv->latestMessage?->created_at->shortAbsoluteDiffForHumans() }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between gap-2 align-items-center">
+                                <span class="preview">
+                                    @if ($conv->latestMessage)
+                                        {{ $conv->latestMessage->sender_id === $me->id ? 'You: ' : '' }}{{ $conv->latestMessage->message }}
+                                    @else
+                                        {{ $conv->product?->name ?? 'New conversation' }}
+                                    @endif
+                                </span>
+                                @if ($conv->unread_count && ! $conversation?->is($conv))
+                                    <span class="unread">{{ $conv->unread_count }}</span>
+                                @endif
+                            </div>
+                        </div>
+                    </a>
+                @empty
+                    <x-empty-state icon="chat-dots" title="No conversations yet">
+                        Tap “Chat with seller” on any listing to ask a question.
+                    </x-empty-state>
+                @endforelse
             </div>
+        </aside>
 
-            <div class="list-group list-group-flush chat-list">
-              @forelse($conversations as $conv)
-                @php
-                  $partner = $conv->buyer_id === auth()->id()
-                    ? $conv->seller
-                    : $conv->buyer;
-                @endphp
+        <section class="chat-thread">
+            @if ($conversation)
+                <div id="chatThread" class="d-flex flex-column h-100 min-w-0"
+                     data-conversation="{{ $conversation->id }}"
+                     data-me="{{ $me->id }}"
+                     data-send-url="{{ route('chat.send', $conversation) }}"
+                     data-poll-url="{{ route('chat.poll', $conversation) }}">
 
-                <a href="{{ route('chat', ['conversation_id' => $conv->id]) }}"
-                   id="conv-{{ $conv->id }}"
-                   class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-3
-                   {{ optional($conversation)->id === $conv->id ? 'active' : '' }}">
-
-                  <div class="chat-avatar">
-                    <img
-                      src="{{ $partner->profile_photo
-                        ? asset('storage/'.$partner->profile_photo)
-                        : asset('assets/img/person/person-f-1.webp') }}"
-                      alt="Profile">
-                  </div>
-
-                  <div class="flex-grow-1 overflow-hidden">
-                    <strong class="d-block text-truncate">{{ $partner->name }}</strong>
-                    <div class="small text-muted text-truncate preview-text">
-                      {{ $conv->lastMessage()?->message ?? 'No messages yet' }}
+                    <div class="head">
+                        <a href="{{ route('chat.show') }}" class="btn btn-ghost btn-icon btn-sm d-lg-none" aria-label="Back to inbox"><i class="bi bi-arrow-left"></i></a>
+                        <x-avatar :user="$partner" />
+                        <div class="min-w-0">
+                            <div class="fw-bold text-truncate">{{ $partner?->name }}</div>
+                            <div class="small text-muted">{{ $conversation->seller_id === $me->id ? 'Interested buyer' : 'Seller' }}</div>
+                        </div>
                     </div>
-                  </div>
 
-                  @if($conv->unread_count > 0)
-                    <span class="badge bg-danger rounded-pill">
-                      {{ $conv->unread_count }}
-                    </span>
-                  @endif
-                </a>
-              @empty
-                <div class="text-center text-muted p-4">
-                  No conversations yet
+                    @if ($conversation->product)
+                        <div class="chat-product">
+                            <img src="{{ $conversation->product->image_url }}" alt="" class="thumb-xs">
+                            <div class="flex-grow-1 min-w-0">
+                                <div class="fw-semibold text-truncate">{{ $conversation->product->name }}</div>
+                                <div class="text-muted">RM {{ number_format($conversation->product->price, 2) }}
+                                    @if (! $conversation->product->isAvailable()) · <span class="text-danger">No longer available</span>@endif
+                                </div>
+                            </div>
+                            <a href="{{ route('product.show', $conversation->product) }}" class="btn btn-light btn-sm">View</a>
+                        </div>
+                    @endif
+
+                    <div class="chat-messages" data-messages>
+                        @php($lastDay = null)
+                        @forelse ($messages as $msg)
+                            @php($day = $msg->created_at->isToday() ? 'Today' : ($msg->created_at->isYesterday() ? 'Yesterday' : $msg->created_at->format('d M Y')))
+                            @if ($day !== $lastDay)
+                                <div class="day-sep">{{ $day }}</div>
+                                @php($lastDay = $day)
+                            @endif
+                            <div class="bubble-row {{ $msg->sender_id === $me->id ? 'me' : 'them' }}" data-id="{{ $msg->id }}">
+                                <div class="bubble">{{ $msg->message }}<time datetime="{{ $msg->created_at->toIso8601String() }}">{{ $msg->created_at->format('g:i A') }}</time></div>
+                            </div>
+                        @empty
+                            <div class="text-center text-muted small my-auto" data-empty>
+                                <i class="bi bi-emoji-smile fs-3 d-block mb-2"></i>
+                                Say hi and ask about the item, or suggest a meetup spot.
+                            </div>
+                        @endforelse
+                    </div>
+
+                    <form class="chat-compose" data-compose>
+                        <textarea class="form-control" rows="1" maxlength="2000" placeholder="Write a message…" aria-label="Message"></textarea>
+                        <button type="submit" class="btn btn-primary btn-icon flex-shrink-0" aria-label="Send"><i class="bi bi-send-fill"></i></button>
+                    </form>
                 </div>
-              @endforelse
-            </div>
-
-          </div>
-        </div>
-
-        {{-- RIGHT: Chat window --}}
-        <div class="col-lg-8">
-          <div class="card chat-wrapper">
-
-            @if($product)
-              <div class="chat-product-bar">
-                <img src="{{ $product->image }}" class="chat-product-image">
-                <div class="chat-product-info">
-                  <strong>{{ $product->name }}</strong>
-                  <div class="text-muted small">
-                    RM {{ number_format($product->price, 2) }}
-                  </div>
+            @else
+                <div class="h-100 d-grid" style="place-items:center">
+                    <x-empty-state icon="chat-square-text" title="Select a conversation">
+                        Choose a chat on the left to continue talking.
+                    </x-empty-state>
                 </div>
-                <a href="{{ route('product.show', $product->id) }}"
-                   class="btn btn-sm btn-outline-primary">
-                  View
-                </a>
-              </div>
             @endif
-
-            <div class="card-header">
-              @if($conversation)
-                <strong>{{ $otherUser->name }}</strong>
-              @else
-                <strong>Select a conversation</strong>
-              @endif
-            </div>
-
-            {{-- MESSAGES --}}
-            <div id="messagesArea" class="chat-messages">
-              @foreach($messages as $msg)
-                @php $isMe = $msg->sender_id === auth()->id(); @endphp
-
-                <div class="chat-line {{ $isMe ? 'me' : 'other' }}">
-                  <div class="chat-bubble-wrapper">
-                    <div class="chat-bubble {{ $isMe ? 'chat-bubble-me' : 'chat-bubble-other' }}">
-                      {{ $msg->message }}
-                    </div>
-                    <div class="chat-time {{ $isMe ? 'text-end' : '' }}">
-                      {{ $msg->created_at->format('H:i') }}
-                    </div>
-                  </div>
-                </div>
-              @endforeach
-            </div>
-
-            @if($conversation)
-              <div class="card-footer">
-                <div class="d-flex gap-2">
-                  <input id="messageInput" class="form-control" placeholder="Type a message...">
-                  <button id="sendBtn" class="btn btn-primary">Send</button>
-                </div>
-              </div>
-            @endif
-
-          </div>
-        </div>
-
-      </div>
+        </section>
     </div>
-  </section>
-</main>
-
-{{-- REAL-TIME SCRIPT (UNCHANGED LOGIC) --}}
-<script>
-  window.chatConfig = {
-    conversationId: {{ $conversation->id ?? 'null' }},
-    authUserId: {{ auth()->id() }},
-  };
-
-  const messagesArea = document.getElementById('messagesArea');
-  const messageInput = document.getElementById('messageInput');
-  const sendBtn = document.getElementById('sendBtn');
-  const chatSearch = document.getElementById('chatSearch');
-
-  function scrollToBottom() {
-    messagesArea.scrollTop = messagesArea.scrollHeight;
-  }
-  scrollToBottom();
-
-  if (sendBtn) sendBtn.addEventListener('click', sendMessage);
-
-  function sendMessage() {
-    const text = messageInput.value.trim();
-    if (!text) return;
-
-    axios.post("{{ route('chat.send') }}", {
-      conversation_id: window.chatConfig.conversationId,
-      message: text
-    }).then(res => {
-      appendMyMessage(res.data.message);
-      messageInput.value = '';
-    });
-  }
-
-  function appendMyMessage(msg) {
-    messagesArea.insertAdjacentHTML('beforeend', `
-      <div class="chat-line me">
-        <div class="chat-bubble-wrapper">
-          <div class="chat-bubble chat-bubble-me">${msg.message}</div>
-          <div class="chat-time text-end">${formatTime(msg.created_at)}</div>
-        </div>
-      </div>
-    `);
-    scrollToBottom();
-  }
-
-  function appendIncomingMessage(msg) {
-    messagesArea.insertAdjacentHTML('beforeend', `
-      <div class="chat-line other">
-        <div class="chat-bubble-wrapper">
-          <div class="chat-bubble chat-bubble-other">${msg.message}</div>
-          <div class="chat-time">${formatTime(msg.created_at)}</div>
-        </div>
-      </div>
-    `);
-    scrollToBottom();
-  }
-
-  function formatTime(datetime) {
-    const d = new Date(datetime);
-    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  }
-
-  function waitForEcho() {
-    if (!window.Echo || !window.chatConfig.conversationId) {
-      setTimeout(waitForEcho, 100);
-      return;
-    }
-
-    window.Echo.private(`chat.${window.chatConfig.conversationId}`)
-      .listen('.message.sent', (e) => {
-        if (e.message.sender_id === window.chatConfig.authUserId) return;
-        appendIncomingMessage(e.message);
-      });
-  }
-
-  waitForEcho();
-</script>
+</div>
 @endsection

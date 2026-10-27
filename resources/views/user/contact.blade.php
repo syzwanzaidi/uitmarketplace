@@ -1,90 +1,47 @@
 @extends('layouts.app')
 
+@section('title', 'Help')
+
 @section('content')
+<div class="container">
+    <x-page-head title="Help & reports" subtitle="Problem with an order, a seller or a listing? Tell the admin team." />
 
-<main class="main">
-
-  <!-- Page Title -->
-  <div class="page-title light-background">
-    <div class="container d-lg-flex justify-content-between align-items-center">
-      <h1 class="mb-2 mb-lg-0">Contact / Complaint</h1>
-      <nav class="breadcrumbs">
-        <ol>
-          <li><a href="{{ route('home') }}">Home</a></li>
-          <li class="current">Contact</li>
-        </ol>
-      </nav>
-    </div>
-  </div>
-  <!-- End Page Title -->
-
-  <!-- Complaint Section -->
-  <section id="contact-2" class="contact-2 section">
-    <div class="container" data-aos="fade-up" data-aos-delay="100">
-
-      <div class="row justify-content-center">
-        <div class="col-lg-10">
-
-          <div class="contact-form-wrapper">
-            <h2 class="text-center mb-4">Submit a Complaint</h2>
-
-
-            <form method="POST" action="{{ route('contact.store') }}">
-              @csrf
-
-              <div class="row g-3">
-
-                <!-- SUBJECT -->
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <div class="input-with-icon">
-                      <i class="bi bi-text-left"></i>
-                      <input
-                        type="text"
-                        class="form-control"
-                        name="subject"
-                        placeholder="Complaint Subject"
-                        value="{{ old('subject') }}"
-                        required
-                      >
-                    </div>
-                  </div>
-                </div>
-
-                <!-- MESSAGE -->
-                <div class="col-12">
-                  <div class="form-group">
-                    <div class="input-with-icon">
-                      <i class="bi bi-chat-dots message-icon"></i>
-                      <textarea
-                        class="form-control"
-                        name="message"
-                        placeholder="Describe your issue clearly..."
-                        style="height: 180px"
-                        required
-                      >{{ old('message') }}</textarea>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- SUBMIT -->
-                <div class="col-12 text-center">
-                  <button type="submit" class="btn btn-primary btn-submit px-5">
-                    SUBMIT
-                  </button>
-                </div>
-
-              </div>
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <form method="POST" action="{{ route('contact.store') }}" class="surface surface-pad">
+                @csrf
+                <x-field name="subject" label="Subject" required maxlength="255" placeholder="e.g. Seller has not shipped ORDER-12" />
+                <x-field name="message" label="What happened?" type="textarea" rows="7" required maxlength="5000"
+                         placeholder="Include order numbers, item names and dates so we can help faster." />
+                <button type="submit" class="btn btn-primary"><i class="bi bi-send"></i> Send report</button>
             </form>
-
-          </div>
         </div>
-      </div>
 
+        <div class="col-lg-5">
+            <div class="surface">
+                <div class="surface-header"><h2>Your recent reports</h2></div>
+                @forelse ($complaints as $complaint)
+                    <div class="row-item align-items-start">
+                        <div class="flex-grow-1 min-w-0">
+                            <div class="fw-semibold text-truncate">{{ $complaint->subject }}</div>
+                            <div class="small text-muted">{{ $complaint->created_at->format('d M Y') }}</div>
+                        </div>
+                        <x-status-badge :tone="$complaint->status === 'resolved' ? 'success' : 'warning'" :label="ucfirst($complaint->status)" />
+                    </div>
+                @empty
+                    <p class="text-muted small px-4 py-4 mb-0">You haven't sent any reports.</p>
+                @endforelse
+            </div>
+
+            <div class="surface surface-pad mt-3">
+                <h2 class="h6">Staying safe</h2>
+                <ul class="small text-muted ps-3 mb-0">
+                    <li class="mb-1">Meet in busy, public spots on campus.</li>
+                    <li class="mb-1">Pay through UiTMarketplace so your order is tracked.</li>
+                    <li>Only mark an order as received once you have the item.</li>
+                </ul>
+            </div>
+        </div>
     </div>
-  </section>
-  <!-- End Complaint Section -->
-
-</main>
-
+</div>
 @endsection

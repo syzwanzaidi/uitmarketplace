@@ -10,16 +10,21 @@ class Message extends Model
     protected $fillable = [
         'conversation_id',
         'sender_id',
-        'message', // your column name
+        'message',
     ];
 
-    // conversation
+    protected $casts = [
+        'read_at' => 'datetime',
+    ];
+
+    /** Bump the conversation so the inbox sorts by latest activity. */
+    protected $touches = ['conversation'];
+
     public function conversation(): BelongsTo
     {
-        return $this->belongsTo(Conversation::class, 'conversation_id');
+        return $this->belongsTo(Conversation::class);
     }
 
-    // sender (user)
     public function sender(): BelongsTo
     {
         return $this->belongsTo(User::class, 'sender_id');

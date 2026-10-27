@@ -2,29 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Complaint;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class ContactController extends Controller
 {
-    public function index()
+    public function index(Request $request): View
     {
-        return view('user.contact');
+        return view('user.contact', [
+            'complaints' => Complaint::where('user_id', $request->user()->id)->latest()->take(5)->get(),
+        ]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
-        $request->validate([
-            'subject' => 'required|string|max:255',
-            'message' => 'required|string',
+        $validated = $request->validate([
+            'subject' => ['required', 'string', 'max:255'],
+            'message' => ['required', 'string', 'max:5000'],
         ]);
 
-        Complaint::create([
-            'user_id' => auth()->id(),
-            'subject' => $request->subject,
-            'message' => $request->message,
-        ]);
+        $request->user()->complaints()->create($validated);
 
-        return back()->with('success', 'Complaint submitted successfully.');
+        return back()->with('success', 'Thanks — your report has been sent to the admin team.');
     }
 }

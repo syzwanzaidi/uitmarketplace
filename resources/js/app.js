@@ -1,7 +1,16 @@
 import './bootstrap';
+import { initUi } from './ui';
+import { initLocationModal, initMapPickers, initStaticMaps } from './maps';
+import { initCart } from './cart';
+import { initListingForm } from './listings';
+import { initChat } from './chat';
 
-import Alpine from 'alpinejs';
-
-window.Alpine = Alpine;
-
-Alpine.start();
+document.addEventListener('DOMContentLoaded', () => {
+    initUi();
+    initLocationModal();
+    initMapPickers();
+    initStaticMaps();
+    initCart();
+    initListingForm();
+    initChat();
+});

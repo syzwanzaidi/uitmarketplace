@@ -1,179 +1,110 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
-
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\ContactController;
-
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\AccountController;
+use App\Http\Controllers\Admin\AdminComplaintController;
+use App\Http\Controllers\Admin\AdminTransactionController;
+use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ListingsController;
+use App\Http\Controllers\LocationController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\BuyerOrderController;
-
-use App\Http\Controllers\ListingsController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SellerOrderController;
-use App\Http\Controllers\ChatController;
 use App\Http\Controllers\WishlistController;
-
-use App\Http\Controllers\Admin\AdminDashboardController;
-use App\Http\Controllers\Admin\AdminUserController;
-use App\Http\Controllers\Admin\AdminTransactionController;
-use App\Http\Controllers\Admin\AdminComplaintController;
-
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| PUBLIC ROUTES (NO LOGIN REQUIRED)
+| Public
 |--------------------------------------------------------------------------
 */
+Route::view('/about', 'user.about')->name('about');
 
-Route::get('/category', [CategoryController::class, 'index'])->name('category');
-
-
-Route::get('/about', function () {
-    return view('user.about');
-})->name('about');
-
-
+// ToyyibPay server-to-server callback: no session, no CSRF (see bootstrap/app.php).
+Route::post('/toyyibpay/callback', [PaymentController::class, 'callback'])->name('toyyibpay.callback');
 
 /*
 |--------------------------------------------------------------------------
-| TOYYIBPAY CALLBACK ( MUST BE PUBLIC )
-|--------------------------------------------------------------------------
-| ToyyibPay server → Laravel
-| NO auth, NO verified, NO session
-*/
-Route::post('/toyyibpay/callback', [PaymentController::class, 'callback'])
-    ->name('toyyibpay.callback');
-
-/*
-|--------------------------------------------------------------------------
-| AUTHENTICATED ROUTES
+| Signed-in, verified, active members
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'active', 'verified'])->group(function () {
 
-    // Home (login-first)
-    Route::get('/', [HomeController::class, 'index'])
-        ->name('home');
+    Route::get('/', [HomeController::class, 'index'])->name('home');
+    Route::get('/browse', [CategoryController::class, 'index'])->name('browse');
+    Route::get('/product/{product}', [ProductController::class, 'show'])->name('product.show');
 
-    // Product
-    Route::get('/product/{id}', [ProductController::class, 'show'])
-        ->name('product.show');
+    Route::post('/location', [LocationController::class, 'update'])->name('location.update');
+    Route::delete('/location', [LocationController::class, 'destroy'])->name('location.clear');
 
-    // Account
-    Route::get('/account', [AccountController::class, 'index'])
-        ->name('account');
-
-    Route::get('/account/orders', [AccountController::class, 'orders'])
-        ->name('account.orders');
-
-    // Cart
+    // Cart & checkout
     Route::get('/cart', [CartController::class, 'index'])->name('cart');
-    Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
-    Route::delete('/cart/remove/{cart}', [CartController::class, 'remove'])->name('cart.remove');
-    Route::delete('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
+    Route::post('/cart/{product}', [CartController::class, 'add'])->name('cart.add');
+    Route::delete('/cart/item/{cart}', [CartController::class, 'remove'])->name('cart.remove');
+    Route::delete('/cart', [CartController::class, 'clear'])->name('cart.clear');
 
-    // Checkout (page logic only)
-    Route::post('/checkout', [CheckoutController::class, 'index'])
-        ->name('checkout');
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
+    Route::post('/buy-now/{product}', [CheckoutController::class, 'buyNow'])->name('buy.now');
 
-    Route::post('/buy-now/{product}', [CheckoutController::class, 'buyNow'])
-        ->name('buy.now');
-
-    // Orders (CREATE ORDER + PAY)
-    Route::post('/orders', [OrderController::class, 'store'])
-        ->name('orders.store');
-
-    // Payment success page (USER REDIRECT)
-    Route::get('/orders/{order}/success', [OrderController::class, 'success'])
-        ->name('orders.success');
-
-    Route::get('/my-orders', [BuyerOrderController::class, 'index'])
-    ->middleware('auth')
-    ->name('buyer.orders');
-
-    Route::patch('/my-orders/{order}/received', [BuyerOrderController::class, 'markAsReceived'])
-    ->name('buyer.orders.received');
-
-
-    // Listings (Seller dashboard)
-    Route::get('/listings', [ListingsController::class, 'index'])->name('listings');
-    Route::post('/listings/store', [ListingsController::class, 'store'])->name('listings.store');
-    Route::patch('/listings/{product}/update', [ListingsController::class, 'update'])->name('listings.update');
-    Route::patch('/listings/{product}/status', [ListingsController::class, 'updateStatus'])->name('listings.updateStatus');
-    Route::delete('/listings/{product}/delete', [ListingsController::class, 'destroy'])->name('listings.delete');
-
-    // Orders (Seller view)
-    Route::get('/seller/orders', [SellerOrderController::class, 'index'])
-        ->name('seller.orders');
-    Route::patch('/seller/orders/{order}/tracking', [SellerOrderController::class, 'updateTracking'])
-        ->name('seller.orders.updateTracking');
-    Route::get('/seller/orders/history', [SellerOrderController::class, 'history'])
-    ->name('seller.orders.history');
-
-    // Chat
-    Route::get('/chat', [ChatController::class, 'index'])->name('chat');
-    Route::get('/chat/start/{product}', [ChatController::class, 'start'])->name('chat.start');
-    Route::post('/chat/send', [ChatController::class, 'send'])->name('chat.send');
+    // Buyer orders & payment
+    Route::get('/orders', [OrderController::class, 'index'])->name('buyer.orders');
+    Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+    Route::post('/orders/{order}/pay', [OrderController::class, 'pay'])->name('orders.pay');
+    Route::patch('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+    Route::patch('/orders/{order}/received', [OrderController::class, 'markAsReceived'])->name('buyer.orders.received');
+    Route::get('/payment/return', [PaymentController::class, 'return'])->name('payment.return');
 
     // Wishlist
-    Route::post('/wishlist/{product}', [WishlistController::class, 'store'])->name('wishlist.add');
-    Route::delete('/wishlist/{product}', [WishlistController::class, 'destroy'])->name('wishlist.remove');
+    Route::post('/wishlist/{product}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
 
-    // Profile (Breeze)
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    // Chat
+    Route::get('/chat/{conversation?}', [ChatController::class, 'index'])->name('chat.show');
+    Route::post('/chat/start/{product}', [ChatController::class, 'start'])->name('chat.start');
+    Route::post('/chat/{conversation}/messages', [ChatController::class, 'send'])->name('chat.send')->middleware('throttle:30,1');
+    Route::get('/chat/{conversation}/messages', [ChatController::class, 'poll'])->name('chat.poll');
 
-    // Contact Us
-    Route::get('/contact', [ContactController::class, 'index'])
-        ->name('contact');
+    // Account
+    Route::get('/account', [ProfileController::class, 'show'])->name('account');
+    Route::patch('/account', [ProfileController::class, 'update'])->name('profile.update');
 
-    Route::post('/contact', [ContactController::class, 'store'])
-        ->name('contact.store');
+    // Contact / complaints
+    Route::get('/contact', [ContactController::class, 'index'])->name('contact');
+    Route::post('/contact', [ContactController::class, 'store'])->name('contact.store')->middleware('throttle:5,1');
+
+    // Seller centre (UiTM members only)
+    Route::middleware('can:sell')->prefix('seller')->group(function () {
+        Route::get('/listings', [ListingsController::class, 'index'])->name('listings');
+        Route::post('/listings', [ListingsController::class, 'store'])->name('listings.store');
+        Route::patch('/listings/{product}', [ListingsController::class, 'update'])->name('listings.update');
+        Route::patch('/listings/{product}/status', [ListingsController::class, 'updateStatus'])->name('listings.updateStatus');
+        Route::delete('/listings/{product}', [ListingsController::class, 'destroy'])->name('listings.delete');
+
+        Route::get('/orders', [SellerOrderController::class, 'index'])->name('seller.orders');
+        Route::patch('/orders/{order}/ship', [SellerOrderController::class, 'ship'])->name('seller.orders.ship');
+    });
 });
-
-Route::middleware(['auth', 'active', 'admin'])
-    ->prefix('admin')
-    ->group(function () {
-
-        Route::get('/dashboard', [AdminUserController::class, 'index'])
-            ->name('admin.dashboard');
-
-        // View users
-        Route::get('/users', function () {
-            return redirect()->route('admin.dashboard');
-        }) ->name('admin.users');
-
-        // Suspend / activate user
-        Route::patch('/users/{user}/toggle', [AdminUserController::class, 'toggleStatus'])
-            ->name('admin.users.toggle');
-        
-        // View transactions
-        Route::get('/transactions', [AdminTransactionController::class, 'index'])
-            ->name('admin.transactions');
-        
-        // View complaints
-        Route::get('/complaints', [AdminComplaintController::class, 'index'])
-            ->name('admin.complaints');
-            
-        // Resolve / reopen complaint
-        Route::patch('/complaints/{complaint}/toggle', [AdminComplaintController::class, 'toggleStatus'])
-            ->name('admin.complaints.toggle');
-
-});
-
 
 /*
 |--------------------------------------------------------------------------
-| AUTH FILES
+| Admin
 |--------------------------------------------------------------------------
 */
+Route::middleware(['auth', 'active', 'admin'])->prefix('admin')->group(function () {
+    Route::redirect('/', '/admin/users')->name('admin.dashboard');
+
+    Route::get('/users', [AdminUserController::class, 'index'])->name('admin.users');
+    Route::patch('/users/{user}/toggle', [AdminUserController::class, 'toggleStatus'])->name('admin.users.toggle');
+
+    Route::get('/transactions', [AdminTransactionController::class, 'index'])->name('admin.transactions');
+
+    Route::get('/complaints', [AdminComplaintController::class, 'index'])->name('admin.complaints');
+    Route::patch('/complaints/{complaint}/toggle', [AdminComplaintController::class, 'toggleStatus'])->name('admin.complaints.toggle');
+});
+
 require __DIR__.'/auth.php';

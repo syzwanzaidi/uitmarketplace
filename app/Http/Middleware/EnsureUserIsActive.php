@@ -9,12 +9,15 @@ use Symfony\Component\HttpFoundation\Response;
 
 class EnsureUserIsActive
 {
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check() && Auth::user()->status === 'suspended') {
-            Auth::logout();
+        if ($request->user()?->isSuspended()) {
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
 
-            abort(Response::HTTP_FORBIDDEN, 'Your account has been suspended.');
+            return redirect()->route('login')
+                ->withErrors(['email' => 'Your account has been suspended. Please contact support.']);
         }
 
         return $next($request);

@@ -2,74 +2,63 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Product;
 use App\Models\Cart;
+use App\Models\Product;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class CartController extends Controller
 {
-    public function index()
+    public function index(): View
     {
-        $cartItems = Cart::with('product.user')
+        $items = Cart::with(['product.user', 'product.category'])
             ->where('user_id', auth()->id())
-            ->get();
-
-        // Group by seller
-        $grouped = $cartItems->groupBy(function ($item) {
-            return $item->product->user->id;
-        });
+            ->latest()
+            ->get()
+            ->filter(fn (Cart $item) => $item->product && $item->product->user);
 
         return view('user.cart', [
-            'grouped' => $grouped,
+            'grouped' => $items->groupBy(fn (Cart $item) => $item->product->user_id),
         ]);
     }
 
-    public function add(Product $product)
+    public function add(Product $product): RedirectResponse
     {
-        $user = auth()->user();
-
-        // Prevent adding your own product
-        if ($product->user_id === $user->id) {
-            return back()->with('error', 'You cannot add your own product to cart.');
+        if ($error = self::purchaseError($product)) {
+            return back()->with('error', $error);
         }
 
-        // Prevent duplicate cart items
-        $exists = \App\Models\Cart::where('user_id', $user->id)
-            ->where('product_id', $product->id)
-            ->exists();
+        $item = Cart::firstOrCreate(
+            ['user_id' => auth()->id(), 'product_id' => $product->id],
+            ['seller_id' => $product->user_id],
+        );
 
-        if ($exists) {
-            return back()->with('error', 'This item is already in your cart.');
-        }
-
-        // Add to cart
-        \App\Models\Cart::create([
-            'user_id'    => $user->id,
-            'seller_id'  => $product->user_id,
-            'product_id' => $product->id,
-        ]);
-
-        return back()->with('success', 'Item added to cart!');
+        return back()->with('success', $item->wasRecentlyCreated ? 'Added to your cart.' : 'This item is already in your cart.');
     }
 
-    public function remove(Cart $cart)
+    public function remove(Cart $cart): RedirectResponse
     {
-        // Make sure user can only remove their own cart items
-        if ($cart->user_id !== auth()->id()) {
-            abort(403, 'Unauthorized action.');
-        }
+        abort_if($cart->user_id !== auth()->id(), 403);
 
         $cart->delete();
 
         return back()->with('success', 'Item removed from cart.');
     }
 
-    public function clear()
+    public function clear(): RedirectResponse
     {
         Cart::where('user_id', auth()->id())->delete();
 
-        return back()->with('success', 'Cart cleared successfully.');
+        return back()->with('success', 'Cart cleared.');
     }
 
-
+    /** Why the current user cannot buy this product, or null if they can. */
+    public static function purchaseError(Product $product): ?string
+    {
+        return match (true) {
+            $product->user_id === auth()->id() => 'You cannot buy your own listing.',
+            ! $product->isAvailable() => 'Sorry, this item is no longer available.',
+            default => null,
+        };
+    }
 }

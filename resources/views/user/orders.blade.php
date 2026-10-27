@@ -1,236 +1,144 @@
 @extends('layouts.app')
 
+@section('title', 'My orders')
+
 @section('content')
-<main class="main">
+@use('App\Models\Order')
+@php
+    $tabs = [
+        'all' => 'All',
+        Order::STATUS_PENDING => 'To pay',
+        Order::STATUS_PAID => 'To ship',
+        Order::STATUS_SHIPPED => 'To receive',
+        Order::STATUS_COMPLETED => 'Completed',
+        Order::STATUS_CANCELLED => 'Cancelled',
+    ];
+    $progress = [Order::STATUS_PAID => 1, Order::STATUS_SHIPPED => 2, Order::STATUS_COMPLETED => 3];
+@endphp
 
-  <!-- Page Title -->
-  <div class="page-title light-background">
-    <div class="container d-lg-flex justify-content-between align-items-center">
-      <h1>My Orders</h1>
-      <nav class="breadcrumbs">
-        <ol>
-          <li><a href="{{ route('home') }}">Home</a></li>
-          <li class="current">My Orders</li>
-        </ol>
-      </nav>
+<div class="container">
+    <x-page-head title="My orders" subtitle="Track purchases, confirm deliveries and retry payments." />
+
+    <div class="d-flex flex-wrap gap-3 justify-content-between align-items-center mb-4">
+        <nav class="seg" aria-label="Order status">
+            @foreach ($tabs as $key => $label)
+                <a href="{{ route('buyer.orders', ['status' => $key === 'all' ? null : $key]) }}" class="{{ $tab === $key ? 'active' : '' }}">{{ $label }}</a>
+            @endforeach
+        </nav>
+        <form method="GET" class="input-icon" style="min-width: 240px">
+            <input type="hidden" name="status" value="{{ $tab === 'all' ? '' : $tab }}">
+            <i class="bi bi-search"></i>
+            <input type="search" name="search" value="{{ request('search') }}" class="form-control" placeholder="Search order no.">
+        </form>
     </div>
-  </div>
 
-  <!-- SAME WRAPPER AS ACCOUNT PAGE -->
-  <section class="account section">
-    <div class="container">
-      <div class="content-area">
-
-        {{-- ===================== --}}
-        {{-- SECTION HEADER --}}
-        {{-- ===================== --}}
-        <div class="section-header" data-aos="fade-up">
-          <form method="GET" action="{{ route('buyer.orders') }}">
-            <div class="search-box">
-              <i class="bi bi-search"></i>
-              <input
-                type="text"
-                name="search"
-                value="{{ request('search') }}"
-                placeholder="Search by Order ID..."
-                class="form-control">
-            </div>
-          </form>
-        </div>
-
-        {{-- ===================== --}}
-        {{-- ORDERS GRID --}}
-        {{-- ===================== --}}
-        <div class="orders-grid">
-
-          @php
-            $statusClasses = [
-              'pending'   => 'processing',
-              'paid'      => 'delivered',
-              'shipped'   => 'shipped',
-              'completed' => 'delivered',
-              'failed'    => 'cancelled',
-            ];
-          @endphp
-
-          @forelse($orders as $order)
-            <div class="order-card" data-aos="fade-up">
-
-              {{-- Header --}}
-              <div class="order-header">
-                <div class="order-id">
-                  <span class="label">Order ID:</span>
-                  <span class="value">#ORDER-{{ $order->id }}</span>
-
-                  <span class="label ms-3">Tracking:</span>
-                  <span class="value">
-                    @if($order->tracking_number)
-                      {{ $order->tracking_number }}
-                      @if($order->courier)
-                        ({{ $order->courier }})
-                      @endif
-                    @else
-                      -
-                    @endif
-                  </span>
-                </div>
-
-                <div class="order-date">
-                  {{ $order->created_at->format('d M Y') }}
-                </div>
-              </div>
-
-              {{-- Content --}}
-              <div class="order-content">
-
-                {{-- Product Images --}}
-                <div class="product-grid">
-                  @foreach($order->items->take(3) as $item)
-                    <img
-                      src="{{ $item->product->image }}"
-                      alt="Product"
-                      loading="lazy">
-                  @endforeach
-
-                  @if($order->items->count() > 3)
-                    <span class="more-items">
-                      +{{ $order->items->count() - 3 }}
-                    </span>
-                  @endif
-                </div>
-
-                {{-- Order Info --}}
-                <div class="order-info">
-                  <div class="info-row">
-                    <span>Status</span>
-                    <span class="status {{ $statusClasses[$order->status] ?? 'processing' }}">
-                      {{ strtoupper($order->status) }}
-                    </span>
-                  </div>
-
-                  <div class="info-row">
-                    <span>Items</span>
-                    <span>{{ $order->items->count() }} items</span>
-                  </div>
-
-                  <div class="info-row">
-                    <span>Total</span>
-                    <span class="price">
-                      RM {{ number_format($order->total, 2) }}
-                    </span>
-                  </div>
-                </div>
-
-              </div>
-
-              {{-- Footer --}}
-              <div class="order-footer">
-                <button
-                  type="button"
-                  class="btn-details"
-                  data-bs-toggle="modal"
-                  data-bs-target="#orderDetails{{ $order->id }}">
-                  View Details
-                </button>
-
-                {{-- Mark as received button --}}
-                @if($order->status === 'shipped')
-                  <form
-                    action="{{ route('buyer.orders.received', $order->id) }}"
-                    method="POST">
-                    @csrf
-                    @method('PATCH')
-
-                    <button class="btn btn-header">
-                      Mark as Received
-                    </button>
-                  </form>
-                @endif
-              </div>
-
+    @forelse ($orders as $order)
+        <article class="surface order-card mb-3">
+            <div class="order-top">
+                <div class="kv"><small>Order</small><strong>#{{ $order->reference }}</strong></div>
+                <div class="kv"><small>Placed</small><strong>{{ $order->created_at->format('d M Y') }}</strong></div>
+                <div class="kv"><small>Seller</small><strong>{{ $order->seller->name ?? '—' }}</strong></div>
+                <div class="ms-auto"><x-status-badge :order="$order" /></div>
             </div>
 
-            {{-- ===================== --}}
-            {{-- ORDER DETAILS MODAL --}}
-            {{-- ===================== --}}
-            <div class="modal fade" id="orderDetails{{ $order->id }}" tabindex="-1">
-              <div class="modal-dialog modal-lg modal-dialog-centered">
-                <div class="modal-content">
-
-                  <div class="modal-header">
-                    <h5 class="modal-title">Order #{{ $order->id }} Details</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                  </div>
-
-                  <div class="modal-body">
-
-                    {{-- Seller Info --}}
-                    <div class="detail-section mb-4">
-                      <h5>Seller Information</h5>
-                      <p>
-                        <strong>Name:</strong> {{ $order->seller->name ?? '-' }} <br>
-                        <strong>Email:</strong> {{ $order->seller->email ?? '-' }} <br>
-                        <strong>Phone:</strong> {{ $order->seller->phone ?? '-' }}
-                      </p>
+            @foreach ($order->items as $item)
+                <div class="row-item">
+                    <img src="{{ $item->product?->image_url }}" alt="" class="thumb-sm">
+                    <div class="flex-grow-1 min-w-0">
+                        @if ($item->product)
+                            <a href="{{ route('product.show', $item->product) }}" class="fw-semibold text-body d-block text-truncate">{{ $item->product->name }}</a>
+                        @else
+                            <span class="fw-semibold text-muted">Item removed</span>
+                        @endif
                     </div>
+                    <div class="fw-bold">RM {{ number_format($item->price, 2) }}</div>
+                </div>
+            @endforeach
 
-                    {{-- Items --}}
-                    <div class="detail-section mb-4">
-                      <h5>Items</h5>
-
-                      @foreach($order->items as $item)
-                        <div class="d-flex align-items-center mb-3">
-                          <img
-                            src="{{ $item->product->image }}"
-                            width="70"
-                            class="rounded me-3">
-
-                          <div class="flex-grow-1">
-                            <strong>{{ $item->product->name }}</strong><br>
-                            RM {{ number_format($item->price, 2) }}
-                          </div>
+            @isset($progress[$order->status])
+                <div class="px-4 pb-3">
+                    <ol class="steps">
+                        <li class="done">Paid</li>
+                        <li class="{{ $progress[$order->status] >= 2 ? 'done' : '' }}">Shipped</li>
+                        <li class="{{ $progress[$order->status] >= 3 ? 'done' : '' }}">Received</li>
+                    </ol>
+                    @if ($order->tracking_number)
+                        <div class="small text-muted text-center mt-3">
+                            <i class="bi bi-truck"></i> {{ $order->courier }} · <span class="fw-semibold text-body user-select-all">{{ $order->tracking_number }}</span>
                         </div>
-                      @endforeach
-                    </div>
-
-                    {{-- Shipping --}}
-                    <div class="detail-section">
-                      <h5>Shipping</h5>
-
-                      <p>
-                        <strong>Courier:</strong>
-                        {{ $order->courier ?? 'Not assigned yet' }}
-                      </p>
-
-                      <p>
-                        <strong>Tracking Number:</strong>
-                        {{ $order->tracking_number ?? 'Not available yet' }}
-                      </p>
-                    </div>
-
-                  </div>
-
+                    @endif
                 </div>
-              </div>
+            @endisset
+
+            <div class="order-actions">
+                <span class="me-auto align-self-center">Total <strong class="fs-5 ms-1">RM {{ number_format($order->total, 2) }}</strong></span>
+
+                <button type="button" class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#order-{{ $order->id }}">Details</button>
+
+                @if ($order->status === Order::STATUS_PENDING)
+                    <form method="POST" action="{{ route('orders.cancel', $order) }}" data-confirm="Cancel this unpaid order?">
+                        @csrf @method('PATCH')
+                        <button type="submit" class="btn btn-ghost btn-sm text-danger">Cancel</button>
+                    </form>
+                    <form method="POST" action="{{ route('orders.pay', $order) }}">
+                        @csrf
+                        <button type="submit" class="btn btn-primary btn-sm" data-loading="Redirecting…"><i class="bi bi-credit-card"></i> Pay now</button>
+                    </form>
+                @elseif ($order->status === Order::STATUS_SHIPPED)
+                    <form method="POST" action="{{ route('buyer.orders.received', $order) }}" data-confirm="Confirm you have received this order? This completes the order.">
+                        @csrf @method('PATCH')
+                        <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-check2-circle"></i> I've received it</button>
+                    </form>
+                @endif
             </div>
+        </article>
 
-          @empty
-            <p>No orders found.</p>
-          @endforelse
+        @push('modals')
+            <div class="modal fade" id="order-{{ $order->id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2 class="modal-title">Order #{{ $order->reference }}</h2>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="small-caps mb-2">Seller</div>
+                            <p class="mb-4">
+                                <strong>{{ $order->seller->name ?? '—' }}</strong><br>
+                                <span class="text-muted">{{ $order->seller->email ?? '' }}</span>
+                                @if ($order->seller?->phone)<br><span class="text-muted">{{ $order->seller->phone }}</span>@endif
+                            </p>
 
+                            <div class="small-caps mb-2">Deliver to</div>
+                            <p class="mb-4">
+                                <strong>{{ $order->shipping_name ?? $order->buyer->name }}</strong>
+                                @if ($order->shipping_phone) · {{ $order->shipping_phone }} @endif<br>
+                                <span class="text-muted">{{ $order->shipping_address ?? $order->buyer->full_address ?: '—' }}</span>
+                            </p>
+
+                            <div class="small-caps mb-2">Timeline</div>
+                            <ul class="list-unstyled small mb-0">
+                                <li class="mb-1"><i class="bi bi-dot"></i> Placed {{ $order->created_at->format('d M Y, g:i A') }}</li>
+                                @if ($order->paid_at)<li class="mb-1"><i class="bi bi-dot"></i> Paid {{ $order->paid_at->format('d M Y, g:i A') }} @if ($order->payment_ref)<span class="text-muted">(ref {{ $order->payment_ref }})</span>@endif</li>@endif
+                                @if ($order->shipped_at)<li class="mb-1"><i class="bi bi-dot"></i> Shipped {{ $order->shipped_at->format('d M Y, g:i A') }}</li>@endif
+                                @if ($order->completed_at)<li><i class="bi bi-dot"></i> Completed {{ $order->completed_at->format('d M Y, g:i A') }}</li>@endif
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endpush
+    @empty
+        <div class="surface">
+            <x-empty-state icon="box-seam" title="{{ request('search') ? 'No matching orders' : 'No orders here yet' }}">
+                {{ request('search') ? 'Check the order number and try again.' : 'When you buy something, you can track it here.' }}
+                <x-slot:actions>
+                    <a href="{{ route('browse') }}" class="btn btn-primary">Browse items</a>
+                </x-slot:actions>
+            </x-empty-state>
         </div>
+    @endforelse
 
-        @if($orders->hasPages())
-          <section class="category-pagination section">
-            <div class="mt-4 d-flex justify-content-center">
-              {{ $orders->links() }}
-            </div>
-          </section>
-        @endif
-
-      </div>
-    </div>
-  </section>
-
-</main>
+    <div class="mt-4 d-flex justify-content-center">{{ $orders->links() }}</div>
+</div>
 @endsection

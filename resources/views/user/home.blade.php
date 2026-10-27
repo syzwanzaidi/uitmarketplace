@@ -1,111 +1,102 @@
 @extends('layouts.app')
 
+@section('title', 'Home')
+
 @section('content')
-  
-  <main class="main">
+<div class="container">
 
-    <!-- Hero Section -->
-    <section id="hero" class="hero section">
+    <section class="hero">
+        <span class="eyebrow"><i class="bi bi-shield-check"></i> Only verified UiTM students can sell</span>
+        <h1>Pre-loved finds from your campus.</h1>
+        <p class="mb-4">Textbooks, gadgets, hostel essentials and more — from students near you. Chat, meet up, and pay securely.</p>
 
-      <div class="hero-container">
-        <div class="hero-content">
-          <div class="content-wrapper" data-aos="fade-up" data-aos-delay="100">
-            <h1 class="hero-title">Discover Product From UiTM Students</h1>
-            <p class="hero-description">
-              This web application is developed to provide UiTM students with a secure
-              platform for buying and selling items within the campus environment.
-            </p>
-            <div class="hero-actions" data-aos="fade-up" data-aos-delay="200">
-              <a href="{{ route('category') }}" class="btn-primary">Shop Now</a>
-            </div>
-
-          </div>
-        </div>
-
-        <div class="hero-visuals" data-aos="fade-left" data-aos-delay="200">
-
-          <div class="system-visual">
-
-            <div class="system-card">
-              <i class="bi bi-shop"></i>
-              <h5>Student Marketplace</h5>
-              <p>Buy and sell items within UiTM campus</p>
-            </div>
-
-            <div class="system-card">
-              <i class="bi bi-chat-dots"></i>
-              <h5>Direct Chat</h5>
-              <p>Communicate with sellers before purchasing</p>
-            </div>
-
-            <div class="system-card">
-              <i class="bi bi-geo-alt"></i>
-              <h5>Location-Based Items</h5>
-              <p>View products based on nearby locations</p>
-            </div>
-
-            <div class="system-card">
-              <i class="bi bi-credit-card"></i>
-              <h5>Online Payment</h5>
-              <p>Secure payment using ToyyibPay</p>
-            </div>
-
-          </div>
-
-        </div>
-      </div>
-
+        <form action="{{ route('browse') }}" method="GET" class="hero-search input-icon">
+            <i class="bi bi-search"></i>
+            <input type="search" name="search" class="form-control" placeholder="What are you looking for?" aria-label="Search products">
+            <button class="btn btn-accent" type="submit">Search</button>
+        </form>
     </section>
 
-    <!-- Best Sellers Section -->
-    <section id="best-sellers" class="best-sellers section">
-
-      <!-- Section Title -->
-      <div class="container section-title" data-aos="fade-up">
-        <h2>Welcome To UiTMarketplace</h2>
-        <p>Check out the latest products from UiTM sellers</p>
-      </div>
-
-      <div class="container" data-aos="fade-up" data-aos-delay="100">
-        <div class="row g-5">
-
-          @forelse($products as $product)
-            <x-product-card :product="$product" />
-          @empty
-
-            @if(request()->has('lat'))
-              <div class="col-12 text-center py-5">
-                <i class="bi bi-geo-alt fs-1 text-muted mb-3 d-block"></i>
-
-                <h5 class="mb-2">
-                  No items found within
-                  {{ request('radius', 10) }} km
-                </h5>
-
-                <p class="text-muted mb-4" id="emptyLocationText">
-                  of your selected location.
-                </p>
-
-                <button
-                  class="btn btn-outline-primary"
-                  data-bs-toggle="modal"
-                  data-bs-target="#locationModal">
-                  Change Location / Radius
-                </button>
-              </div>
-            @else
-              <div class="col-12 text-center py-5">
-                <p class="text-muted">No products available at the moment.</p>
-              </div>
-            @endif
-
-          @endforelse
-
+    <section class="features">
+        <div class="surface feature">
+            <div class="ico"><i class="bi bi-mortarboard"></i></div>
+            <div><h3>Students only</h3><p>Sellers are verified with a UiTM email.</p></div>
         </div>
-      </div>
-
+        <div class="surface feature">
+            <div class="ico"><i class="bi bi-chat-heart"></i></div>
+            <div><h3>Chat first</h3><p>Ask questions and arrange a meetup.</p></div>
+        </div>
+        <div class="surface feature">
+            <div class="ico"><i class="bi bi-geo-alt"></i></div>
+            <div><h3>Near you</h3><p>Filter listings by distance from you.</p></div>
+        </div>
+        <div class="surface feature">
+            <div class="ico"><i class="bi bi-credit-card-2-front"></i></div>
+            <div><h3>Secure payment</h3><p>FPX online banking via ToyyibPay.</p></div>
+        </div>
     </section>
 
-  </main>
+    @if ($categories->isNotEmpty())
+        <section class="section pb-0">
+            <div class="section-title">
+                <div><h2>Shop by category</h2></div>
+            </div>
+            <div class="pill-row">
+                @foreach ($categories as $category)
+                    <a href="{{ route('browse', ['category' => $category->slug]) }}" class="pill">
+                        {{ $category->name }} <span class="n">{{ $category->products_count }}</span>
+                    </a>
+                @endforeach
+            </div>
+        </section>
+    @endif
 
- @endsection
+    <section class="section">
+        <div class="section-title">
+            <div>
+                <h2>{{ $location ? 'Near ' . $location['area'] : 'Just listed' }}</h2>
+                <p>{{ $location ? "Within {$location['radius']} km of you, closest first." : 'The newest items from UiTM sellers.' }}</p>
+            </div>
+            <a href="{{ route('browse') }}" class="btn btn-light btn-sm">View all <i class="bi bi-arrow-right"></i></a>
+        </div>
+
+        @if ($products->isEmpty())
+            <div class="surface">
+                @if ($location)
+                    <x-empty-state icon="geo-alt" title="Nothing within {{ $location['radius'] }} km yet">
+                        Try a bigger radius or a different area.
+                        <x-slot:actions>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#locationModal">Change location</button>
+                        </x-slot:actions>
+                    </x-empty-state>
+                @else
+                    <x-empty-state icon="bag" title="No listings yet">
+                        Be the first to sell something to your fellow students.
+                        @can('sell')
+                            <x-slot:actions>
+                                <a href="{{ route('listings') }}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Create a listing</a>
+                            </x-slot:actions>
+                        @endcan
+                    </x-empty-state>
+                @endif
+            </div>
+        @else
+            <div class="product-grid">
+                @foreach ($products as $product)
+                    <x-product-card :product="$product" :saved="$savedIds->contains($product->id)" />
+                @endforeach
+            </div>
+        @endif
+    </section>
+
+    @can('sell')
+        <section class="surface surface-pad d-flex flex-wrap align-items-center justify-content-between gap-3" style="background: var(--accent-50); border-color: #f4dfae">
+            <div>
+                <h2 class="h5 mb-1">Got something you don't use anymore?</h2>
+                <p class="mb-0 text-muted">List it in under a minute and reach students around campus.</p>
+            </div>
+            <a href="{{ route('listings') }}" class="btn btn-accent"><i class="bi bi-plus-lg"></i> Sell an item</a>
+        </section>
+    @endcan
+</div>
+@endsection

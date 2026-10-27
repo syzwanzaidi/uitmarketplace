@@ -2,89 +2,58 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product;
 use App\Models\Category;
+use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class CategoryController extends Controller
 {
-    public function index(Request $request)
+    public const SORTS = [
+        'latest' => 'Newest first',
+        'nearest' => 'Nearest first',
+        'price_asc' => 'Price: low to high',
+        'price_desc' => 'Price: high to low',
+    ];
+
+    public function index(Request $request): View
     {
-        $categories = Category::orderBy('name')->get();
+        $search = trim((string) $request->query('search'));
+        $categorySlug = $request->query('category');
+        $location = LocationController::current();
+        $sort = $request->query('sort', $location ? 'nearest' : 'latest');
 
-        $search       = $request->search;
-        $categorySlug = $request->category;
-        $sort         = $request->sort;
+        $query = Product::query()->with(['category', 'user'])->active();
 
-        $lat    = $request->lat;
-        $lng    = $request->lng;
-        $radius = $request->radius ?? 10;
-
-        $query = Product::query()
-            ->with(['category', 'user'])
-            ->where('status', 'active');
-
-        /* ---------- SEARCH ---------- */
-        if ($search) {
-            $query->where('name', 'like', "%{$search}%");
+        if ($search !== '') {
+            $query->where(fn ($q) => $q
+                ->where('products.name', 'like', "%{$search}%")
+                ->orWhere('products.description', 'like', "%{$search}%"));
         }
 
-        /* ---------- CATEGORY ---------- */
         if ($categorySlug) {
-            $query->whereHas('category', function ($q) use ($categorySlug) {
-                $q->where('slug', $categorySlug);
-            });
+            $query->whereHas('category', fn ($q) => $q->where('slug', $categorySlug));
         }
 
-        /* ---------- LOCATION FILTER ---------- */
-        if ($lat && $lng) {
-
-            $haversine = "
-                (6371 * acos(
-                    cos(radians(?)) *
-                    cos(radians(locations.latitude)) *
-                    cos(radians(locations.longitude) - radians(?)) +
-                    sin(radians(?)) *
-                    sin(radians(locations.latitude))
-                ))
-            ";
-
-            $query
-                ->join('locations', 'products.id', '=', 'locations.product_id')
-                ->select('products.*')
-                ->selectRaw("$haversine AS distance", [
-                    $lat,
-                    $lng,
-                    $lat,
-                ])
-                ->whereRaw("$haversine <= ?", [
-                    $lat,
-                    $lng,
-                    $lat,
-                    $radius,
-                ])
-                ->orderBy('distance');
+        if ($location) {
+            $query->withDistanceFrom($location['lat'], $location['lng'], $location['radius']);
         }
 
-        /* ---------- SORT ---------- */
-        if ($sort === 'price_asc') {
-            $query->orderBy('price', 'asc');
-        } elseif ($sort === 'price_desc') {
-            $query->orderBy('price', 'desc');
-        } elseif (!$lat) {
-            // only default sort when NOT using distance
-            $query->latest();
-        }
+        match (true) {
+            $sort === 'price_asc' => $query->orderBy('products.price'),
+            $sort === 'price_desc' => $query->orderByDesc('products.price'),
+            $sort === 'nearest' && $location !== null => $query->orderBy('distance'),
+            default => $query->latest('products.created_at'),
+        };
 
-        /* ---------- PAGINATION ---------- */
-        $products = $query->paginate(12)->withQueryString();
-
-        return view('user.category', compact(
-            'products',
-            'categories',
-            'search',
-            'categorySlug',
-            'sort'
-        ));
+        return view('user.category', [
+            'products' => $query->paginate(12)->withQueryString(),
+            'categories' => Category::orderBy('name')->get(),
+            'activeCategory' => Category::where('slug', $categorySlug)->first(),
+            'search' => $search,
+            'sort' => $sort,
+            'sorts' => $location ? self::SORTS : array_diff_key(self::SORTS, ['nearest' => true]),
+            'location' => $location,
+        ]);
     }
 }

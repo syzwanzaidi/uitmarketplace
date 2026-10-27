@@ -2,190 +2,134 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-
 use App\Models\Category;
 use App\Models\Product;
-use App\Models\Order;
-use App\Models\Location;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
+use Illuminate\View\View;
 
 class ListingsController extends Controller
 {
-    /**
-     * Seller dashboard (Listings + Stats)
-     */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
-        $sellerId = Auth::id();
-        $search = $request->query('search');
+        $search = trim((string) $request->query('search'));
+        $status = $request->query('status');
 
-        $categories = Category::all();
-
-        $products = Product::with('category')
-            ->where('user_id', $sellerId)
-            ->whereIn('status', ['active', 'inactive'])
-            ->when($search, function ($query, $search) {
-                $query->where('name', 'like', '%' . $search . '%');
-            })
+        $products = Product::with(['category', 'locationPoint'])
+            ->where('user_id', auth()->id())
+            ->when($search !== '', fn ($q) => $q->where('name', 'like', "%{$search}%"))
+            ->when(in_array($status, [Product::STATUS_ACTIVE, Product::STATUS_INACTIVE, Product::STATUS_SOLD], true),
+                fn ($q) => $q->where('status', $status))
             ->latest()
-            ->paginate(8)
-            ->withQueryString(); // keeps search during pagination
+            ->paginate(10)
+            ->withQueryString();
 
-        $totalSales = Order::where('seller_id', $sellerId)
-            ->whereIn('status', ['paid', 'shipped', 'completed'])
-            ->sum('total');
-
-        $activeListingsCount = Product::where('user_id', $sellerId)
-            ->where('status', 'active')
-            ->count();
-
-        $pendingOrdersCount = Order::where('seller_id', $sellerId)
-            ->where('status', 'paid')
-            ->whereNull('tracking_number')
-            ->count();
-
-        $completedOrdersCount = Order::where('seller_id', $sellerId)
-            ->where('status', 'completed')
-            ->count();
-
-        return view('seller.listings', compact(
-            'categories',
-            'products',
-            'totalSales',
-            'activeListingsCount',
-            'pendingOrdersCount',
-            'completedOrdersCount',
-            'search'
-        ));
+        return view('seller.listings', [
+            'products' => $products,
+            'categories' => Category::orderBy('name')->get(),
+            'search' => $search,
+            'status' => $status,
+        ]);
     }
 
-    /**
-     * Store new product listing
-     */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
-        $request->validate([
-            'name'        => 'required|string|max:255',
-            'category_id' => 'required|exists:categories,id',
-            'description' => 'nullable|string',
-            'price'       => 'required|numeric|min:0',
+        $validated = $this->validateListing($request, imageRequired: true);
 
-            // location
-            'location'    => 'required|string|max:255',
-            'latitude'    => 'required|numeric',
-            'longitude'   => 'required|numeric',
+        DB::transaction(function () use ($request, $validated) {
+            $product = Product::create([
+                'user_id' => auth()->id(),
+                'category_id' => $validated['category_id'],
+                'name' => $validated['name'],
+                'description' => $validated['description'] ?? null,
+                'price' => $validated['price'],
+                'location' => $validated['location'],
+                'image' => '/storage/' . $request->file('image')->store('products', 'public'),
+                'status' => Product::STATUS_ACTIVE,
+            ]);
 
-            'image'       => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
-        ]);
+            $product->locationPoint()->create([
+                'latitude' => $validated['latitude'],
+                'longitude' => $validated['longitude'],
+            ]);
+        });
 
-        $imagePath = $request->file('image')->store('products', 'public');
-
-        // CREATE PRODUCT
-        $product = Product::create([
-            'user_id'     => auth()->id(),
-            'category_id' => $request->category_id,
-            'name'        => $request->name,
-            'description' => $request->description,
-            'price'       => $request->price,
-            'location'    => $request->location,
-            'image'       => '/storage/' . $imagePath,
-            'status'      => 'active',
-        ]);
-
-        // CREATE LOCATION
-        $product->locationPoint()->create([
-            'latitude'  => $request->latitude,
-            'longitude' => $request->longitude,
-        ]);
-
-        return back()->with('success', 'Product added successfully!');
+        return back()->with('success', 'Your listing is live!');
     }
 
-    /**
-     * Update listing
-     */
-    public function update(Request $request, Product $product)
-    {
-        $request->validate([
-            'name'        => 'required|string|max:255',
-            'category_id' => 'required|exists:categories,id',
-            'description' => 'nullable|string',
-            'price'       => 'required|numeric|min:0',
-
-            // product display location
-            'location'    => 'required|string|max:255',
-
-            // geo location
-            'latitude'    => 'nullable|numeric',
-            'longitude'   => 'nullable|numeric',
-
-            'image'       => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-        ]);
-
-        // Image update
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('products', 'public');
-            $product->image = '/storage/' . $imagePath;
-        }
-
-        // UPDATE PRODUCT
-        $product->update([
-            'name'        => $request->name,
-            'category_id' => $request->category_id,
-            'description' => $request->description,
-            'price'       => $request->price,
-            'location'    => $request->location,
-        ]);
-
-        // UPDATE / CREATE LOCATION
-        if ($request->filled(['latitude', 'longitude'])) {
-            $product->locationPoint()->updateOrCreate(
-                ['product_id' => $product->id],
-                [
-                    'latitude'  => $request->latitude,
-                    'longitude' => $request->longitude,
-                ]
-            );
-        }
-
-        return back()->with('success', 'Listing updated successfully!');
-    }
-
-    /**
-     * Update status only (dropdown)
-     */
-    public function updateStatus(Request $request, Product $product)
+    public function update(Request $request, Product $product): RedirectResponse
     {
         $this->authorize('update', $product);
 
-        if ($product->status === 'sold') {
-            return back()->with('error', 'Sold products cannot be modified.');
+        $validated = $this->validateListing($request, imageRequired: false);
+
+        if ($request->hasFile('image')) {
+            $product->deleteImageFile();
+            $product->image = '/storage/' . $request->file('image')->store('products', 'public');
         }
 
-        $request->validate([
-            'status' => 'required|in:active,inactive',
+        $product->fill([
+            'name' => $validated['name'],
+            'category_id' => $validated['category_id'],
+            'description' => $validated['description'] ?? null,
+            'price' => $validated['price'],
+            'location' => $validated['location'],
+        ])->save();
+
+        $product->locationPoint()->updateOrCreate([], [
+            'latitude' => $validated['latitude'],
+            'longitude' => $validated['longitude'],
         ]);
 
-        $product->update([
-            'status' => $request->status,
-        ]);
-
-        return back()->with('success', 'Status updated.');
+        return back()->with('success', 'Listing updated.');
     }
 
-    /**
-     * Delete listing
-     */
-    public function destroy(Product $product)
+    public function updateStatus(Request $request, Product $product): RedirectResponse
+    {
+        $this->authorize('update', $product);
+
+        $validated = $request->validate([
+            'status' => ['required', Rule::in([Product::STATUS_ACTIVE, Product::STATUS_INACTIVE])],
+        ]);
+
+        $product->update($validated);
+
+        return back()->with('success', $validated['status'] === Product::STATUS_ACTIVE
+            ? 'Listing is visible to buyers again.'
+            : 'Listing hidden from buyers.');
+    }
+
+    public function destroy(Product $product): RedirectResponse
     {
         $this->authorize('delete', $product);
 
-        // Optional: also delete location
-        $product->locationPoint()?->delete();
+        if ($product->hasOrders()) {
+            return back()->with('error', 'This listing has orders against it. Hide it instead of deleting it.');
+        }
 
-        $product->delete();
+        $product->deleteImageFile();
+        $product->delete(); // location, cart and wishlist rows cascade
 
-        return redirect()->back()->with('success', 'Listing deleted successfully!');
+        return back()->with('success', 'Listing deleted.');
+    }
+
+    private function validateListing(Request $request, bool $imageRequired): array
+    {
+        return $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'category_id' => ['required', 'exists:categories,id'],
+            'description' => ['nullable', 'string', 'max:5000'],
+            'price' => ['required', 'numeric', 'min:1', 'max:100000'],
+            'location' => ['required', 'string', 'max:255'],
+            'latitude' => ['required', 'numeric', 'between:-90,90'],
+            'longitude' => ['required', 'numeric', 'between:-180,180'],
+            'image' => [$imageRequired ? 'required' : 'nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+        ], [
+            'latitude.required' => 'Pick the meetup location on the map.',
+            'longitude.required' => 'Pick the meetup location on the map.',
+            'location.required' => 'Pick the meetup location on the map.',
+        ]);
     }
 }

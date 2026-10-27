@@ -2,89 +2,55 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ProfileUpdateRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
-    /**
-     * Display the user's profile form.
-     */
-    public function edit(Request $request)
+    public const TABS = ['profile', 'wishlist', 'security'];
+
+    public function show(Request $request): View
     {
-        return view('profile.edit', [
-            'user' => $request->user()
+        $user = $request->user();
+        $tab = in_array($request->query('tab'), self::TABS, true) ? $request->query('tab') : 'profile';
+
+        return view('user.account', [
+            'user' => $user,
+            'tab' => $tab,
+            'wishlist' => $user->wishlist()->with('product.category')->latest()->get()
+                ->filter(fn ($item) => $item->product),
         ]);
     }
 
-    /**
-     * Update the user's profile information.
-     */
-    public function update(Request $request)
+    public function update(Request $request): RedirectResponse
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'phone' => 'nullable|string|max:20',
-            'address1' => 'nullable|string|max:255',
-            'address2' => 'nullable|string|max:255',
-            'postcode' => 'nullable|string|max:20',
-            'city' => 'nullable|string|max:100',
-            'state' => 'nullable|string|max:100',
-            'country' => 'nullable|string|max:100',
-            'profile_photo' => 'nullable|image|max:2048',
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\-\s]{9,20}$/'],
+            'address1' => ['nullable', 'string', 'max:255'],
+            'address2' => ['nullable', 'string', 'max:255'],
+            'postcode' => ['nullable', 'string', 'max:10'],
+            'city' => ['nullable', 'string', 'max:100'],
+            'state' => ['nullable', 'string', 'max:100'],
+            'country' => ['nullable', 'string', 'max:100'],
+            'profile_photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+        ], [
+            'phone.regex' => 'Enter a valid phone number.',
         ]);
 
         $user = $request->user();
 
-        // Handle file upload
         if ($request->hasFile('profile_photo')) {
-            $path = $request->file('profile_photo')
-                            ->store('profile_photos', 'public');
-
-            // Save only the relative path
-            $user->profile_photo = $path;
+            if ($user->profile_photo) {
+                Storage::disk('public')->delete($user->profile_photo);
+            }
+            $validated['profile_photo'] = $request->file('profile_photo')->store('profile_photos', 'public');
         }
 
-        // Save other fields
-        $user->update([
-            'name' => $request->name,
-            'phone' => $request->phone,
-            'address1' => $request->address1,
-            'address2' => $request->address2,
-            'postcode' => $request->postcode,
-            'city' => $request->city,
-            'state' => $request->state,
-            'country' => $request->country,
-            'profile_photo' => $user->profile_photo
-        ]);
+        $user->update($validated);
 
-        return back()->with('status', 'profile-updated')->with('activeTab', 'settings');
-    }
-
-
-
-    /**
-     * Delete the user's account.
-     */
-    public function destroy(Request $request): RedirectResponse
-    {
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
-        ]);
-
-        $user = $request->user();
-
-        Auth::logout();
-
-        $user->delete();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return Redirect::to('/');
+        return redirect()->route('account')->with('success', 'Profile updated.');
     }
 }

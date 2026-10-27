@@ -3,137 +3,67 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
-use App\Models\Product;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 class SellerOrderController extends Controller
 {
-    /**
-     * Seller Orders Page
-     */
-    public function index(Request $request)
+    /** Tab key => order status shown under it. */
+    public const TABS = [
+        'to_ship' => Order::STATUS_PAID,
+        'shipped' => Order::STATUS_SHIPPED,
+        'completed' => Order::STATUS_COMPLETED,
+    ];
+
+    public const COURIERS = ['Pos Laju', 'J&T Express', 'Ninja Van', 'GDex', 'DHL eCommerce', 'Shopee Xpress', 'Self pickup / meetup'];
+
+    public function index(Request $request): View
     {
-        $sellerId = Auth::id();
+        $tab = array_key_exists($request->query('tab'), self::TABS) ? $request->query('tab') : 'to_ship';
+        $orderId = Order::idFromSearch($request->query('search'));
 
-        // ======================
-        // ORDERS QUERY
-        // ======================
-        $ordersQuery = Order::with(['items.product', 'buyer'])
-            ->where('seller_id', $sellerId)
-            ->whereIn('status', ['paid', 'shipped']);
-
-        // SEARCH BY ORDER ID
-        if ($request->filled('search')) {
-            $search = strtoupper($request->search);
-            $search = str_replace('ORDER-', '', $search);
-
-            $ordersQuery->where('id', $search);
-        }
-
-        // PAGINATION
-        $orders = $ordersQuery
-            ->latest()
-            ->paginate(6)
+        $orders = Order::with(['items.product', 'buyer'])
+            ->where('seller_id', auth()->id())
+            ->where('status', self::TABS[$tab])
+            ->when($orderId, fn ($q) => $q->whereKey($orderId))
+            ->latest('paid_at')
+            ->paginate(8)
             ->withQueryString();
 
-        // ======================
-        // DASHBOARD STATS (DO NOT TOUCH LOGIC)
-        // ======================
-        $totalSales = Order::where('seller_id', $sellerId)
-            ->whereIn('status', ['paid', 'shipped', 'completed'])
-            ->sum('total');
+        $counts = Order::where('seller_id', auth()->id())
+            ->whereIn('status', self::TABS)
+            ->selectRaw('status, count(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
 
-        $activeListingsCount = Product::where('user_id', $sellerId)
-            ->where('status', 'active')
-            ->count();
-
-        $pendingOrdersCount = Order::where('seller_id', $sellerId)
-            ->where('status', 'paid')
-            ->whereNull('tracking_number')
-            ->count();
-        
-        $completedOrdersCount = Order::where('seller_id', $sellerId)
-            ->where('status', 'completed')
-            ->count();
-
-        return view('seller.orders', compact(
-            'orders',
-            'totalSales',
-            'activeListingsCount',
-            'pendingOrdersCount',
-            'completedOrdersCount'
-        ));
+        return view('seller.orders', [
+            'orders' => $orders,
+            'tab' => $tab,
+            'counts' => collect(self::TABS)->map(fn ($status) => $counts[$status] ?? 0),
+            'couriers' => self::COURIERS,
+        ]);
     }
 
-    /**
-     * Save / Update tracking number
-     */
-    public function updateTracking(Request $request, Order $order)
+    public function ship(Request $request, Order $order): RedirectResponse
     {
-        abort_if($order->seller_id !== Auth::id(), 403);
+        abort_if($order->seller_id !== auth()->id(), 403);
 
-        $request->validate([
-            'courier' => 'required|string|max:100',
-            'tracking_number' => 'required|string|max:255',
+        if (! in_array($order->status, [Order::STATUS_PAID, Order::STATUS_SHIPPED], true)) {
+            return back()->with('error', 'Only paid orders can be shipped.');
+        }
+
+        $validated = $request->validate([
+            'courier' => ['required', 'string', 'max:100'],
+            'tracking_number' => ['required', 'string', 'max:255'],
         ]);
 
         $order->update([
-            'courier' => $request->courier,
-            'tracking_number' => $request->tracking_number,
-            'status' => 'shipped',
+            ...$validated,
+            'status' => Order::STATUS_SHIPPED,
+            'shipped_at' => $order->shipped_at ?? now(),
         ]);
 
-        return back()->with('success', 'Tracking information saved.');
-    }
-
-    /**
- * Seller Order History Page (COMPLETED ONLY)
- */
-    public function history(Request $request)
-    {
-        $sellerId = Auth::id();
-
-        // COMPLETED ORDERS ONLY
-        $ordersQuery = Order::with(['items.product', 'buyer'])
-            ->where('seller_id', $sellerId)
-            ->where('status', 'completed');
-
-        if ($request->filled('search')) {
-            $search = strtoupper($request->search);
-            $search = str_replace('ORDER-', '', $search);
-            $ordersQuery->where('id', $search);
-        }
-
-        $orders = $ordersQuery
-            ->latest()
-            ->paginate(6)
-            ->withQueryString();
-
-        // DASHBOARD STATS
-        $totalSales = Order::where('seller_id', $sellerId)
-            ->whereIn('status', ['paid', 'shipped', 'completed'])
-            ->sum('total');
-
-        $activeListingsCount = Product::where('user_id', $sellerId)
-            ->where('status', 'active')
-            ->count();
-
-        $pendingOrdersCount = Order::where('seller_id', $sellerId)
-            ->where('status', 'paid')
-            ->whereNull('tracking_number')
-            ->count();
-
-        $completedOrdersCount = Order::where('seller_id', $sellerId)
-            ->where('status', 'completed')
-            ->count();
-
-        return view('seller.order-history', compact(
-            'orders',
-            'totalSales',
-            'activeListingsCount',
-            'pendingOrdersCount',
-            'completedOrdersCount'
-        ));
+        return back()->with('success', "Order #{$order->reference} marked as shipped.");
     }
 }

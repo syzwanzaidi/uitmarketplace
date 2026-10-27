@@ -1,31 +1,14 @@
 <?php
 
-use Illuminate\Support\Facades\Broadcast;
 use App\Models\Conversation;
+use App\Models\User;
+use Illuminate\Support\Facades\Broadcast;
 
-/*
-|--------------------------------------------------------------------------
-| User private channel (default – keep this)
-|--------------------------------------------------------------------------
-*/
-Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
-    return (int) $user->id === (int) $id;
+Broadcast::channel('App.Models.User.{id}', function (User $user, int $id) {
+    return $user->id === $id;
 });
 
-/*
-|--------------------------------------------------------------------------
-| Chat private channel
-|--------------------------------------------------------------------------
-| Only buyer or seller of the conversation may listen
-*/
-Broadcast::channel('chat.{conversationId}', function ($user, $conversationId) {
-
-    $conversation = Conversation::find($conversationId);
-
-    if (!$conversation) {
-        return false;
-    }
-
-    return $user->id === $conversation->buyer_id
-        || $user->id === $conversation->seller_id;
+// Only the buyer or seller in a conversation may listen to it.
+Broadcast::channel('chat.{conversation}', function (User $user, Conversation $conversation) {
+    return $conversation->hasParticipant($user);
 });
